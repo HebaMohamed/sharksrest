@@ -42,7 +42,7 @@ public class WebsiteServiceJersey {
     @Path("/go")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getgo(){
-        String output = "gooooooooooooooooooooo VVVV3" ;
+        String output = "gooooooooooooooooooooo Hebat" ;
         return Response.status(200).entity(output).build();
     }
    
@@ -804,7 +804,8 @@ public class WebsiteServiceJersey {
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        conn = DriverManager.getConnection("jdbc:mysql://sql6.freesqldatabase.com/sql6157057?" + "user=sql6157057&password=yJvmWDS6xJ");
         
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
@@ -813,8 +814,8 @@ public class WebsiteServiceJersey {
     void excDB(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        
+        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        conn = DriverManager.getConnection("jdbc:mysql://sql6.freesqldatabase.com/sql6157057?" + "user=sql6157057&password=yJvmWDS6xJ");
         Statement st = conn.createStatement();
         st.executeUpdate(query);
     }
