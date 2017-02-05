@@ -42,7 +42,7 @@ public class WebsiteServiceJersey {
     @Path("/go")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getgo(){
-        String output = "gooooooooooooooooooooo teeest" ;
+        String output = "gooooooooooooooooooooo heba" ;
         return Response.status(200).entity(output).build();
     }
    
