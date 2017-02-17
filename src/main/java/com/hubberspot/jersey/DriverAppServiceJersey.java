@@ -25,7 +25,7 @@ public class DriverAppServiceJersey {
                     
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql6.freesqldatabase.com/sql6157057?" + "user=sql6157057&password=yJvmWDS6xJ");
+        conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
         
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
@@ -35,7 +35,7 @@ public class DriverAppServiceJersey {
                     
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql6.freesqldatabase.com/sql6157057?" + "user=sql6157057&password=yJvmWDS6xJ");
+        conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
         Statement st = conn.createStatement();
         st.executeUpdate(query);
     }
