@@ -804,8 +804,8 @@ public class WebsiteServiceJersey {
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
         
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
@@ -814,8 +814,8 @@ public class WebsiteServiceJersey {
     void excDB(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
         Statement st = conn.createStatement();
         st.executeUpdate(query);
     }
@@ -824,8 +824,8 @@ public class WebsiteServiceJersey {
     void excPreparedStatmentDB(String query, byte[] bytearr) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql9.freesqldatabase.com/sql9159113?" + "user=sql9159113&password=wREVb19m3G");
 
 //        Blob blob = conn.createBlob();
 //        blob.setBytes(1, bytearr);
