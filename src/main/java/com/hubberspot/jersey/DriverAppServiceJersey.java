@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -52,7 +53,9 @@ public class DriverAppServiceJersey {
     //public Response LoginDriver(@PathParam("id") String id, @PathParam("password") String password) throws Exception{
     @POST
     @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)    
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+
     public Response LoginDriver(String data) throws Exception{  
         JSONObject obj = new JSONObject();
            try {
