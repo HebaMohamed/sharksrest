@@ -45,13 +45,21 @@ public class PassengerAppServiceJersey {
     Connection conn;
     
     
-        
+            @GET //test only
+    @Path("/go")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getgo(){
+        String output = "gooooooooooooooooooooo Hebat" ;
+        return Response.status(200).entity(output).build();
+    }
+    
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        
+        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
         return rs;            
@@ -60,7 +68,9 @@ public class PassengerAppServiceJersey {
                     
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+
         Statement st = conn.createStatement();
         st.executeUpdate(query);
     }
@@ -135,8 +145,8 @@ public class PassengerAppServiceJersey {
     @POST
     @Path("/signup")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response passengersignup(String data){//note : img is byte array string
+    //@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response passengersignup(String data) throws Exception{//note : img is byte array string
             //as post request
             JSONObject dataObj = JSONObject.fromObject(data);
             String name = dataObj.getString("name");
@@ -144,10 +154,20 @@ public class PassengerAppServiceJersey {
             String password = dataObj.getString("password");
             int phone = dataObj.getInt("phone");
             int relatedphone = dataObj.getInt("relatedphone");
+            String gender = dataObj.getString("gender");
+            int age = dataObj.getInt("age");
+            String language = dataObj.getString("language");
+
+
             JSONObject obj = new JSONObject();
             try {
-                excDB("INSERT INTO passenger (fullname, email, phone, password,relatedphone)"+
-                        " VALUES ( '"+name+"' '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"');");
+                excDB("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
+                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')");
+                
+                //excDB("INSERT INTO passenger"+
+                  //    " VALUES ( '"+password+"', '"+name+"', '"+gender+"', '"+age+"', '"+phone+"', '"+relatedphone+"', '"+language+"', '"+email+"')");
+                
+                
                 obj.put("success", "1");
                 obj.put("msg", "Added Successfully");
 

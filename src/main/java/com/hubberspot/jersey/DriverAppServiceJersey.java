@@ -33,8 +33,8 @@ public class DriverAppServiceJersey {
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
         
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
@@ -43,8 +43,8 @@ public class DriverAppServiceJersey {
     void excDB(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
         Statement st = conn.createStatement();
         st.executeUpdate(query);
     }
