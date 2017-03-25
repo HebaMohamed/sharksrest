@@ -75,6 +75,22 @@ public class PassengerAppServiceJersey {
         st.executeUpdate(query);
     }
     
+    int excDBgetID(String query) throws Exception{
+                    
+        Class.forName("com.mysql.jdbc.Driver");            
+        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+
+        Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = st.executeQuery(query);
+        int insertedid = 0;
+        if (rs.next()){
+            insertedid =rs.getInt(1);
+        }
+        return insertedid;
+    }
+    
     
     
     
@@ -145,7 +161,7 @@ public class PassengerAppServiceJersey {
     @POST
     @Path("/signup")
     @Produces(MediaType.APPLICATION_JSON)
-    //@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response passengersignup(String data) throws Exception{//note : img is byte array string
             //as post request
             JSONObject dataObj = JSONObject.fromObject(data);
@@ -161,7 +177,7 @@ public class PassengerAppServiceJersey {
 
             JSONObject obj = new JSONObject();
             try {
-                excDB("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
+                int insertedid = excDBgetID("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
                       " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')");
                 
                 //excDB("INSERT INTO passenger"+
@@ -170,6 +186,9 @@ public class PassengerAppServiceJersey {
                 
                 obj.put("success", "1");
                 obj.put("msg", "Added Successfully");
+                
+                obj.put("insertedid", insertedid);
+
 
                 conn.close();
             } catch (Exception ex) {
