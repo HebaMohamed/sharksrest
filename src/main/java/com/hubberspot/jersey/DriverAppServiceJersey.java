@@ -20,6 +20,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.sf.json.JSONObject;
+import javax.ws.rs.GET;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  *
@@ -123,4 +126,49 @@ public class DriverAppServiceJersey {
 
     }
     
+    
+    @GET
+    @Path("/getlasttrips/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLasttrips(@PathParam("id") int id) throws Exception{
+         String query = "SELECT * FROM trip WHERE driver_id = "+id;
+        JSONObject obj = new JSONObject();
+        try {
+            ResultSet rs = getDBResultSet(query);
+            obj.put("success", "1");
+            obj.put("msg", "done");
+            
+            JSONArray arr = new JSONArray();
+             while(rs.next())
+             {
+                 int trip_id = rs.getInt(1);
+                 String start = rs.getString(2);
+                 String end = rs.getString(3);
+                 String price = rs.getString(4);  
+                 String comment= rs.getString(5);
+                 String ratting= rs.getString(6);
+                 String passenger_id= rs.getString(8);
+                    
+                 JSONObject o = new JSONObject();
+                 o.put("trip_id",trip_id  );
+                 o.put("start", start);
+                 o.put("end", end);
+                 o.put("price ",price );
+                 o.put("comment", comment);
+                 o.put("ratting", ratting);
+                 o.put("passenger_id",passenger_id);
+
+                 arr.add(o);
+             }
+                 
+            obj.put("lasttrips", arr);  
+            conn.close();
+        } catch (SQLException ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(obj).build();
+    }
 }
