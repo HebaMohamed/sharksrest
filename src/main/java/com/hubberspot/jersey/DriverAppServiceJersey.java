@@ -33,6 +33,8 @@ import net.sf.json.JSONObject;
 public class DriverAppServiceJersey {
     Connection conn;
     
+    double KMCOST = 2;//2 LE :D
+    
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
@@ -149,7 +151,7 @@ public class DriverAppServiceJersey {
                  String comment= rs.getString(5);
                  String ratting= rs.getString(6);
                  String passenger_id= rs.getString(8);
-                    
+                                     
                  JSONObject o = new JSONObject();
                  o.put("trip_id",trip_id  );
                  o.put("start", start);
@@ -158,7 +160,20 @@ public class DriverAppServiceJersey {
                  o.put("comment", comment);
                  o.put("ratting", ratting);
                  o.put("passenger_id",passenger_id);
-
+                 
+                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+                 ResultSet rs2 = getDBResultSet(query2);
+                 JSONArray paths = new JSONArray();
+                 while(rs2.next())
+                {
+                    Double lat = rs2.getDouble("yattitude");                    
+                    Double lng = rs2.getDouble("xlongitude");
+                    JSONObject latlng = new JSONObject();
+                    latlng.put("lat", lat);                    
+                    latlng.put("lng", lng);
+                    paths.add(latlng);
+                }
+                 o.put("pathway",paths);
                  arr.add(o);
              }
                  
@@ -172,4 +187,213 @@ public class DriverAppServiceJersey {
         
         return Response.status(200).entity(obj).build();
     }
+    
+    
+    @GET
+    @Path("/getlasttrip/{tripid}")
+      @Produces(MediaType.APPLICATION_JSON)
+   public Response getLasttrip(@PathParam("tripid") int id){
+        JSONObject obj = new JSONObject();
+ try {
+            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
+            JSONObject tripobj = new JSONObject();   
+            while(rs.next())
+             {           
+                
+                 String start = rs.getString(1);
+                 String end = rs.getString(2);
+                 String price = rs.getString(3);  
+                 String comment = rs.getString(4);
+                 String ratting = rs.getString(5);
+                 String passenger_id = rs.getString(6);
+                 String driver_id = rs.getString(7);
+                 
+                 
+                 tripobj.put("start", start);
+                 tripobj.put("end", end);
+                 tripobj.put("price", price);
+                 tripobj.put("comment",  comment);
+                 tripobj.put("ratting", ratting);
+                 tripobj.put("passenger_id", passenger_id);
+                tripobj.put("driver_id ",  driver_id );
+                
+                    
+                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+                 ResultSet rs2 = getDBResultSet(query2);
+                 JSONArray paths = new JSONArray();
+                 while(rs2.next())
+                {
+                    Double lat = rs2.getDouble("yattitude");                    
+                    Double lng = rs2.getDouble("xlongitude");
+                    JSONObject latlng = new JSONObject();
+                    latlng.put("lat", lat);                    
+                    latlng.put("lng", lng);
+                    paths.add(latlng);
+                }
+                 tripobj.put("pathway",paths);
+                
+                obj.put("trip", tripobj);
+             }
+            //obj.put("trip", tripobj);
+            obj.put("success", "1");
+            obj.put("msg", "Selected Successfully");
+            
+            conn.close();
+        } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return Response.status(200).entity(obj).build();
+
+    }
+    
+   
+    @GET
+    @Path("/donetrip/{tripid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+   public Response donetrip(@PathParam("tripid") int id) throws Exception{
+       JSONObject obj = new JSONObject();
+   
+        try {
+            //get current datetime 
+            java.util.Date dt = new java.util.Date();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentTime = sdf.format(dt);
+            String j = "UPDATE trip SET end = '"+currentTime+"' WHERE trip_id = "+id+";";
+            excDB(j);
+            conn.close();
+            
+            double distance = calculate_pathway(id);
+            double distancecost = KMCOST/1000*distance;
+            obj.put("distance", distance);
+            obj.put("distancecost", distancecost);
+
+            
+            obj.put("success", "1");
+            obj.put("msg", "Edited Successfully");
+             } catch (SQLException ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(obj).build();
+    }
+   
+   double calculate_pathway(int id) throws Exception{
+       String query = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+       ResultSet rs = getDBResultSet(query);
+       JSONArray paths = new JSONArray();
+       while(rs.next())
+       {
+           Double lat = rs.getDouble("yattitude"); 
+           Double lng = rs.getDouble("xlongitude");
+                    
+           JSONObject latlng = new JSONObject();
+           latlng.put("lat", lat);                    
+           latlng.put("lng", lng);
+           paths.add(latlng);
+        }
+       double fulldistance = 0;
+       for (int i = 0; i < paths.size()-1; i++) {
+           double lat1 = paths.getJSONObject(i).getDouble("lat");           
+           double lng1 = paths.getJSONObject(i).getDouble("lng");
+           
+           double lat2 = paths.getJSONObject(i+1).getDouble("lat");           
+           double lng2 = paths.getJSONObject(i+1).getDouble("lng");
+
+           fulldistance+= distance(lat1, lat2, lng1, lng2);
+       }
+       return fulldistance;
+   }
+
+   
+   
+        /**
+      * Calculate distance between two points in latitude and longitude taking
+      * into account height difference. If you are not interested in height
+      * difference pass 0.0. Uses Haversine method as its base.
+      * 
+      * lat1, lon1 Start point lat2, lon2 End point el1 Start altitude in meters
+      * el2 End altitude in meters
+      * @returns Distance in Meters
+      */
+     public static double distance(double lat1, double lat2, double lon1, double lon2) {
+         final int R = 6371; // Radius of the earth
+
+         Double latDistance = Math.toRadians(lat2 - lat1);
+         Double lonDistance = Math.toRadians(lon2 - lon1);
+         Double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+         Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+         double distance = R * c * 1000; // convert to meters
+
+         //double height = el1 - el2;
+
+         distance = Math.pow(distance, 2) ;//+ Math.pow(height, 2);
+
+         return Math.sqrt(distance);
+     }
+     
+     
+     
+     
+     
+     @GET
+     @Path("/accepttrip/{trip_id}/{driverid}")
+     @Produces(MediaType.APPLICATION_JSON)
+     @Consumes(MediaType.APPLICATION_JSON)
+        public Response assignvehicle(@PathParam("trip_id") int id, @PathParam("driverid") int did) throws SQLException{
+            JSONObject obj = new JSONObject();
+             try {
+                  //get current datetime 
+            java.util.Date dt = new java.util.Date();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentTime = sdf.format(dt);
+            
+                  String k = "UPDATE trip SET driver_id = '"+did+"' AND end = '"+currentTime+"'  WHERE trip_id = "+id+";";
+                  excDB(k);
+            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE driver_id = "+did);
+             JSONObject tripobj = new JSONObject();   
+            while(rs.next())
+             {           
+                
+                 String start = rs.getString(1);
+                 String end = rs.getString(2);
+                 String price = rs.getString(3);  
+                 String comment = rs.getString(4);
+                 String ratting = rs.getString(5);
+                 String passenger_id = rs.getString(6);
+                 String driver_id = rs.getString(7);
+                 
+                 
+                 tripobj.put("start", start);
+                 tripobj.put("end", end);
+                 tripobj.put("price", price);
+                 tripobj.put("comment",  comment);
+                 tripobj.put("ratting", ratting);
+                 tripobj.put("passenger_id", passenger_id);
+                tripobj.put("driver_id",  driver_id );
+                obj.put("tripobj", tripobj);
+             }
+            
+            obj.put("success", "1");
+            obj.put("msg", "Done Successfully");
+            
+            conn.close();
+             }
+         catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(obj).build();
+    }
+       
+   
 }
