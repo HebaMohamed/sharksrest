@@ -7,6 +7,12 @@
 package com.hubberspot.jersey;
 
 
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.history.PNHistoryItemResult;
+import com.pubnub.api.models.consumer.history.PNHistoryResult;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -16,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.ApplicationPath;
@@ -44,8 +51,11 @@ import net.sf.json.JSONObject;
 public class PassengerAppServiceJersey {
     Connection conn;
     
-    
-            @GET //test only
+    List<Integer> driversIDs;
+    List<Double> driversLats,driversLngs, driverDistance;
+    int pickupSelectedDriverID;
+
+    @GET //test only
     @Path("/go")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getgo(){
@@ -200,6 +210,196 @@ public class PassengerAppServiceJersey {
         return Response.status(200).entity(obj).build();
     }
     
+    
+    @POST
+    @Path("/editpassenger")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response editpassenger(String data){
+            //as post request
+            JSONObject dataObj = JSONObject.fromObject(data);
+            String name = dataObj.getString("name");
+            String email = dataObj.getString("useremail");
+            String password = dataObj.getString("password");
+            int phone = dataObj.getInt("phone");
+            int relatedphone = dataObj.getInt("relatedphone");
+            int id = dataObj.getInt("id");
+            JSONObject obj = new JSONObject();
+            try {
+                excDB("update passenger set fullname='"+name+"',useremail='"+email+"',phone="+phone+",password='"+password+"',relatedphone="+relatedphone+" where passenger_id='"+id+"'");
+                
+                obj.put("success", "1");
+                obj.put("msg","'"+data+"' update successful");
+                conn.close();
+            } catch (Exception ex) {
+                obj.put("success", "0");
+                obj.put("msg", ex.getMessage());
+                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+        return Response.status(200).entity(obj).build();
+    }
+
   
     
+    @POST
+    @Path("/sendfeedback")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response sendfeedback(String data){
+        //as post request
+        JSONObject dataObj = JSONObject.fromObject(data);
+        String comment = dataObj.getString("comment");
+        int tripid = dataObj.getInt("trip_id");
+        int rate = dataObj.getInt("ratting");
+        JSONObject obj = new JSONObject();
+        try {
+         
+            //excDB("INSERT INTO trip (comment, trip_id, ratting)"+" VALUES ( '"+comment+"',  "+tripid+", "+rate+")");
+            excDB("UPDATE trip SET comment = '"+comment+"', ratting = '"+rate+"' WHERE trip_id = "+tripid+" ");
+
+            obj.put("success", "1");
+            obj.put("msg", " Success");
+            
+            conn.close();
+        } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(obj).build();
+    }
+    
+    
+    
+    @POST
+    @Path("/submitpickup")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response submitpickup(String data){
+            JSONObject dataObj = JSONObject.fromObject(data);
+            final double ilat = dataObj.getDouble("lat");
+            final double ilng = dataObj.getDouble("lng");
+            final String details = dataObj.getString("details");
+            final int passengerid = dataObj.getInt("passengerid");
+
+            JSONObject obj = new JSONObject();
+            driversIDs = new ArrayList<Integer>();
+            driversLats = new ArrayList<Double>();
+            driversLngs = new ArrayList<Double>();
+            
+            try {
+                
+                PNConfiguration pnConfiguration = new PNConfiguration();
+                pnConfiguration.setSubscribeKey("sub-c-a92c9e70-e683-11e6-b3b8-0619f8945a4f");
+                pnConfiguration.setPublishKey("pub-c-b04f5dff-3f09-4dc6-8b4e-58034b4b85bb");
+                pnConfiguration.setSecure(false);
+
+                PubNub pubnub = new PubNub(pnConfiguration);
+
+                pubnub.history()
+                .channel("locschannel") // where to fetch history from
+                .count(100) // how many items to fetch
+                .async(new PNCallback<PNHistoryResult>() {
+                    @Override
+                    public void onResponse(PNHistoryResult result, PNStatus status) {
+                        List<PNHistoryItemResult> msgsList = result.getMessages();
+//                        String text  = msgsList.get(0).getEntry().get("text").textValue();
+                        for (int i = 0; i < msgsList.size(); i++) {
+                            int did  = msgsList.get(i).getEntry().get("did").intValue();
+                            double lat  = msgsList.get(i).getEntry().get("lat").doubleValue();
+                            double lng  = msgsList.get(i).getEntry().get("lng").doubleValue();
+                            int dstatus  = msgsList.get(i).getEntry().get("status").intValue(); // 0 free 1 in trip
+                            
+                            if(dstatus==0){
+                                int f = 0;
+                                for (int j = 0; j < driversIDs.size(); j++) {
+                                    if(driversIDs.get(j)==did){
+                                        f=1;
+                                        driversLats.set(j, lat);
+                                        driversLngs.set(j, lng);
+                                        driverDistance.set(j, distance(ilat, lat, ilng, lng));
+                                    }
+                                }
+                                if(f==0){
+                                    driversIDs.add(did);
+                                    driversLats.add(lat);
+                                    driversLngs.add(lng);
+                                    driverDistance.add(distance(ilat, lat, ilng, lng));
+                                }
+                            }
+                        }
+                        
+                        //kda m3aya list bl ehsarat kolha
+                        //find minimum distance driver b2a
+                        double mindistance = driverDistance.get(0);
+                        int minindex = 0;
+                        for (int i = 0; i < driverDistance.size(); i++) {
+                            if(mindistance>driverDistance.get(i)){
+                                mindistance=driverDistance.get(i);
+                                minindex=i;
+                            }
+                        }
+                        
+                        pickupSelectedDriverID = driversIDs.get(minindex);
+                        
+                        
+
+                    }
+                });
+
+                int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id) VALUES ("+passengerid+","+pickupSelectedDriverID+")");
+
+                ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+pickupSelectedDriverID);
+                while(rs.next())
+                {
+                    JSONObject d = new JSONObject();
+                     String fullname = rs.getString(2);
+//                     double sharp_turns_freq = rs.getDouble(3);
+//                     double lane_changing_freq = rs.getDouble(4);
+//                     double harch_acc_freq = rs.getDouble(5);
+//                     double wrong_u_turns_severity = rs.getDouble(7);
+//                     int vehicle_id = rs.getInt(10);
+                     
+                     d.put("driver_id", pickupSelectedDriverID);
+                     d.put("fullname", fullname);
+//                     d.put("sharp_turns_freq", sharp_turns_freq);
+//                     d.put("lane_changing_freq", lane_changing_freq);
+//                     d.put("harch_acc_freq", harch_acc_freq);
+//                     d.put("wrong_u_turns_severity", wrong_u_turns_severity);
+//                     d.put("vehicle_id", vehicle_id);
+
+                     obj.put("driver", d);
+
+                 }
+                obj.put("tripid", tripid);
+                obj.put("success", "1");
+                obj.put("msg","Done successful");
+                conn.close();
+            } catch (Exception ex) {
+                obj.put("success", "0");
+                obj.put("msg", ex.getMessage());
+                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        return Response.status(200).entity(obj).build();
+    }
+    
+         public static double distance(double lat1, double lat2, double lon1, double lon2) {
+         final int R = 6371; // Radius of the earth
+
+         Double latDistance = Math.toRadians(lat2 - lat1);
+         Double lonDistance = Math.toRadians(lon2 - lon1);
+         Double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+         Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+         double distance = R * c * 1000; // convert to meters
+
+         //double height = el1 - el2;
+
+         distance = Math.pow(distance, 2) ;//+ Math.pow(height, 2);
+
+         return Math.sqrt(distance);
+     }
 }
