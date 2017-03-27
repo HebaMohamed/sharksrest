@@ -200,13 +200,13 @@ public class DriverAppServiceJersey {
             while(rs.next())
              {           
                 
-                 String start = rs.getString(1);
-                 String end = rs.getString(2);
-                 String price = rs.getString(3);  
-                 String comment = rs.getString(4);
-                 String ratting = rs.getString(5);
-                 String passenger_id = rs.getString(6);
-                 String driver_id = rs.getString(7);
+                 String start = rs.getString(2);
+                 String end = rs.getString(3);
+                 String price = rs.getString(4);  
+                 String comment = rs.getString(5);
+                 String ratting = rs.getString(6);
+                 String passenger_id = rs.getString(7);
+                 String driver_id = rs.getString(8);
                  
                  
                  tripobj.put("start", start);
