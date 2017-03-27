@@ -93,11 +93,14 @@ public class PassengerAppServiceJersey {
         conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
 
         Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-        ResultSet rs = st.executeQuery(query);
-        int insertedid = 0;
-        if (rs.next()){
-            insertedid =rs.getInt(1);
-        }
+//        ResultSet rs = st.executeQuery(query);
+//        ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
+//        int insertedid = 0;
+//        if (rs.next()){
+//            insertedid =rs.getInt(1);
+//        }
+        int insertedid = st.executeUpdate(query);
+
         return insertedid;
     }
     
@@ -298,58 +301,60 @@ public class PassengerAppServiceJersey {
 
                 PubNub pubnub = new PubNub(pnConfiguration);
 
-                pubnub.history()
-                .channel("locschannel") // where to fetch history from
-                .count(100) // how many items to fetch
-                .async(new PNCallback<PNHistoryResult>() {
-                    @Override
-                    public void onResponse(PNHistoryResult result, PNStatus status) {
-                        List<PNHistoryItemResult> msgsList = result.getMessages();
-//                        String text  = msgsList.get(0).getEntry().get("text").textValue();
-                        for (int i = 0; i < msgsList.size(); i++) {
-                            int did  = msgsList.get(i).getEntry().get("did").intValue();
-                            double lat  = msgsList.get(i).getEntry().get("lat").doubleValue();
-                            double lng  = msgsList.get(i).getEntry().get("lng").doubleValue();
-                            int dstatus  = msgsList.get(i).getEntry().get("status").intValue(); // 0 free 1 in trip
-                            
-                            if(dstatus==0){
-                                int f = 0;
-                                for (int j = 0; j < driversIDs.size(); j++) {
-                                    if(driversIDs.get(j)==did){
-                                        f=1;
-                                        driversLats.set(j, lat);
-                                        driversLngs.set(j, lng);
-                                        driverDistance.set(j, distance(ilat, lat, ilng, lng));
-                                    }
-                                }
-                                if(f==0){
-                                    driversIDs.add(did);
-                                    driversLats.add(lat);
-                                    driversLngs.add(lng);
-                                    driverDistance.add(distance(ilat, lat, ilng, lng));
-                                }
-                            }
-                        }
-                        
-                        //kda m3aya list bl ehsarat kolha
-                        //find minimum distance driver b2a
-                        double mindistance = driverDistance.get(0);
-                        int minindex = 0;
-                        for (int i = 0; i < driverDistance.size(); i++) {
-                            if(mindistance>driverDistance.get(i)){
-                                mindistance=driverDistance.get(i);
-                                minindex=i;
-                            }
-                        }
-                        
-                        pickupSelectedDriverID = driversIDs.get(minindex);
-                        
-                        
+//                pubnub.history()
+//                .channel("locschannel") // where to fetch history from
+//                .count(100) // how many items to fetch
+//                .async(new PNCallback<PNHistoryResult>() {
+//                    @Override
+//                    public void onResponse(PNHistoryResult result, PNStatus status) {
+//                        List<PNHistoryItemResult> msgsList = result.getMessages();
+////                        String text  = msgsList.get(0).getEntry().get("text").textValue();
+//                        for (int i = 0; i < msgsList.size(); i++) {
+//                            int did  = msgsList.get(i).getEntry().get("did").intValue();
+//                            double lat  = msgsList.get(i).getEntry().get("lat").doubleValue();
+//                            double lng  = msgsList.get(i).getEntry().get("lng").doubleValue();
+//                            int dstatus  = msgsList.get(i).getEntry().get("status").intValue(); // 0 free 1 in trip
+//                            
+//                            if(dstatus==0){
+//                                int f = 0;
+//                                for (int j = 0; j < driversIDs.size(); j++) {
+//                                    if(driversIDs.get(j)==did){
+//                                        f=1;
+//                                        driversLats.set(j, lat);
+//                                        driversLngs.set(j, lng);
+//                                        driverDistance.set(j, distance(ilat, lat, ilng, lng));
+//                                    }
+//                                }
+//                                if(f==0){
+//                                    driversIDs.add(did);
+//                                    driversLats.add(lat);
+//                                    driversLngs.add(lng);
+//                                    driverDistance.add(distance(ilat, lat, ilng, lng));
+//                                }
+//                            }
+//                        }
+//                        
+//                        //kda m3aya list bl ehsarat kolha
+//                        //find minimum distance driver b2a
+//                        double mindistance = driverDistance.get(0);
+//                        int minindex = 0;
+//                        for (int i = 0; i < driverDistance.size(); i++) {
+//                            if(mindistance>driverDistance.get(i)){
+//                                mindistance=driverDistance.get(i);
+//                                minindex=i;
+//                            }
+//                        }
+//                        
+//                        pickupSelectedDriverID = driversIDs.get(minindex);
+//                        
+//                        
+//
+//                    }
+//                });
 
-                    }
-                });
+                pickupSelectedDriverID=1;//testtttt
 
-                int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id) VALUES ("+passengerid+","+pickupSelectedDriverID+")");
+                int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)");
 
                 ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+pickupSelectedDriverID);
                 while(rs.next())

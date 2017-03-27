@@ -362,15 +362,16 @@ public class DriverAppServiceJersey {
             while(rs.next())
              {           
                 
-                 String start = rs.getString(1);
-                 String end = rs.getString(2);
-                 String price = rs.getString(3);  
-                 String comment = rs.getString(4);
-                 String ratting = rs.getString(5);
-                 String passenger_id = rs.getString(6);
-                 String driver_id = rs.getString(7);
+                 int tripid = rs.getInt(1);
+                 String start = rs.getString(2);
+                 String end = rs.getString(3);
+                 String price = rs.getString(4);  
+                 String comment = rs.getString(5);
+                 String ratting = rs.getString(6);
+                 String passenger_id = rs.getString(7);
+                 String driver_id = rs.getString(8);
                  
-                 
+                 tripobj.put("tripid", tripid);
                  tripobj.put("start", start);
                  tripobj.put("end", end);
                  tripobj.put("price", price);
@@ -379,6 +380,19 @@ public class DriverAppServiceJersey {
                  tripobj.put("passenger_id", passenger_id);
                 tripobj.put("driver_id",  driver_id );
                 obj.put("tripobj", tripobj);
+                
+                ResultSet rs2 = getDBResultSet("SELECT * FROM passenger WHERE passenger_id = "+passenger_id);
+                while(rs2.next())
+                {
+                    JSONObject p = new JSONObject();
+                     String fullname = rs2.getString(3);
+                     int phone = rs2.getInt(6);
+
+                     p.put("fullname", fullname);
+                     p.put("phone", phone);
+
+                     obj.put("passenger", p);
+                }
              }
             
             obj.put("success", "1");
