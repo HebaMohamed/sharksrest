@@ -68,7 +68,7 @@ public class PassengerAppServiceJersey {
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
         //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+        conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
 
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
@@ -79,7 +79,7 @@ public class PassengerAppServiceJersey {
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
         //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+        conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
 
         Statement st = conn.createStatement();
         st.executeUpdate(query);
@@ -90,7 +90,7 @@ public class PassengerAppServiceJersey {
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
         //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+        conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
 
         Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 //        ResultSet rs = st.executeQuery(query);
