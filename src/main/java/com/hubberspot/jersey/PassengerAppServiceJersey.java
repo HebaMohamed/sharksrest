@@ -213,6 +213,126 @@ public class PassengerAppServiceJersey {
         return Response.status(200).entity(obj).build();
     }
     
+        @GET
+    @Path("/getlasttrips/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response getLasttrips(@PathParam("id") int id) throws Exception{
+         String query = "SELECT * FROM trip WHERE driver_id = "+id;
+        JSONObject obj = new JSONObject();
+        try {
+            ResultSet rs = getDBResultSet(query);
+            obj.put("success", "1");
+            obj.put("msg", "done");
+            
+            JSONArray arr = new JSONArray();
+             while(rs.next())
+             {
+                 int trip_id = rs.getInt(1);
+                 String start = rs.getString(2);
+                 String end = rs.getString(3);
+                 String price = rs.getString(4);  
+                 String comment= rs.getString(5);
+                 String ratting= rs.getString(6);
+                 String passenger_id= rs.getString(8);
+                                     
+                 JSONObject o = new JSONObject();
+                 o.put("trip_id",trip_id  );
+                 o.put("start", start);
+                 o.put("end", end);
+                 o.put("price ",price );
+                 o.put("comment", comment);
+                 o.put("ratting", ratting);
+                 o.put("passenger_id",passenger_id);
+                 
+                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+                 ResultSet rs2 = getDBResultSet(query2);
+                 JSONArray paths = new JSONArray();
+                 while(rs2.next())
+                {
+                    Double lat = rs2.getDouble("yattitude");                    
+                    Double lng = rs2.getDouble("xlongitude");
+                    JSONObject latlng = new JSONObject();
+                    latlng.put("lat", lat);                    
+                    latlng.put("lng", lng);
+                    paths.add(latlng);
+                }
+                 o.put("pathway",paths);
+                 arr.add(o);
+             }
+                 
+            obj.put("lasttrips", arr);  
+            conn.close();
+        } catch (SQLException ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(obj).build();
+    }
+    
+    
+    @GET
+    @Path("/getlasttrip/{tripid}")
+      @Produces(MediaType.APPLICATION_JSON)
+   public Response getLasttrip(@PathParam("tripid") int id){
+        JSONObject obj = new JSONObject();
+ try {
+            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
+            JSONObject tripobj = new JSONObject();   
+            while(rs.next())
+             {           
+                
+                 String start = rs.getString(2);
+                 String end = rs.getString(3);
+                 String price = rs.getString(4);  
+                 String comment = rs.getString(5);
+                 String ratting = rs.getString(6);
+                 String passenger_id = rs.getString(7);
+                 String driver_id = rs.getString(8);
+                 
+                 
+                 tripobj.put("start", start);
+                 tripobj.put("end", end);
+                 tripobj.put("price", price);
+                 tripobj.put("comment",  comment);
+                 tripobj.put("ratting", ratting);
+                 tripobj.put("passenger_id", passenger_id);
+                tripobj.put("driver_id ",  driver_id );
+                
+                    
+                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+                 ResultSet rs2 = getDBResultSet(query2);
+                 JSONArray paths = new JSONArray();
+                 while(rs2.next())
+                {
+                    Double lat = rs2.getDouble("yattitude");                    
+                    Double lng = rs2.getDouble("xlongitude");
+                    JSONObject latlng = new JSONObject();
+                    latlng.put("lat", lat);                    
+                    latlng.put("lng", lng);
+                    paths.add(latlng);
+                }
+                 tripobj.put("pathway",paths);
+                
+                obj.put("trip", tripobj);
+             }
+            //obj.put("trip", tripobj);
+            obj.put("success", "1");
+            obj.put("msg", "Selected Successfully");
+            
+            conn.close();
+        } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return Response.status(200).entity(obj).build();
+
+    }
+   
     
     @POST
     @Path("/editpassenger")
