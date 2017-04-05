@@ -68,8 +68,9 @@ public class PassengerAppServiceJersey {
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
         //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-
+        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+        conn = DriverManager.getConnection("jdbc:mysql://64.62.211.131/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+        
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(query);
         return rs;            
@@ -79,8 +80,9 @@ public class PassengerAppServiceJersey {
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
         //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-
+        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+        conn = DriverManager.getConnection("jdbc:mysql://64.62.211.131/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+        
         Statement st = conn.createStatement();
         st.executeUpdate(query);
     }
@@ -90,8 +92,9 @@ public class PassengerAppServiceJersey {
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
         //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-
+        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+        conn = DriverManager.getConnection("jdbc:mysql://64.62.211.131/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+        
         Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 //        ResultSet rs = st.executeQuery(query);
 //        ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
