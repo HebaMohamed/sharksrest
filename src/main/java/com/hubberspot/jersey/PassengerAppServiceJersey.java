@@ -456,7 +456,7 @@ public class PassengerAppServiceJersey {
 
             obj = new JSONObject();
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-            CountDownLatch latch = new CountDownLatch(2);
+            final CountDownLatch latch = new CountDownLatch(1);
 
 //            driversIDs = new ArrayList<Integer>();
 //            driversLats = new ArrayList<Double>();
@@ -523,12 +523,14 @@ public class PassengerAppServiceJersey {
                         conn.close();
                         
                         response = Response.status(200).entity(obj).build();
+                        latch.countDown();
                         
                         } catch (Exception ex) {
                             obj.put("success", "0");
                             obj.put("msg", ex.getMessage());
                             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
                             response=Response.status(200).entity(obj).build();
+                            latch.countDown();
                         }
                         
                     }
@@ -538,6 +540,7 @@ public class PassengerAppServiceJersey {
                         obj.put("success", "0");
                         obj.put("msg", "Firebase Error");    
                         response=Response.status(200).entity(obj).build();
+                        latch.countDown();
                     }
 
                 });
