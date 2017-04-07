@@ -147,6 +147,7 @@ public class PassengerAppServiceJersey {
 
         int insertedidrow = st.executeUpdate(query);
         ResultSet rs = st.executeQuery("select last_insert_id() as last_id from "+tableName);
+        rs.next();
         int insertedid = rs.getInt("last_id");        
 
         return insertedid;
