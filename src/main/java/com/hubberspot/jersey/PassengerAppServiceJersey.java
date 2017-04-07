@@ -129,7 +129,7 @@ public class PassengerAppServiceJersey {
         st.executeUpdate(query);
     }
     
-    int excDBgetID(String query) throws Exception{
+    int excDBgetID(String query, String tableName) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
         //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
@@ -144,7 +144,10 @@ public class PassengerAppServiceJersey {
 //        if (rs.next()){
 //            insertedid =rs.getInt(1);
 //        }
-        int insertedid = st.executeUpdate(query);
+
+        int insertedidrow = st.executeUpdate(query);
+        ResultSet rs = st.executeQuery("select last_insert_id() as last_id from "+tableName);
+        int insertedid = rs.getInt("last_id");        
 
         return insertedid;
     }
@@ -236,7 +239,7 @@ public class PassengerAppServiceJersey {
             JSONObject obj = new JSONObject();
             try {
                 int insertedid = excDBgetID("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
-                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')");
+                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')", "passenger");
                 
                 //excDB("INSERT INTO passenger"+
                   //    " VALUES ( '"+password+"', '"+name+"', '"+gender+"', '"+age+"', '"+phone+"', '"+relatedphone+"', '"+language+"', '"+email+"')");
@@ -512,7 +515,7 @@ public class PassengerAppServiceJersey {
                              d.put("fullname", fullname);
                              obj.put("driver", d);
                          }
-                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)");
+                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
                         //set trip status
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("status").setValue("requested");
 
