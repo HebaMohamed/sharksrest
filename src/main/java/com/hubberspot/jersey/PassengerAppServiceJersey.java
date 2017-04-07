@@ -7,13 +7,22 @@
 package com.hubberspot.jersey;
 
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.history.PNHistoryItemResult;
 import com.pubnub.api.models.consumer.history.PNHistoryResult;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,6 +32,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.ApplicationPath;
@@ -53,7 +63,11 @@ public class PassengerAppServiceJersey {
     
     List<Integer> driversIDs;
     List<Double> driversLats,driversLngs, driverDistance;
-    int pickupSelectedDriverID;
+    //int pickupSelectedDriverID;
+
+    public static Firebase myFirebaseRef;
+    int min_id = 0;
+    double min_distance = 0;
 
     @GET //test only
     @Path("/go")
@@ -62,6 +76,34 @@ public class PassengerAppServiceJersey {
         String output = "gooooooooooooooooooooo Hebat" ;
         return Response.status(200).entity(output).build();
     }
+    
+    public static String getFiredata(String url, String param ) throws Exception{
+        
+
+        String charset = "UTF-8"; 
+        URLConnection connection = new URL(url).openConnection();
+        connection.setDoOutput(true); // Triggers POST.
+        connection.setRequestProperty("Accept-Charset", charset);
+        connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+
+        OutputStream output = connection.getOutputStream();
+        output.write(param.getBytes(charset));
+
+
+        InputStream response = connection.getInputStream();
+
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
+        StringBuilder responseStrBuilder = new StringBuilder();
+
+        String inputStr;
+        while ((inputStr = streamReader.readLine()) != null)
+            responseStrBuilder.append(inputStr);
+
+        String s = responseStrBuilder.toString();
+
+       return s;
+  }
+
     
     ResultSet getDBResultSet(String query) throws Exception{
                     
@@ -398,7 +440,9 @@ public class PassengerAppServiceJersey {
     }
     
     
-    
+    Response response;
+    JSONObject obj;
+
     @POST
     @Path("/submitpickup")
     @Produces(MediaType.APPLICATION_JSON)
@@ -410,19 +454,100 @@ public class PassengerAppServiceJersey {
             final String details = dataObj.getString("details");
             final int passengerid = dataObj.getInt("passengerid");
 
-            JSONObject obj = new JSONObject();
-            driversIDs = new ArrayList<Integer>();
-            driversLats = new ArrayList<Double>();
-            driversLngs = new ArrayList<Double>();
-            
-            try {
-                
-                PNConfiguration pnConfiguration = new PNConfiguration();
-                pnConfiguration.setSubscribeKey("sub-c-a92c9e70-e683-11e6-b3b8-0619f8945a4f");
-                pnConfiguration.setPublishKey("pub-c-b04f5dff-3f09-4dc6-8b4e-58034b4b85bb");
-                pnConfiguration.setSecure(false);
+            obj = new JSONObject();
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            CountDownLatch latch = new CountDownLatch(2);
 
-                PubNub pubnub = new PubNub(pnConfiguration);
+//            driversIDs = new ArrayList<Integer>();
+//            driversLats = new ArrayList<Double>();
+//            driversLngs = new ArrayList<Double>();
+            
+            min_id = 0;
+            min_distance = 0;
+                
+//                String jsonarrstring = getFiredata("https://sharksmapandroid-158200.firebaseio.com/vehicles.json?print=pretty","");
+//                JSONArray vehiclesArr = JSONArray.fromObject(jsonarrstring);
+//                
+//                for (int i = 0; i < vehiclesArr.size(); i++) {
+//                    JSONObject vehicleArr = vehiclesArr.getJSONObject(i);
+//                    
+//                }
+                myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        try {
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            int vid = Integer.parseInt(postSnapshot.getName());
+                            double lat = postSnapshot.child("lat").getValue(Double.class);
+                            double lng = postSnapshot.child("lng").getValue(Double.class);
+                            int status = postSnapshot.child("status").getValue(Integer.class);
+
+                            if(status==0){
+                                
+                                double dist = distance(ilat, lat, ilng, lng);
+                                if(min_id==0){//first time only
+                                    min_id = vid;
+                                    min_distance = dist;
+                                }
+                                else{
+                                    if(min_distance>dist){
+                                         min_id = vid;
+                                         min_distance = dist;
+                                    }
+                                }
+                            }
+                        }
+                        ////////////////////////////////////////////////////////////////////////////////
+                        int pickupSelectedDriverID = 0;
+                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+min_id);
+                        while(rs.next())
+                        {
+                            JSONObject d = new JSONObject();
+                             String fullname = rs.getString(2);
+                             pickupSelectedDriverID = rs.getInt(1);
+
+                             d.put("driver_id", pickupSelectedDriverID);
+                             d.put("fullname", fullname);
+                             obj.put("driver", d);
+                         }
+                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)");
+                        //set trip status
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("status").setValue("requested");
+
+                        
+                        obj.put("tripid", tripid);
+                        obj.put("success", "1");
+                        obj.put("msg","Done successful");
+                        conn.close();
+                        
+                        response = Response.status(200).entity(obj).build();
+                        
+                        } catch (Exception ex) {
+                            obj.put("success", "0");
+                            obj.put("msg", ex.getMessage());
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+                            response=Response.status(200).entity(obj).build();
+                        }
+                        
+                    }
+                    @Override
+                    public void onCancelled() {
+                        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        obj.put("success", "0");
+                        obj.put("msg", "Firebase Error");    
+                        response=Response.status(200).entity(obj).build();
+                    }
+
+                });
+                
+//                PNConfiguration pnConfiguration = new PNConfiguration();
+//                pnConfiguration.setSubscribeKey("sub-c-a92c9e70-e683-11e6-b3b8-0619f8945a4f");
+//                pnConfiguration.setPublishKey("pub-c-b04f5dff-3f09-4dc6-8b4e-58034b4b85bb");
+//                pnConfiguration.setSecure(false);
+//
+//                PubNub pubnub = new PubNub(pnConfiguration);
 
 //                pubnub.history()
 //                .channel("locschannel") // where to fetch history from
@@ -475,42 +600,18 @@ public class PassengerAppServiceJersey {
 //                    }
 //                });
 
-                pickupSelectedDriverID=1;//testtttt
 
-                int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)");
+              
 
-                ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+pickupSelectedDriverID);
-                while(rs.next())
-                {
-                    JSONObject d = new JSONObject();
-                     String fullname = rs.getString(2);
-//                     double sharp_turns_freq = rs.getDouble(3);
-//                     double lane_changing_freq = rs.getDouble(4);
-//                     double harch_acc_freq = rs.getDouble(5);
-//                     double wrong_u_turns_severity = rs.getDouble(7);
-//                     int vehicle_id = rs.getInt(10);
-                     
-                     d.put("driver_id", pickupSelectedDriverID);
-                     d.put("fullname", fullname);
-//                     d.put("sharp_turns_freq", sharp_turns_freq);
-//                     d.put("lane_changing_freq", lane_changing_freq);
-//                     d.put("harch_acc_freq", harch_acc_freq);
-//                     d.put("wrong_u_turns_severity", wrong_u_turns_severity);
-//                     d.put("vehicle_id", vehicle_id);
-
-                     obj.put("driver", d);
-
-                 }
-                obj.put("tripid", tripid);
-                obj.put("success", "1");
-                obj.put("msg","Done successful");
-                conn.close();
-            } catch (Exception ex) {
-                obj.put("success", "0");
-                obj.put("msg", ex.getMessage());
-                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        return Response.status(200).entity(obj).build();
+        try{
+            latch.await();
+        } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            response=Response.status(200).entity(obj).build();
+        }
+        return response; //Response.status(200).entity(obj).build();
     }
     
          public static double distance(double lat1, double lat2, double lon1, double lon2) {

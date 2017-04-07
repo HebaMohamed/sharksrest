@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package com.hubberspot.jersey;
+import com.firebase.client.Firebase;
 import java.util.logging.Logger;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,6 +36,22 @@ public class DriverAppServiceJersey {
     
     double KMCOST = 2;//2 LE :D
     
+    public static Firebase myFirebaseRef;
+    
+    
+    @GET
+    @Path("/initFirebase")    
+    public Response initFirebase(){
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+       myFirebaseRef.child("test").setValue(1);
+       
+       String g = myFirebaseRef.child("trips").child("1").child("status").endAt().toString();
+
+               
+       return Response.status(200).entity(g+" k").build();
+
+    }
+
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
@@ -54,7 +71,7 @@ public class DriverAppServiceJersey {
         //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
         conn = DriverManager.getConnection("jdbc:mysql://64.62.211.131/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
         Statement st = conn.createStatement();
-        st.executeUpdate(query);
+        st.executeUpdate(query);//
     }
     
     //    @Path("/driver login")

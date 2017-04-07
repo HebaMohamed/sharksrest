@@ -80,6 +80,12 @@
             <version>2.4</version>
             <classifier>jdk15</classifier>
         </dependency>
+        
+        <dependency>
+        <groupId>com.firebase</groupId>
+        <artifactId>firebase-client</artifactId>
+        <version>1.0.0</version>
+      </dependency>
 
         
     </dependencies>
