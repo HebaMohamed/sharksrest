@@ -77,6 +77,43 @@ public class PassengerAppServiceJersey {
         return Response.status(200).entity(output).build();
     }
     
+    public static void sendFireNotification(String token, String title, String msg){
+        try{
+            String charset = "UTF-8"; 
+            URLConnection connection = new URL("https://fcm.googleapis.com/fcm/send").openConnection();
+            connection.setDoOutput(true); // Triggers POST.
+            connection.setRequestProperty("Accept-Charset", charset);
+            connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+            connection.setRequestProperty("Authorization", "key=AIzaSyDm82ItD0ET3--vv1k99xRq3-NvBFVUYnA");
+
+            JSONObject o = new JSONObject();
+            o.put("to",token);        
+            o.put("priority","high");
+            JSONObject notification = new JSONObject();
+            notification.put("title", title);
+            notification.put("sound", "default");
+            notification.put("body", msg);
+
+            OutputStream output = connection.getOutputStream();
+            output.write(o.toString().getBytes(charset));
+
+
+            InputStream response = connection.getInputStream();
+
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
+            StringBuilder responseStrBuilder = new StringBuilder();
+
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null)
+                responseStrBuilder.append(inputStr);
+
+            String s = responseStrBuilder.toString();
+
+        } catch (Exception ex) {
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public static String getFiredata(String url, String param ) throws Exception{
         
 
@@ -516,10 +553,33 @@ public class PassengerAppServiceJersey {
                              d.put("fullname", fullname);
                              obj.put("driver", d);
                          }
+                        ResultSet rs2 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+min_id);
+                        while(rs2.next())
+                        {
+                            JSONObject v = new JSONObject();
+                             String model = rs2.getString(2);
+                             String color = rs2.getString(3);
+                             String plate_number = rs2.getString(5);
+
+                             v.put("vehicle_id", min_id);
+                             v.put("model", model);
+                             v.put("color", color);
+                             v.put("plate_number", plate_number);
+                             obj.put("vehicle", v);
+                         }
                         int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
                         //set trip status
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("status").setValue("requested");
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ilat").setValue(ilat);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ilng").setValue(ilng);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("details").setValue(details);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("timestamp").setValue(System.currentTimeMillis());
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("did").setValue(pickupSelectedDriverID);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("pid").setValue(passengerid);
 
+
+                        //send notification to driver
+                        //sendFireNotification("","Trip Request","You have new trip request");
                         
                         obj.put("tripid", tripid);
                         obj.put("success", "1");
