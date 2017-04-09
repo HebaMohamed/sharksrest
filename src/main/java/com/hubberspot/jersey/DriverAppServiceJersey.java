@@ -5,6 +5,7 @@
  */
 package com.hubberspot.jersey;
 import com.firebase.client.Firebase;
+import static com.hubberspot.jersey.PassengerAppServiceJersey.sendFireNotification;
 import java.util.logging.Logger;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,6 +49,9 @@ public class DriverAppServiceJersey {
        String g = myFirebaseRef.child("trips").child("1").child("status").endAt().toString();
 
                
+       String testtoken = "cyLo5aqZHFQ:APA91bF9j1_GeV55qDAmlNOlNs1CkLtsuoCwgfE8nHWqV8eTMfRLdJi3n9eGNNIMWIAGqeowF--1ycczbgsRo0e9oafgbLER5o2zn9I8X28Rc6eQAEfxWpGyH6mYuoI2d6wkW4oUgR-j"; 
+        //send notification to driver
+       sendFireNotification(testtoken,"Trip Request Test","You have new trip request");
        return Response.status(200).entity(g+" k").build();
 
     }

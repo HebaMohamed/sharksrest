@@ -545,6 +545,8 @@ public class PassengerAppServiceJersey {
                             }
                             }catch(NullPointerException ne){
                                 Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }catch(NumberFormatException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                             }
                         }
                         ////////////////////////////////////////////////////////////////////////////////
