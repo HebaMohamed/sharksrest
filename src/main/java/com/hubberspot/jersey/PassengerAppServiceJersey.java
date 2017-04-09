@@ -520,6 +520,7 @@ public class PassengerAppServiceJersey {
                         try {
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            try{
                             int vid = Integer.parseInt(postSnapshot.getName());
                             double lat = postSnapshot.child("lat").getValue(Double.class);
                             double lng = postSnapshot.child("lng").getValue(Double.class);
@@ -538,6 +539,9 @@ public class PassengerAppServiceJersey {
                                          min_distance = dist;
                                     }
                                 }
+                            }
+                            }catch(NullPointerException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                             }
                         }
                         ////////////////////////////////////////////////////////////////////////////////
