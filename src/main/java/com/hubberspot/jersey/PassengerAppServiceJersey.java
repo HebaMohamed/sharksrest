@@ -590,7 +590,7 @@ public class PassengerAppServiceJersey {
                         obj.put("success", "1");
                         obj.put("msg","Done successful");
                         conn.close();
-                        
+                        conn=null;
                         response = Response.status(200).entity(obj).build();
                         latch.countDown();
                         
