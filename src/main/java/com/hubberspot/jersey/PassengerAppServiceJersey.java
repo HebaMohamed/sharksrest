@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Blob;
@@ -79,36 +80,30 @@ public class PassengerAppServiceJersey {
     
     public static void sendFireNotification(String token, String title, String msg){
         try{
-            String charset = "UTF-8"; 
-            URLConnection connection = new URL("https://fcm.googleapis.com/fcm/send").openConnection();
-            connection.setDoOutput(true); // Triggers POST.
-            connection.setRequestProperty("Accept-Charset", charset);
-            connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
-            connection.setRequestProperty("Authorization", "key=AIzaSyDm82ItD0ET3--vv1k99xRq3-NvBFVUYnA");
+       HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://fcm.googleapis.com/fcm/send").openConnection()));
+        httpcon.setDoOutput(true);
+        httpcon.setRequestProperty("Content-Type", "application/json");
+        httpcon.setRequestProperty("Authorization", "key=AAAAT9pcEV8:APA91bHABEPrQ6Id8QQnGjEP7YFwdTMW1Mt6vI2wdMuK0D3j3_HiodBfx-Bg_2ApoA6k7Y0Kj3l9CfJgP98cKI7mERxH3ao5fXbQwqA9_9iE9VZemt2lYbX7VSCMpnpbYHDnXaopq1L1");
+        httpcon.setRequestMethod("POST");
+        httpcon.connect();
+        System.out.println("Connected!");
 
-            JSONObject o = new JSONObject();
-            o.put("to",token);        
-            o.put("priority","high");
-            JSONObject notification = new JSONObject();
-            notification.put("title", title);
-            notification.put("sound", "default");
-            notification.put("body", msg);
+        byte[] outputBytes = String.valueOf("{\"notification\":{\"title\": \""+title+"\", \"text\": \""+msg+"\", \"sound\": \"default\"}, \"to\": \""+token+"\"}").getBytes("UTF-8");
+        OutputStream os = httpcon.getOutputStream();
+        os.write(outputBytes);
+        os.close();
 
-            OutputStream output = connection.getOutputStream();
-            output.write(o.toString().getBytes(charset));
-
-
-            InputStream response = connection.getInputStream();
-
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
-            StringBuilder responseStrBuilder = new StringBuilder();
+        // Reading response
+        InputStream input = httpcon.getInputStream();
+        
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+        StringBuilder responseStrBuilder = new StringBuilder();
 
             String inputStr;
             while ((inputStr = streamReader.readLine()) != null)
                 responseStrBuilder.append(inputStr);
 
-            String s = responseStrBuilder.toString();
-
+            
         } catch (Exception ex) {
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
