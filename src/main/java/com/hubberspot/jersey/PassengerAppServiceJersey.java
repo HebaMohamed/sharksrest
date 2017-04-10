@@ -583,7 +583,7 @@ public class PassengerAppServiceJersey {
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("pid").setValue(passengerid);
 
 
-                        String testtoken = "cyLo5aqZHFQ:APA91bF9j1_GeV55qDAmlNOlNs1CkLtsuoCwgfE8nHWqV8eTMfRLdJi3n9eGNNIMWIAGqeowF--1ycczbgsRo0e9oafgbLER5o2zn9I8X28Rc6eQAEfxWpGyH6mYuoI2d6wkW4oUgR-j"; 
+                        String testtoken = "ccH74m0Ipzo:APA91bFS0qrW0U65OOqzV330GaX3i3wLnhnK9rTMfcPpd2yogdaCsqEqogMTbsdLJVUWDAOqzRnNn4YB_4ID4HLJtAfuzOyOIKdF5fMxJ344Rs5lex4b7VuAthMLOhqg8DqQUI_kBh-2"; 
                         //send notification to driver
                         sendFireNotification(testtoken,"Trip Request","You have new trip request");
                         
