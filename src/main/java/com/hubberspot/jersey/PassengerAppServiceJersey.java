@@ -67,8 +67,8 @@ public class PassengerAppServiceJersey {
     //int pickupSelectedDriverID;
 
     public static Firebase myFirebaseRef;
-    int min_id = 0;
-    double min_distance = 0;
+//    int min_id = 0;
+//    double min_distance = 0;
 
     @GET //test only
     @Path("/go")
@@ -492,17 +492,18 @@ public class PassengerAppServiceJersey {
             final double ilng = dataObj.getDouble("lng");
             final String details = dataObj.getString("details");
             final int passengerid = dataObj.getInt("passengerid");
+            final int nearestvehicleid = dataObj.getInt("vid");
 
             obj = new JSONObject();
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-            final CountDownLatch latch = new CountDownLatch(1);
+            //final CountDownLatch latch = new CountDownLatch(1);
 
 //            driversIDs = new ArrayList<Integer>();
 //            driversLats = new ArrayList<Double>();
 //            driversLngs = new ArrayList<Double>();
             
-            min_id = 0;
-            min_distance = 0;
+//            min_id = 0;
+//            min_distance = 0;
                 
 //                String jsonarrstring = getFiredata("https://sharksmapandroid-158200.firebaseio.com/vehicles.json?print=pretty","");
 //                JSONArray vehiclesArr = JSONArray.fromObject(jsonarrstring);
@@ -511,42 +512,42 @@ public class PassengerAppServiceJersey {
 //                    JSONObject vehicleArr = vehiclesArr.getJSONObject(i);
 //                    
 //                }
-                myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
+//                myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//
                         try {
-
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            try{
-                            int vid = Integer.parseInt(postSnapshot.getName());
-                            double lat = postSnapshot.child("lat").getValue(Double.class);
-                            double lng = postSnapshot.child("lng").getValue(Double.class);
-                            int status = postSnapshot.child("status").getValue(Integer.class);
-
-                            if(status==0){
-                                
-                                double dist = distance(ilat, lat, ilng, lng);
-                                if(min_id==0){//first time only
-                                    min_id = vid;
-                                    min_distance = dist;
-                                }
-                                else{
-                                    if(min_distance>dist){
-                                         min_id = vid;
-                                         min_distance = dist;
-                                    }
-                                }
-                            }
-                            }catch(NullPointerException ne){
-                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
-                            }catch(NumberFormatException ne){
-                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
-                            }
-                        }
-                        ////////////////////////////////////////////////////////////////////////////////
+//
+//                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+//                            try{
+//                            int vid = Integer.parseInt(postSnapshot.getName());
+//                            double lat = postSnapshot.child("lat").getValue(Double.class);
+//                            double lng = postSnapshot.child("lng").getValue(Double.class);
+//                            int status = postSnapshot.child("status").getValue(Integer.class);
+//
+//                            if(status==0){
+//                                
+//                                double dist = distance(ilat, lat, ilng, lng);
+//                                if(min_id==0){//first time only
+//                                    min_id = vid;
+//                                    min_distance = dist;
+//                                }
+//                                else{
+//                                    if(min_distance>dist){
+//                                         min_id = vid;
+//                                         min_distance = dist;
+//                                    }
+//                                }
+//                            }
+//                            }catch(NullPointerException ne){
+//                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+//                            }catch(NumberFormatException ne){
+//                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+//                            }
+//                        }
+//                        ////////////////////////////////////////////////////////////////////////////////
                         int pickupSelectedDriverID = 0;
-                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+min_id);
+                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+nearestvehicleid);
                         while(rs.next())
                         {
                             JSONObject d = new JSONObject();
@@ -557,7 +558,7 @@ public class PassengerAppServiceJersey {
                              d.put("fullname", fullname);
                              obj.put("driver", d);
                          }
-                        ResultSet rs2 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+min_id);
+                        ResultSet rs2 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+nearestvehicleid);
                         while(rs2.next())
                         {
                             JSONObject v = new JSONObject();
@@ -565,7 +566,7 @@ public class PassengerAppServiceJersey {
                              String color = rs2.getString(3);
                              String plate_number = rs2.getString(5);
 
-                             v.put("vehicle_id", min_id);
+                             v.put("vehicle_id", nearestvehicleid);
                              v.put("model", model);
                              v.put("color", color);
                              v.put("plate_number", plate_number);
@@ -592,27 +593,27 @@ public class PassengerAppServiceJersey {
                         conn.close();
                         conn=null;
                         response = Response.status(200).entity(obj).build();
-                        latch.countDown();
+//                        latch.countDown();
                         
                         } catch (Exception ex) {
                             obj.put("success", "0");
                             obj.put("msg", ex.getMessage());
                             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
                             response=Response.status(200).entity(obj).build();
-                            latch.countDown();
+//                            latch.countDown();
                         }
-                        
-                    }
-                    @Override
-                    public void onCancelled() {
-                        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                        obj.put("success", "0");
-                        obj.put("msg", "Firebase Error");    
-                        response=Response.status(200).entity(obj).build();
-                        latch.countDown();
-                    }
-
-                });
+//                        
+//                    }
+//                    @Override
+//                    public void onCancelled() {
+//                        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//                        obj.put("success", "0");
+//                        obj.put("msg", "Firebase Error");    
+//                        response=Response.status(200).entity(obj).build();
+//                        latch.countDown();
+//                    }
+//
+//                });
                 
 //                PNConfiguration pnConfiguration = new PNConfiguration();
 //                pnConfiguration.setSubscribeKey("sub-c-a92c9e70-e683-11e6-b3b8-0619f8945a4f");
@@ -675,14 +676,14 @@ public class PassengerAppServiceJersey {
 
               
 
-        try{
-            latch.await();
-        } catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
-            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-            response=Response.status(200).entity(obj).build();
-        }
+//        try{
+//            latch.await();
+//        } catch (Exception ex) {
+//            obj.put("success", "0");
+//            obj.put("msg", ex.getMessage());
+//            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+//            response=Response.status(200).entity(obj).build();
+//        }
         return response; //Response.status(200).entity(obj).build();
     }
     
