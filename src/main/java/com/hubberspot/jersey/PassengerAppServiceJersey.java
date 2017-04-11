@@ -416,19 +416,19 @@ public class PassengerAppServiceJersey {
         try{
             latch.await();
         } catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-            response=Response.status(200).entity(obj).build();
+            response=Response.status(200).entity(resobj).build();
         }
             //conn.close();
         } catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
 
     }
     
