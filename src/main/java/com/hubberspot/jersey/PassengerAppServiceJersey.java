@@ -305,51 +305,124 @@ public class PassengerAppServiceJersey {
            try {
 
             JSONObject objj = JSONObject.fromObject(data);   
-            String email = objj.getString("email");            
-            String password = objj.getString("password");
+            final String email = objj.getString("email");            
+            final String password = objj.getString("password");
+            final CountDownLatch latch = new CountDownLatch(1);
 
-            ResultSet rs = getDBResultSet("SELECT * FROM passenger WHERE useremail = '"+email+"'");//knt user_id
-            obj.put("success", "0");
-            obj.put("msg", "Wrong email or Password");
-            while(rs.next())
-            {
-                 String pass = rs.getString(2);
-                 if(pass.equals(password))
-                 {
-                     //loginpassenger
-                     obj.put("success", "1");
-                     obj.put("msg", "Logged in successfully");
-                     
-                     JSONObject d = new JSONObject();
-                     String passenger_id = rs.getString(1);
-                     String fullname = rs.getString(3);
-                     String gender = rs.getString(4);
-                     int age = rs.getInt(5);
-                     int phone = rs.getInt(6);
-                     int relatedphone = rs.getInt(7);
-                     String language = rs.getString("language");
-
-                     d.put("passenger_id", passenger_id);
-                     d.put("fullname", fullname);
-                     d.put("gender", gender);
-                     d.put("age", age);
-                     d.put("phone", phone);
-                     d.put("relatedphone", relatedphone);
-                     d.put("language", language);
-                     d.put("email", email);
-
-                     obj.put("passenger", d);
-
-                 }
-                 else {
-                     obj.put("success", "0");
-                     obj.put("msg", "Wrong Credentials");
-                 }
-
-             }
             
-            conn.close();
-        } catch (SQLException ex) {
+                myFirebaseRef.child("passenger").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        JSONObject d = new JSONObject();
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            try{
+                            int pid = Integer.parseInt(postSnapshot.getName());
+                            String useremail = postSnapshot.child("useremail").getValue(String.class);
+                            String userpassword = postSnapshot.child("password").getValue(String.class);
+                               
+                            if(email.equals(useremail)&&password.equals(userpassword)){
+                                int age = postSnapshot.child("age").getValue(Integer.class);
+                                String fullname = postSnapshot.child("fullname").getValue(String.class);
+                                String gender = postSnapshot.child("gender").getValue(String.class);
+                                String language = postSnapshot.child("language").getValue(String.class);
+                                String password = postSnapshot.child("password").getValue(String.class);
+                                String phone = postSnapshot.child("phone").getValue(String.class);
+                                String relatedphone = postSnapshot.child("relatedphone").getValue(String.class);
+
+                                d.put("passenger_id", pid);
+                                d.put("fullname", fullname);
+                                d.put("gender", gender);
+                                d.put("age", age);
+                                d.put("phone", phone);
+                                d.put("relatedphone", relatedphone);
+                                d.put("language", language);
+                                d.put("email", email);
+
+                                resobj.put("passenger", d);
+                                
+                                
+                                resobj.put("success", "1");
+                                resobj.put("msg", "logged in");
+                                response = Response.status(200).entity(resobj).build();
+                                latch.countDown();
+                            }
+                            
+                            
+                            
+
+                            
+                            }catch(NullPointerException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }catch(NumberFormatException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }
+                        }
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+
+
+
+//            ResultSet rs = getDBResultSet("SELECT * FROM passenger WHERE useremail = '"+email+"'");//knt user_id
+//            obj.put("success", "0");
+//            obj.put("msg", "Wrong email or Password");
+//            while(rs.next())
+//            {
+//                 String pass = rs.getString(2);
+//                 if(pass.equals(password))
+//                 {
+//                     //loginpassenger
+//                     obj.put("success", "1");
+//                     obj.put("msg", "Logged in successfully");
+//                     
+//                     JSONObject d = new JSONObject();
+//                     String passenger_id = rs.getString(1);
+//                     String fullname = rs.getString(3);
+//                     String gender = rs.getString(4);
+//                     int age = rs.getInt(5);
+//                     int phone = rs.getInt(6);
+//                     int relatedphone = rs.getInt(7);
+//                     String language = rs.getString("language");
+//
+//                     d.put("passenger_id", passenger_id);
+//                     d.put("fullname", fullname);
+//                     d.put("gender", gender);
+//                     d.put("age", age);
+//                     d.put("phone", phone);
+//                     d.put("relatedphone", relatedphone);
+//                     d.put("language", language);
+//                     d.put("email", email);
+//
+//                     obj.put("passenger", d);
+//
+//                 }
+//                 else {
+//                     obj.put("success", "0");
+//                     obj.put("msg", "Wrong Credentials");
+//                 }}
+
+             
+            
+              
+
+        try{
+            latch.await();
+        } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            response=Response.status(200).entity(obj).build();
+        }
+            //conn.close();
+        } catch (Exception ex) {
             obj.put("success", "0");
             obj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
