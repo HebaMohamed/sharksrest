@@ -315,6 +315,8 @@ public class PassengerAppServiceJersey {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         JSONObject d = new JSONObject();
+                        resobj = new JSONObject();
+
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             try{
