@@ -4,7 +4,9 @@
  * and open the template in the editor.
  */
 package com.hubberspot.jersey;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.ValueEventListener;
 import static com.hubberspot.jersey.PassengerAppServiceJersey.sendFireNotification;
 import java.util.logging.Logger;
 import java.sql.Connection;
@@ -12,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Consumes;
@@ -369,72 +372,109 @@ public class DriverAppServiceJersey {
      
      
      
-     
+     JSONObject resobj;
      
      @GET
-     @Path("/accepttrip/{trip_id}/{driverid}")
+     @Path("/accepttrip/{trip_id}/{driverid}/{passengerid}")
      @Produces(MediaType.APPLICATION_JSON)
      @Consumes(MediaType.APPLICATION_JSON)
-        public Response assignvehicle(@PathParam("trip_id") int id, @PathParam("driverid") int did) throws SQLException{
-            JSONObject obj = new JSONObject();
-             try {
-                  //get current datetime 
-            java.util.Date dt = new java.util.Date();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String currentTime = sdf.format(dt);
+        public Response assignvehicle(@PathParam("trip_id") int id, @PathParam("driverid") int did, @PathParam("passengerid") int pid) throws SQLException{
+//            JSONObject obj = new JSONObject();
             
-                  String k = "UPDATE trip SET driver_id = '"+did+"' AND end = '"+currentTime+"'  WHERE trip_id = "+id+";";
-                  excDB(k);
-            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE driver_id = "+did);
-             JSONObject tripobj = new JSONObject();   
-            while(rs.next())
-             {           
-                
-                 int tripid = rs.getInt(1);
-                 String start = rs.getString(2);
-                 String end = rs.getString(3);
-                 String price = rs.getString(4);  
-                 String comment = rs.getString(5);
-                 String ratting = rs.getString(6);
-                 String passenger_id = rs.getString(7);
-                 String driver_id = rs.getString(8);
-                 
-                 tripobj.put("tripid", tripid);
-                 tripobj.put("start", start);
-                 tripobj.put("end", end);
-                 tripobj.put("price", price);
-                 tripobj.put("comment",  comment);
-                 tripobj.put("ratting", ratting);
-                 tripobj.put("passenger_id", passenger_id);
-                tripobj.put("driver_id",  driver_id );
-                obj.put("tripobj", tripobj);
-                
-                ResultSet rs2 = getDBResultSet("SELECT * FROM passenger WHERE passenger_id = "+passenger_id);
-                while(rs2.next())
-                {
-                    JSONObject p = new JSONObject();
-                     String fullname = rs2.getString(3);
-                     int phone = rs2.getInt(6);
+             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            resobj = new JSONObject();
+            final CountDownLatch latch = new CountDownLatch(1);
+            
+            myFirebaseRef.child("trips").child(String.valueOf(id)).child("status").setValue("approved");
+            
+       
+                myFirebaseRef.child("passenger").child(String.valueOf(pid)).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                     p.put("fullname", fullname);
-                     p.put("phone", phone);
+                        String fullname = dataSnapshot.child("fullname").getValue(String.class);
+                        String phone = dataSnapshot.child("phone").getValue(String.class);
+                        String token = dataSnapshot.child("token").getValue(String.class);
 
-                     obj.put("passenger", p);
+                        
+                        JSONObject p = new JSONObject();
+                        p.put("fullname", fullname);
+                        p.put("phone", phone);
+
+                        resobj.put("passenger", p);
+                         latch.countDown();
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
                 }
-             }
+                });
             
-            obj.put("success", "1");
-            obj.put("msg", "Done Successfully");
+
+                  //get current datetime 
+//            java.util.Date dt = new java.util.Date();
+//            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            String currentTime = sdf.format(dt);
             
-            conn.close();
-             }
-         catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+//            String k = "UPDATE trip SET driver_id = '"+did+"' AND end = '"+currentTime+"'  WHERE trip_id = "+id+";";
+//            excDB(k);
+//            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE driver_id = "+did);
+//            JSONObject tripobj = new JSONObject();   
+//            while(rs.next())
+//             {           
+//                
+//                 int tripid = rs.getInt(1);
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 String price = rs.getString(4);  
+//                 String comment = rs.getString(5);
+//                 String ratting = rs.getString(6);
+//                 String passenger_id = rs.getString(7);
+//                 String driver_id = rs.getString(8);
+//                 
+//                 tripobj.put("tripid", tripid);
+//                 tripobj.put("start", start);
+//                 tripobj.put("end", end);
+//                 tripobj.put("price", price);
+//                 tripobj.put("comment",  comment);
+//                 tripobj.put("ratting", ratting);
+//                 tripobj.put("passenger_id", passenger_id);
+//                tripobj.put("driver_id",  driver_id );
+//                obj.put("tripobj", tripobj);
+
+
+
+//                ResultSet rs2 = getDBResultSet("SELECT * FROM passenger WHERE passenger_id = "+passenger_id);
+//                while(rs2.next())
+//                {
+//                    JSONObject p = new JSONObject();
+//                     String fullname = rs2.getString(3);
+//                     int phone = rs2.getInt(6);
+//
+//                     p.put("fullname", fullname);
+//                     p.put("phone", phone);
+//
+//                     obj.put("passenger", p);
+//                }
+//             }
+            
+            resobj.put("success", "1");
+            resobj.put("msg", "Done Successfully");
+            
+//            conn.close();
+            
+          try{
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+//            response=Response.status(200).entity(resobj).build();
         }
-        
-        return Response.status(200).entity(obj).build();
+          
+        return Response.status(200).entity(resobj).build();
     }
        
    

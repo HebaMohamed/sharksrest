@@ -767,6 +767,7 @@ public class PassengerAppServiceJersey {
     
     Response response;
     //JSONObject obj;
+    static int onetimeflag;
 
     @POST
     @Path("/submitpickup")
@@ -779,6 +780,8 @@ public class PassengerAppServiceJersey {
             final String details = dataObj.getString("details");
             final int passengerid = dataObj.getInt("passengerid");
             final int nearestvehicleid = dataObj.getInt("vid");
+            
+            onetimeflag = 0;
 
             resobj = new JSONObject();
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
@@ -795,6 +798,10 @@ public class PassengerAppServiceJersey {
                 myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        if(onetimeflag == 0){
+                            
+                        onetimeflag = 1;
                         
                         String selecteddrivertoken = "";
                         int pickupSelectedDriverID = 0;
@@ -888,6 +895,7 @@ public class PassengerAppServiceJersey {
 //                        conn=null;
                         response = Response.status(200).entity(resobj).build();
                         latch.countDown();
+                    }
                     }
                     @Override
                     public void onCancelled() {
