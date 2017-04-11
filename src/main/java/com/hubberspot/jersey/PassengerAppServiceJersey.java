@@ -137,6 +137,7 @@ public class PassengerAppServiceJersey {
   }
 
     
+    
     ResultSet getDBResultSet(String query) throws Exception{
                     
         Class.forName("com.mysql.jdbc.Driver");            
@@ -188,7 +189,47 @@ public class PassengerAppServiceJersey {
         return insertedid;
     }
     
-    
+    @POST
+    @Path("/addfirebasepassenger")
+    @Produces(MediaType.APPLICATION_JSON)    
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response addfirebasepassenger(String data) throws Exception{
+        JSONObject obj = new JSONObject();
+           try {
+
+            JSONObject objj = JSONObject.fromObject(data);   
+            int age = objj.getInt("age");            
+            String fullname = objj.getString("fullname");
+            int phone = objj.getInt("phone");
+            int relatedphone = objj.getInt("relatedphone");  
+            String password = objj.getString("password");
+            String language = objj.getString("language");
+            String gender = objj.getString("gender");    
+            
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("age").setValue(age);
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("gender").setValue(gender);
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("fullname").setValue(fullname);
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("phone").setValue(phone);
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("password").setValue(password);
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("relatedphone").setValue(relatedphone);
+            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("language").setValue(language);
+           
+
+
+
+
+
+           } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return Response.status(200).entity(obj).build();
+
+    }
     
     
     @POST
