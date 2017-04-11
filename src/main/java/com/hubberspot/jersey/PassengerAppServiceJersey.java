@@ -67,8 +67,8 @@ public class PassengerAppServiceJersey {
     //int pickupSelectedDriverID;
 
     public static Firebase myFirebaseRef;
-//    int min_id = 0;
-//    double min_distance = 0;
+    int min_id = 0;
+    double min_distance = 0;
 
     @GET //test only
     @Path("/go")
@@ -189,36 +189,93 @@ public class PassengerAppServiceJersey {
         return insertedid;
     }
     
+    JSONObject resobj;
     @POST
     @Path("/addfirebasepassenger")
     @Produces(MediaType.APPLICATION_JSON)    
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response addfirebasepassenger(String data) throws Exception{
         JSONObject obj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
+
            try {
+               
+            resobj = new JSONObject();
 
             JSONObject objj = JSONObject.fromObject(data);   
-            int age = objj.getInt("age");            
-            String fullname = objj.getString("fullname");
-            int phone = objj.getInt("phone");
-            int relatedphone = objj.getInt("relatedphone");  
-            String password = objj.getString("password");
-            String language = objj.getString("language");
-            String gender = objj.getString("gender");    
+//            int age = objj.getInt("age");            
+//            String fullname = objj.getString("fullname");
+//            int phone = objj.getInt("phone");
+//            int relatedphone = objj.getInt("relatedphone");  
+//            String password = objj.getString("password");
+//            String language = objj.getString("language");
+//            String gender = objj.getString("gender");    
+
+            final double ilat = objj.getDouble("ilat");                        
+            final double ilng = objj.getDouble("ilng");            
+
+
             
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
 
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("age").setValue(age);
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("gender").setValue(gender);
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("fullname").setValue(fullname);
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("phone").setValue(phone);
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("password").setValue(password);
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("relatedphone").setValue(relatedphone);
-            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("language").setValue(language);
-           
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("age").setValue(age);
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("gender").setValue(gender);
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("fullname").setValue(fullname);
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("phone").setValue(phone);
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("password").setValue(password);
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("relatedphone").setValue(relatedphone);
+//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("language").setValue(language);
+//           
+
+            
 
 
+                myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
 
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            try{
+                            int vid = Integer.parseInt(postSnapshot.getName());
+                            double lat = postSnapshot.child("lat").getValue(Double.class);
+                            double lng = postSnapshot.child("lng").getValue(Double.class);
+                            int status = postSnapshot.child("status").getValue(Integer.class);
+                            if(status==0){
+                                
+                                double dist = distance(ilat, lat, ilng, lng);
+                                if(min_id==0){//first time only
+                                    min_id = vid;
+                                    min_distance = dist;
+                                }
+                                else{
+                                    if(min_distance>dist){
+                                         min_id = vid;
+                                         min_distance = dist;
+                                    }
+                                }
+                            
+                            }
+                            
+
+                            
+                            }catch(NullPointerException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }catch(NumberFormatException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }
+                        }
+                        
+                        resobj.put("selectedid", min_id);
+                        response = Response.status(200).entity(resobj).build();
+                        latch.countDown();
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+                });
 
 
            } catch (Exception ex) {
@@ -227,8 +284,15 @@ public class PassengerAppServiceJersey {
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return Response.status(200).entity(obj).build();
-
+           try{
+            latch.await();
+        } catch (Exception ex) {
+            obj.put("success", "0");
+            obj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            response=Response.status(200).entity(obj).build();
+        }
+        return response; //Response.status(200).entity(obj).build();
     }
     
     
