@@ -85,77 +85,131 @@ public class DriverAppServiceJersey {
         st.executeUpdate(query);//
     }
     
+    
+    
     //    @Path("/driver login")
     //public Response LoginDriver(@PathParam("id") String id, @PathParam("password") String password) throws Exception{
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)    
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-
     public Response LoginDriver(String data) throws Exception{  
-        JSONObject obj = new JSONObject();
+//        JSONObject obj = new JSONObject();
+            resobj = new JSONObject();
+            final CountDownLatch latch = new CountDownLatch(1);
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
            try {
               
             JSONObject objj = JSONObject.fromObject(data);   
-            int id = objj.getInt("driver_id");            
-            String password = objj.getString("password");
-
-            ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+id);//knt user_id
-            obj.put("success", "0");
-            obj.put("msg", "Wrong ID or Password");
-            while(rs.next())
-            {
-                 String pass = rs.getString(13);//msh 2
-                 if(pass.equals(password))
-                 {
-                     //logindriver
-                     obj.put("success", "1");
-                     obj.put("msg", "Logged in successfully");
-                     
-                     JSONObject d = new JSONObject();
-                     String fullname = rs.getString(2);
-                     double sharp_turns_freq = rs.getDouble(3);
-                     double lane_changing_freq = rs.getDouble(4);
-                     double harch_acc_freq = rs.getDouble(5);
-                     double wrong_u_turns_severity = rs.getDouble(7);
-                     int vehicle_id = rs.getInt(10);
-                     
-                     d.put("fullname", fullname);
-                     d.put("sharp_turns_freq", sharp_turns_freq);
-                     d.put("lane_changing_freq", lane_changing_freq);
-                     d.put("harch_acc_freq", harch_acc_freq);
-                     d.put("wrong_u_turns_severity", wrong_u_turns_severity);
-                     d.put("vehicle_id", vehicle_id);
-
-//                     String name = rs.getString(3);
-//                     String gender = rs.getString(4);
-//                     String lastlogin_time = rs.getString(5);
-//                     String account_state = rs.getString(6);
-//                     
-//                     d.put("id", id);
-//                     d.put("name", name);
-//                     d.put("gender", gender);
-//                     d.put("lastlogin_time", lastlogin_time);
-//                     d.put("account_state", account_state);
-
-                     obj.put("driver", d);
-
-                 }
-                 else {
-                     obj.put("success", "0");
-                     obj.put("msg", "Wrong Credentials");
-                 }
-
-             }
+            final int id = objj.getInt("driver_id");            
+            final String password = objj.getString("password");
             
-            conn.close();
-        } catch (SQLException ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+            
+            
+                myFirebaseRef.child("driver").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        JSONObject d = new JSONObject();
+
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            try{
+                            int did = Integer.parseInt(postSnapshot.getName());
+                            String pass = postSnapshot.child("password").getValue(String.class);
+                               
+                            if(did==id&&pass.equals(password)){
+                                String email = postSnapshot.child("email").getValue(String.class);
+                                String fullname = postSnapshot.child("fullname").getValue(String.class);
+                                int vid = postSnapshot.child("vid").getValue(Integer.class);
+
+                                d.put("email", email);
+                                d.put("fullname", fullname);
+                                d.put("vehicle_id", vid);
+
+                                resobj.put("driver", d);
+                                
+                                
+                                resobj.put("success", "1");
+                                resobj.put("msg", "logged in");
+//                                response = Response.status(200).entity(resobj).build();
+                                latch.countDown();
+                            }
+                            }catch(NullPointerException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }catch(NumberFormatException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }
+                        }
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.   
+                }
+                });
+
+
+
+//            ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+id);//knt user_id
+//            obj.put("success", "0");
+//            obj.put("msg", "Wrong ID or Password");
+//            while(rs.next())
+//            {
+//                 String pass = rs.getString(13);//msh 2
+//                 if(pass.equals(password))
+//                 {
+//                     //logindriver
+//                     obj.put("success", "1");
+//                     obj.put("msg", "Logged in successfully");
+//                     
+//                     JSONObject d = new JSONObject();
+//                     String fullname = rs.getString(2);
+//                     double sharp_turns_freq = rs.getDouble(3);
+//                     double lane_changing_freq = rs.getDouble(4);
+//                     double harch_acc_freq = rs.getDouble(5);
+//                     double wrong_u_turns_severity = rs.getDouble(7);
+//                     int vehicle_id = rs.getInt(10);
+//                     
+//                     d.put("fullname", fullname);
+//                     d.put("sharp_turns_freq", sharp_turns_freq);
+//                     d.put("lane_changing_freq", lane_changing_freq);
+//                     d.put("harch_acc_freq", harch_acc_freq);
+//                     d.put("wrong_u_turns_severity", wrong_u_turns_severity);
+//                     d.put("vehicle_id", vehicle_id);
+//
+////                     String name = rs.getString(3);
+////                     String gender = rs.getString(4);
+////                     String lastlogin_time = rs.getString(5);
+////                     String account_state = rs.getString(6);
+////                     
+////                     d.put("id", id);
+////                     d.put("name", name);
+////                     d.put("gender", gender);
+////                     d.put("lastlogin_time", lastlogin_time);
+////                     d.put("account_state", account_state);
+//
+//                     obj.put("driver", d);
+//
+//                 }
+//                 else {
+//                     obj.put("success", "0");
+//                     obj.put("msg", "Wrong Credentials");
+//                 }
+//
+//             }
+            
+//            conn.close();
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+//            response=Response.status(200).entity(resobj).build();
         }
 
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
 
     }
     
