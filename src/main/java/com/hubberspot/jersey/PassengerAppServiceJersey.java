@@ -303,13 +303,16 @@ public class PassengerAppServiceJersey {
     public Response LoginPassenger(String data) throws Exception{  
         JSONObject obj = new JSONObject();
         resobj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
+
 
            try {
+               myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+
 
             JSONObject objj = JSONObject.fromObject(data);   
             final String email = objj.getString("email");            
             final String password = objj.getString("password");
-            final CountDownLatch latch = new CountDownLatch(1);
 
             
                 myFirebaseRef.child("passenger").addValueEventListener(new ValueEventListener() {
@@ -443,98 +446,176 @@ public class PassengerAppServiceJersey {
     public Response passengersignup(String data) throws Exception{//note : img is byte array string
             //as post request
             JSONObject dataObj = JSONObject.fromObject(data);
-            String name = dataObj.getString("name");
-            String email = dataObj.getString("email");
-            String password = dataObj.getString("password");
-            int phone = dataObj.getInt("phone");
-            int relatedphone = dataObj.getInt("relatedphone");
-            String gender = dataObj.getString("gender");
-            int age = dataObj.getInt("age");
-            String language = dataObj.getString("language");
+            final String name = dataObj.getString("name");
+            final String email = dataObj.getString("email");
+            final String password = dataObj.getString("password");
+            final int phone = dataObj.getInt("phone");
+            final int relatedphone = dataObj.getInt("relatedphone");
+            final String gender = dataObj.getString("gender");
+            final int age = dataObj.getInt("age");
+            final String language = dataObj.getString("language");
+            
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
 
+            
 
-            JSONObject obj = new JSONObject();
-            try {
-                int insertedid = excDBgetID("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
-                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')", "passenger");
+//            JSONObject obj = new JSONObject();
+            CountDownLatch latch = new CountDownLatch(1);
+           
+//                int insertedid = excDBgetID("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
+//                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')", "passenger");
+//                
+                //get children count
                 
-                //excDB("INSERT INTO passenger"+
-                  //    " VALUES ( '"+password+"', '"+name+"', '"+gender+"', '"+age+"', '"+phone+"', '"+relatedphone+"', '"+language+"', '"+email+"')");
-                
-                
-                obj.put("success", "1");
-                obj.put("msg", "Added Successfully");
-                
-                obj.put("insertedid", insertedid);
+                myFirebaseRef.child("passenger").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        long count = dataSnapshot.getChildrenCount();      
+                        long insertedid = count+1;
+                        
+                        
+                        
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("age").setValue(age);
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("gender").setValue(gender);
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("fullname").setValue(name);
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("phone").setValue(phone);
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("password").setValue(password);
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("relatedphone").setValue(relatedphone);
+                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("language").setValue(language);
 
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Added Successfully");
 
-                conn.close();
-            } catch (Exception ex) {
-                obj.put("success", "0");
-                obj.put("msg", ex.getMessage());
-                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                        resobj.put("insertedid", insertedid);
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+                
+                
+
+            try{
+                 latch.await();
+             } catch (Exception ex) {
+                 resobj.put("success", "0");
+                 resobj.put("msg", ex.getMessage());
+                 Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+                 response=Response.status(200).entity(resobj).build();
+             }
+
+                
         
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
     }
     
-        @GET
+    @GET
     @Path("/getlasttrips/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response getLasttrips(@PathParam("id") int id) throws Exception{
-         String query = "SELECT * FROM trip WHERE driver_id = "+id;
-        JSONObject obj = new JSONObject();
+         //String query = "SELECT * FROM trip WHERE driver_id = "+id;
+        //JSONObject obj = new JSONObject();
+        resobj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
         try {
-            ResultSet rs = getDBResultSet(query);
-            obj.put("success", "1");
-            obj.put("msg", "done");
+//            ResultSet rs = getDBResultSet(query);
+            resobj.put("success", "1");
+            resobj.put("msg", "done");
             
             JSONArray arr = new JSONArray();
-             while(rs.next())
-             {
-                 int trip_id = rs.getInt(1);
-                 String start = rs.getString(2);
-                 String end = rs.getString(3);
-                 String price = rs.getString(4);  
-                 String comment= rs.getString(5);
-                 String ratting= rs.getString(6);
-                 String passenger_id= rs.getString(8);
-                                     
-                 JSONObject o = new JSONObject();
-                 o.put("trip_id",trip_id  );
-                 o.put("start", start);
-                 o.put("end", end);
-                 o.put("price ",price );
-                 o.put("comment", comment);
-                 o.put("ratting", ratting);
-                 o.put("passenger_id",passenger_id);
-                 
-                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-                 ResultSet rs2 = getDBResultSet(query2);
-                 JSONArray paths = new JSONArray();
-                 while(rs2.next())
-                {
-                    Double lat = rs2.getDouble("yattitude");                    
-                    Double lng = rs2.getDouble("xlongitude");
-                    JSONObject latlng = new JSONObject();
-                    latlng.put("lat", lat);                    
-                    latlng.put("lng", lng);
-                    paths.add(latlng);
+           
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+                myFirebaseRef.child("trips").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            try{
+                            int tid = Integer.parseInt(postSnapshot.getName());
+                            String comment = postSnapshot.child("comment").getValue(String.class);
+                            String details = postSnapshot.child("details").getValue(String.class);
+                            String did = postSnapshot.child("did").getValue(String.class);
+                            String pid = postSnapshot.child("pid").getValue(String.class);
+                            String end = postSnapshot.child("end").getValue(String.class);
+                            String price = postSnapshot.child("price").getValue(String.class);
+                            String ratting = postSnapshot.child("ratting").getValue(String.class);
+                            String start = postSnapshot.child("start").getValue(String.class);
+
+                            JSONObject o = new JSONObject();
+                            o.put("trip_id",tid  );
+                            o.put("start", start);
+                            o.put("end", end);
+                            o.put("price ",price );
+                            o.put("comment", comment);
+                            o.put("ratting", ratting);
+                            o.put("passenger_id",pid);
+                            
+                            
+                            }catch(NullPointerException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }catch(NumberFormatException ne){
+                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                            }
+                        }
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
                 }
-                 o.put("pathway",paths);
-                 arr.add(o);
-             }
-                 
-            obj.put("lasttrips", arr);  
-            conn.close();
-        } catch (SQLException ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+                });
+
+//             while(rs.next())
+//             {
+//                 int trip_id = rs.getInt(1);
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 String price = rs.getString(4);  
+//                 String comment = rs.getString(5);
+//                 String ratting = rs.getString(6);
+//                 String passenger_id= rs.getString(8);
+//                                     
+//                 JSONObject o = new JSONObject();
+//                 o.put("trip_id",trip_id  );
+//                 o.put("start", start);
+//                 o.put("end", end);
+//                 o.put("price ",price );
+//                 o.put("comment", comment);
+//                 o.put("ratting", ratting);
+//                 o.put("passenger_id",passenger_id);
+//                 
+//                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+//                 ResultSet rs2 = getDBResultSet(query2);
+//                 JSONArray paths = new JSONArray();
+//                 while(rs2.next())
+//                {
+//                    Double lat = rs2.getDouble("yattitude");                    
+//                    Double lng = rs2.getDouble("xlongitude");
+//                    JSONObject latlng = new JSONObject();
+//                    latlng.put("lat", lat);                    
+//                    latlng.put("lng", lng);
+//                    paths.add(latlng);
+//                }
+//                 o.put("pathway",paths);
+//                 arr.add(o);
+//             }
+               //conn.close();
+
+            resobj.put("lasttrips", arr);  
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
     }
     
     
@@ -612,20 +693,37 @@ public class PassengerAppServiceJersey {
             int phone = dataObj.getInt("phone");
             int relatedphone = dataObj.getInt("relatedphone");
             int id = dataObj.getInt("id");
-            JSONObject obj = new JSONObject();
-            try {
-                excDB("update passenger set fullname='"+name+"',useremail='"+email+"',phone="+phone+",password='"+password+"',relatedphone="+relatedphone+" where passenger_id='"+id+"'");
-                
-                obj.put("success", "1");
-                obj.put("msg","'"+data+"' update successful");
-                conn.close();
-            } catch (Exception ex) {
-                obj.put("success", "0");
-                obj.put("msg", ex.getMessage());
-                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            
+            resobj = new JSONObject();
+
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+            //myFirebaseRef.child("passenger").child(String.valueOf(id)).child("age").setValue(age);
+            //myFirebaseRef.child("passenger").child(String.valueOf(id)).child("gender").setValue(gender);
+            myFirebaseRef.child("passenger").child(String.valueOf(id)).child("fullname").setValue(name);
+            myFirebaseRef.child("passenger").child(String.valueOf(id)).child("phone").setValue(phone);
+            myFirebaseRef.child("passenger").child(String.valueOf(id)).child("password").setValue(password);
+            myFirebaseRef.child("passenger").child(String.valueOf(id)).child("relatedphone").setValue(relatedphone);
+            myFirebaseRef.child("passenger").child(String.valueOf(id)).child("useremail").setValue(email);
+            //myFirebaseRef.child("passenger").child(String.valueOf(id)).child("language").setValue(language);
+
+            resobj.put("success", "1");
+            resobj.put("msg", "Edited Successfully");
+            
+//            JSONObject obj = new JSONObject();
+//            try {
+//                excDB("update passenger set fullname='"+name+"',useremail='"+email+"',phone="+phone+",password='"+password+"',relatedphone="+relatedphone+" where passenger_id='"+id+"'");
+//                
+//                obj.put("success", "1");
+//                obj.put("msg","'"+data+"' update successful");
+//                conn.close();
+//            } catch (Exception ex) {
+//                obj.put("success", "0");
+//                obj.put("msg", ex.getMessage());
+//                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+//            }
         
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
     }
 
   
@@ -640,28 +738,35 @@ public class PassengerAppServiceJersey {
         String comment = dataObj.getString("comment");
         int tripid = dataObj.getInt("trip_id");
         int rate = dataObj.getInt("ratting");
-        JSONObject obj = new JSONObject();
-        try {
-         
-            //excDB("INSERT INTO trip (comment, trip_id, ratting)"+" VALUES ( '"+comment+"',  "+tripid+", "+rate+")");
-            excDB("UPDATE trip SET comment = '"+comment+"', ratting = '"+rate+"' WHERE trip_id = "+tripid+" ");
+//        JSONObject obj = new JSONObject();
+//        try {
+//         
+//            //excDB("INSERT INTO trip (comment, trip_id, ratting)"+" VALUES ( '"+comment+"',  "+tripid+", "+rate+")");
+//            excDB("UPDATE trip SET comment = '"+comment+"', ratting = '"+rate+"' WHERE trip_id = "+tripid+" ");
+//
+//            obj.put("success", "1");
+//            obj.put("msg", " Success");
+//            
+//            conn.close();
+//        } catch (Exception ex) {
+//            obj.put("success", "0");
+//            obj.put("msg", ex.getMessage());
+//            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+            myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("comment").setValue(comment);
+            myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ratting").setValue(rate);
 
-            obj.put("success", "1");
-            obj.put("msg", " Success");
             
-            conn.close();
-        } catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
-            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            resobj.put("success", "1");
+            resobj.put("msg", "Success");
+            
         
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
     }
     
     
     Response response;
-    JSONObject obj;
+    //JSONObject obj;
 
     @POST
     @Path("/submitpickup")
@@ -675,9 +780,9 @@ public class PassengerAppServiceJersey {
             final int passengerid = dataObj.getInt("passengerid");
             final int nearestvehicleid = dataObj.getInt("vid");
 
-            obj = new JSONObject();
+            resobj = new JSONObject();
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-            //final CountDownLatch latch = new CountDownLatch(1);
+            final CountDownLatch latch = new CountDownLatch(1);
 
 //            driversIDs = new ArrayList<Integer>();
 //            driversLats = new ArrayList<Double>();
@@ -686,74 +791,74 @@ public class PassengerAppServiceJersey {
 //            min_id = 0;
 //            min_distance = 0;
                 
-//                String jsonarrstring = getFiredata("https://sharksmapandroid-158200.firebaseio.com/vehicles.json?print=pretty","");
-//                JSONArray vehiclesArr = JSONArray.fromObject(jsonarrstring);
-//                
-//                for (int i = 0; i < vehiclesArr.size(); i++) {
-//                    JSONObject vehicleArr = vehiclesArr.getJSONObject(i);
-//                    
-//                }
-//                myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//
-                        try {
-//
-//                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-//                            try{
-//                            int vid = Integer.parseInt(postSnapshot.getName());
-//                            double lat = postSnapshot.child("lat").getValue(Double.class);
-//                            double lng = postSnapshot.child("lng").getValue(Double.class);
-//                            int status = postSnapshot.child("status").getValue(Integer.class);
-//
-//                            if(status==0){
-//                                
-//                                double dist = distance(ilat, lat, ilng, lng);
-//                                if(min_id==0){//first time only
-//                                    min_id = vid;
-//                                    min_distance = dist;
-//                                }
-//                                else{
-//                                    if(min_distance>dist){
-//                                         min_id = vid;
-//                                         min_distance = dist;
-//                                    }
-//                                }
-//                            }
-//                            }catch(NullPointerException ne){
-//                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
-//                            }catch(NumberFormatException ne){
-//                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
-//                            }
-//                        }
-//                        ////////////////////////////////////////////////////////////////////////////////
+            try{
+                myFirebaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        String selecteddrivertoken = "";
                         int pickupSelectedDriverID = 0;
-                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+nearestvehicleid);
-                        while(rs.next())
-                        {
-                            JSONObject d = new JSONObject();
-                             String fullname = rs.getString(2);
-                             pickupSelectedDriverID = rs.getInt(1);
-
-                             d.put("driver_id", pickupSelectedDriverID);
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("driver").getChildren()) {
+                            int did = Integer.parseInt(postSnapshot.getName());
+                            int vid = postSnapshot.child("vid").getValue(Integer.class);
+                            if(vid==nearestvehicleid){
+                             JSONObject d = new JSONObject();
+                             String fullname = postSnapshot.child("fullname").getValue(String.class);
+                             selecteddrivertoken = postSnapshot.child("token").getValue(String.class);
+                             d.put("driver_id", did);
                              d.put("fullname", fullname);
-                             obj.put("driver", d);
-                         }
-                        ResultSet rs2 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+nearestvehicleid);
-                        while(rs2.next())
-                        {
-                            JSONObject v = new JSONObject();
-                             String model = rs2.getString(2);
-                             String color = rs2.getString(3);
-                             String plate_number = rs2.getString(5);
+                             resobj.put("driver", d);
+                             pickupSelectedDriverID=did;
+                            }
+                            
+                        }
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicle").getChildren()) {
+                            int vid = Integer.parseInt(postSnapshot.getName());
+                            if(vid==nearestvehicleid){
+                                JSONObject v = new JSONObject();
+                                String model = postSnapshot.child("model").getValue(String.class);
+                                String color = postSnapshot.child("color").getValue(String.class);
+                                String plate_number = postSnapshot.child("plate_number").getValue(String.class);
 
-                             v.put("vehicle_id", nearestvehicleid);
-                             v.put("model", model);
-                             v.put("color", color);
-                             v.put("plate_number", plate_number);
-                             obj.put("vehicle", v);
-                         }
-                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
+                                v.put("vehicle_id", nearestvehicleid);
+                                v.put("model", model);
+                                v.put("color", color);
+                                v.put("plate_number", plate_number);
+                                resobj.put("vehicle", v);
+                            }
+                            
+                        }
+                        
+                        long tripscount = dataSnapshot.child("trips").getChildrenCount();
+                        long tripid = tripscount+1;
+//                        ////////////////////////////////////////////////////////////////////////////////
+//                        int pickupSelectedDriverID = 0;
+//                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+nearestvehicleid);
+//                        while(rs.next())
+//                        {
+//                            JSONObject d = new JSONObject();
+//                             String fullname = rs.getString(2);
+//                             pickupSelectedDriverID = rs.getInt(1);
+//
+//                             d.put("driver_id", pickupSelectedDriverID);
+//                             d.put("fullname", fullname);
+//                             obj.put("driver", d);
+//                         }
+//                        ResultSet rs2 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+nearestvehicleid);
+//                        while(rs2.next())
+//                        {
+//                            JSONObject v = new JSONObject();
+//                             String model = rs2.getString(2);
+//                             String color = rs2.getString(3);
+//                             String plate_number = rs2.getString(5);
+//
+//                             v.put("vehicle_id", nearestvehicleid);
+//                             v.put("model", model);
+//                             v.put("color", color);
+//                             v.put("plate_number", plate_number);
+//                             obj.put("vehicle", v);
+//                         }
+//                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
                         //set trip status
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("status").setValue("requested");
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ilat").setValue(ilat);
@@ -762,109 +867,53 @@ public class PassengerAppServiceJersey {
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("timestamp").setValue(System.currentTimeMillis());
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("did").setValue(pickupSelectedDriverID);
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("pid").setValue(passengerid);
+                        
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("start").setValue(0);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("end").setValue(0);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("price").setValue(0);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("comment").setValue(0);
+                        myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ratting").setValue(0);
 
 
-                        String testtoken = "ccH74m0Ipzo:APA91bFS0qrW0U65OOqzV330GaX3i3wLnhnK9rTMfcPpd2yogdaCsqEqogMTbsdLJVUWDAOqzRnNn4YB_4ID4HLJtAfuzOyOIKdF5fMxJ344Rs5lex4b7VuAthMLOhqg8DqQUI_kBh-2"; 
+
+
+//                        String testtoken = "ccH74m0Ipzo:APA91bFS0qrW0U65OOqzV330GaX3i3wLnhnK9rTMfcPpd2yogdaCsqEqogMTbsdLJVUWDAOqzRnNn4YB_4ID4HLJtAfuzOyOIKdF5fMxJ344Rs5lex4b7VuAthMLOhqg8DqQUI_kBh-2"; 
                         //send notification to driver
-                        sendFireNotification(testtoken,"Trip Request","You have new trip request");
+                        sendFireNotification(selecteddrivertoken,"Trip Request","You have new trip request");
                         
-                        obj.put("tripid", tripid);
-                        obj.put("success", "1");
-                        obj.put("msg","Done successful");
-                        conn.close();
-                        conn=null;
-                        response = Response.status(200).entity(obj).build();
-//                        latch.countDown();
+                        resobj.put("tripid", tripid);
+                        resobj.put("success", "1");
+                        resobj.put("msg","Done successful");
+//                        conn.close();
+//                        conn=null;
+                        response = Response.status(200).entity(resobj).build();
+                        latch.countDown();
+                    }
+                    @Override
+                    public void onCancelled() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
                         
-                        } catch (Exception ex) {
-                            obj.put("success", "0");
-                            obj.put("msg", ex.getMessage());
-                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-                            response=Response.status(200).entity(obj).build();
-//                            latch.countDown();
-                        }
-//                        
-//                    }
-//                    @Override
-//                    public void onCancelled() {
-//                        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//                        obj.put("success", "0");
-//                        obj.put("msg", "Firebase Error");    
-//                        response=Response.status(200).entity(obj).build();
-//                        latch.countDown();
-//                    }
-//
-//                });
-                
-//                PNConfiguration pnConfiguration = new PNConfiguration();
-//                pnConfiguration.setSubscribeKey("sub-c-a92c9e70-e683-11e6-b3b8-0619f8945a4f");
-//                pnConfiguration.setPublishKey("pub-c-b04f5dff-3f09-4dc6-8b4e-58034b4b85bb");
-//                pnConfiguration.setSecure(false);
-//
-//                PubNub pubnub = new PubNub(pnConfiguration);
-
-//                pubnub.history()
-//                .channel("locschannel") // where to fetch history from
-//                .count(100) // how many items to fetch
-//                .async(new PNCallback<PNHistoryResult>() {
-//                    @Override
-//                    public void onResponse(PNHistoryResult result, PNStatus status) {
-//                        List<PNHistoryItemResult> msgsList = result.getMessages();
-////                        String text  = msgsList.get(0).getEntry().get("text").textValue();
-//                        for (int i = 0; i < msgsList.size(); i++) {
-//                            int did  = msgsList.get(i).getEntry().get("did").intValue();
-//                            double lat  = msgsList.get(i).getEntry().get("lat").doubleValue();
-//                            double lng  = msgsList.get(i).getEntry().get("lng").doubleValue();
-//                            int dstatus  = msgsList.get(i).getEntry().get("status").intValue(); // 0 free 1 in trip
-//                            
-//                            if(dstatus==0){
-//                                int f = 0;
-//                                for (int j = 0; j < driversIDs.size(); j++) {
-//                                    if(driversIDs.get(j)==did){
-//                                        f=1;
-//                                        driversLats.set(j, lat);
-//                                        driversLngs.set(j, lng);
-//                                        driverDistance.set(j, distance(ilat, lat, ilng, lng));
-//                                    }
-//                                }
-//                                if(f==0){
-//                                    driversIDs.add(did);
-//                                    driversLats.add(lat);
-//                                    driversLngs.add(lng);
-//                                    driverDistance.add(distance(ilat, lat, ilng, lng));
-//                                }
-//                            }
+                    });
+                    
+//                        } catch (Exception ex) {
+//                            obj.put("success", "0");
+//                            obj.put("msg", ex.getMessage());
+//                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+//                            response=Response.status(200).entity(obj).build();
+////                            latch.countDown();
 //                        }
 //                        
-//                        //kda m3aya list bl ehsarat kolha
-//                        //find minimum distance driver b2a
-//                        double mindistance = driverDistance.get(0);
-//                        int minindex = 0;
-//                        for (int i = 0; i < driverDistance.size(); i++) {
-//                            if(mindistance>driverDistance.get(i)){
-//                                mindistance=driverDistance.get(i);
-//                                minindex=i;
-//                            }
-//                        }
-//                        
-//                        pickupSelectedDriverID = driversIDs.get(minindex);
-//                        
-//                        
-//
-//                    }
-//                });
-
 
               
 
-//        try{
-//            latch.await();
-//        } catch (Exception ex) {
-//            obj.put("success", "0");
-//            obj.put("msg", ex.getMessage());
-//            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-//            response=Response.status(200).entity(obj).build();
-//        }
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            response=Response.status(200).entity(resobj).build();
+        }
         return response; //Response.status(200).entity(obj).build();
     }
     
