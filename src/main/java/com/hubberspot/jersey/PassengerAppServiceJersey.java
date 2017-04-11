@@ -302,6 +302,8 @@ public class PassengerAppServiceJersey {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response LoginPassenger(String data) throws Exception{  
         JSONObject obj = new JSONObject();
+        resobj = new JSONObject();
+
            try {
 
             JSONObject objj = JSONObject.fromObject(data);   
@@ -315,7 +317,6 @@ public class PassengerAppServiceJersey {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         JSONObject d = new JSONObject();
-                        resobj = new JSONObject();
 
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
