@@ -819,7 +819,7 @@ public class PassengerAppServiceJersey {
                             }
                             
                         }
-                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicle").getChildren()) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
                             int vid = Integer.parseInt(postSnapshot.getName());
                             if(vid==nearestvehicleid){
                                 JSONObject v = new JSONObject();
@@ -922,7 +922,7 @@ public class PassengerAppServiceJersey {
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
             response=Response.status(200).entity(resobj).build();
         }
-        return response; //Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
     }
     
          public static double distance(double lat1, double lat2, double lon1, double lon2) {

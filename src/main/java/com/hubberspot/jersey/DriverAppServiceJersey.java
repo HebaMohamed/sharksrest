@@ -339,59 +339,116 @@ public class DriverAppServiceJersey {
     @Path("/donetrip/{tripid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-   public Response donetrip(@PathParam("tripid") int id) throws Exception{
-       JSONObject obj = new JSONObject();
+   public Response donetrip(@PathParam("tripid") final int id) throws Exception{
+//       JSONObject obj = new JSONObject();
    
-        try {
             //get current datetime 
-            java.util.Date dt = new java.util.Date();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String currentTime = sdf.format(dt);
-            String j = "UPDATE trip SET end = '"+currentTime+"' WHERE trip_id = "+id+";";
-            excDB(j);
-            conn.close();
+//            java.util.Date dt = new java.util.Date();
+//            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            String currentTime = sdf.format(dt);
+            //String j = "UPDATE trip SET end = '"+currentTime+"' WHERE trip_id = "+id+";";
+            //excDB(j);
+            //conn.close();
             
-            double distance = calculate_pathway(id);
-            double distancecost = KMCOST/1000*distance;
-            obj.put("distance", distance);
-            obj.put("distancecost", distancecost);
+            //to calculate pathway
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            resobj = new JSONObject();
+            final CountDownLatch latch = new CountDownLatch(1);
+            
+            
+                myFirebaseRef.child("trips").child(String.valueOf(id)).child("pathway").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                         
+                        JSONArray paths = new JSONArray();
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            
+                            long timestamp = Long.parseLong(postSnapshot.getName());
+                            double lat = postSnapshot.child("lat").getValue(Double.class);
+                            double lng = postSnapshot.child("lng").getValue(Double.class);
+                            
+                            JSONObject latlng = new JSONObject();
+                            latlng.put("lat", lat);                    
+                            latlng.put("lng", lng);
+                            paths.add(latlng);
+                        }
+                        
+                        //calculate b2a
+                        double fulldistance = 0;
+                        for (int i = 0; i < paths.size()-1; i++) {
+                            double lat1 = paths.getJSONObject(i).getDouble("lat");           
+                            double lng1 = paths.getJSONObject(i).getDouble("lng");
+
+                            double lat2 = paths.getJSONObject(i+1).getDouble("lat");           
+                            double lng2 = paths.getJSONObject(i+1).getDouble("lng");
+
+                            fulldistance+= distance(lat1, lat2, lng1, lng2);
+                        }
+                        
+                            
+                            //add it
+                            double distancecost = KMCOST/1000*fulldistance;
+                            resobj.put("distance", fulldistance);
+                            resobj.put("distancecost", distancecost);
+            
+                            myFirebaseRef.child("trips").child(String.valueOf(id)).child("end").setValue(System.currentTimeMillis());
+                            myFirebaseRef.child("trips").child(String.valueOf(id)).child("price").setValue(distancecost);
+                        
+                            
+                            resobj.put("success", "1");
+                            resobj.put("msg", "Added Successfully");
+                            latch.countDown();
+                }
+                
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+                });
 
             
-            obj.put("success", "1");
-            obj.put("msg", "Edited Successfully");
-             } catch (SQLException ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+        try{
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
     }
    
    double calculate_pathway(int id) throws Exception{
-       String query = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-       ResultSet rs = getDBResultSet(query);
-       JSONArray paths = new JSONArray();
-       while(rs.next())
-       {
-           Double lat = rs.getDouble("yattitude"); 
-           Double lng = rs.getDouble("xlongitude");
-                    
-           JSONObject latlng = new JSONObject();
-           latlng.put("lat", lat);                    
-           latlng.put("lng", lng);
-           paths.add(latlng);
-        }
        double fulldistance = 0;
-       for (int i = 0; i < paths.size()-1; i++) {
-           double lat1 = paths.getJSONObject(i).getDouble("lat");           
-           double lng1 = paths.getJSONObject(i).getDouble("lng");
-           
-           double lat2 = paths.getJSONObject(i+1).getDouble("lat");           
-           double lng2 = paths.getJSONObject(i+1).getDouble("lng");
-
-           fulldistance+= distance(lat1, lat2, lng1, lng2);
-       }
+       
+       
+       
+       
+//       String query = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+//       ResultSet rs = getDBResultSet(query);
+//       JSONArray paths = new JSONArray();
+//       while(rs.next())
+//       {
+//           Double lat = rs.getDouble("yattitude"); 
+//           Double lng = rs.getDouble("xlongitude");
+//                    
+//           JSONObject latlng = new JSONObject();
+//           latlng.put("lat", lat);                    
+//           latlng.put("lng", lng);
+//           paths.add(latlng);
+//        }
+//       double fulldistance = 0;
+//       for (int i = 0; i < paths.size()-1; i++) {
+//           double lat1 = paths.getJSONObject(i).getDouble("lat");           
+//           double lng1 = paths.getJSONObject(i).getDouble("lng");
+//           
+//           double lat2 = paths.getJSONObject(i+1).getDouble("lat");           
+//           double lng2 = paths.getJSONObject(i+1).getDouble("lng");
+//
+//           fulldistance+= distance(lat1, lat2, lng1, lng2);
+//       }
        return fulldistance;
    }
 
