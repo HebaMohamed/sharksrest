@@ -738,6 +738,9 @@ public class PassengerAppServiceJersey {
         String comment = dataObj.getString("comment");
         int tripid = dataObj.getInt("trip_id");
         int rate = dataObj.getInt("ratting");
+        
+        resobj=new JSONObject();
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
 //        JSONObject obj = new JSONObject();
 //        try {
 //         
