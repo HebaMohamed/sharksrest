@@ -649,7 +649,7 @@ public class PassengerAppServiceJersey {
     @GET
     @Path("/getlasttrip/{tripid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getLasttrip(@PathParam("tripid") int id){
+    public Response getLasttrip(@PathParam("tripid") final int id){
         //JSONObject obj = new JSONObject();
     try {
         resobj = new JSONObject();
@@ -657,22 +657,25 @@ public class PassengerAppServiceJersey {
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
         
         
-                myFirebaseRef.child("trips").child(String.valueOf(id)).addValueEventListener(new ValueEventListener() {
+                myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         JSONObject tripobj = new JSONObject();
                         JSONArray paths = new JSONArray();
                         
-//                        String status = dataSnapshot.child("status").getValue(String.class);                        
-                        String comment = dataSnapshot.child("comment").getValue(String.class);
-//                        String details = dataSnapshot.child("details").getValue(String.class);
-                        String did = dataSnapshot.child("did").getValue(String.class);
-                        String end = dataSnapshot.child("end").getValue(String.class);
-                        String pid = dataSnapshot.child("pid").getValue(String.class);
-                        String price = dataSnapshot.child("price").getValue(String.class);
-                        String ratting = dataSnapshot.child("ratting").getValue(String.class);
-                        String start = dataSnapshot.child("start").getValue(String.class);
+//                        String status = dataSnapshot.child("trips").child(String.valueOf(id)).child("status").getValue(String.class);                        
+                        String comment = dataSnapshot.child("trips").child(String.valueOf(id)).child("comment").getValue(String.class);
+//                        String details = dataSnapshot.child("trips").child(String.valueOf(id)).child("details").getValue(String.class);
+                        String did = dataSnapshot.child("trips").child(String.valueOf(id)).child("did").getValue(String.class);
+                        String end = dataSnapshot.child("trips").child(String.valueOf(id)).child("end").getValue(String.class);
+                        String pid = dataSnapshot.child("trips").child(String.valueOf(id)).child("pid").getValue(String.class);
+                        String price = dataSnapshot.child("trips").child(String.valueOf(id)).child("price").getValue(String.class);
+                        String ratting = dataSnapshot.child("trips").child(String.valueOf(id)).child("ratting").getValue(String.class);
+                        String start = dataSnapshot.child("trips").child(String.valueOf(id)).child("start").getValue(String.class);
+                        
+                        String dname = dataSnapshot.child("driver").child(String.valueOf(pid)).child("fullname").getValue(String.class);
+
                         
                         tripobj.put("start", start);
                         tripobj.put("end", end);
@@ -680,12 +683,12 @@ public class PassengerAppServiceJersey {
                         tripobj.put("comment",  comment);
                         tripobj.put("ratting", ratting);
                         tripobj.put("passenger_id", pid);
-                        tripobj.put("driver_id ",  did );
-                        tripobj.put("passenger_id ",  pid );
+                        tripobj.put("driver_id",  did );
+                        tripobj.put("driver_name",  dname );
 
 
                         try{
-                            for (DataSnapshot postSnapshot : dataSnapshot.child("pathway").getChildren()) {
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("trips").child(String.valueOf(id)).child("pathway").getChildren()) {
 
                                 double lat = postSnapshot.child("lat").getValue(Double.class);
                                 double lng = postSnapshot.child("lng").getValue(Double.class);
