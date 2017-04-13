@@ -213,64 +213,144 @@ public class DriverAppServiceJersey {
 
     }
     
+    JSONArray tripsarr;
     
     @GET
     @Path("/getlasttrips/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response getLasttrips(@PathParam("id") int id) throws Exception{
-         String query = "SELECT * FROM trip WHERE driver_id = "+id;
-        JSONObject obj = new JSONObject();
+    public Response getLasttrips(@PathParam("id") final int id) throws Exception{
+        
+                 //String query = "SELECT * FROM trip WHERE driver_id = "+id;
+        //JSONObject obj = new JSONObject();
+        resobj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
         try {
-            ResultSet rs = getDBResultSet(query);
-            obj.put("success", "1");
-            obj.put("msg", "done");
+//            ResultSet rs = getDBResultSet(query);
+//            resobj.put("success", "1");
+//            resobj.put("msg", "done");
             
-            JSONArray arr = new JSONArray();
-             while(rs.next())
-             {
-                 int trip_id = rs.getInt(1);
-                 String start = rs.getString(2);
-                 String end = rs.getString(3);
-                 String price = rs.getString(4);  
-                 String comment= rs.getString(5);
-                 String ratting= rs.getString(6);
-                 String passenger_id= rs.getString(8);
-                                     
-                 JSONObject o = new JSONObject();
-                 o.put("trip_id",trip_id  );
-                 o.put("start", start);
-                 o.put("end", end);
-                 o.put("price ",price );
-                 o.put("comment", comment);
-                 o.put("ratting", ratting);
-                 o.put("passenger_id",passenger_id);
-                 
-                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-                 ResultSet rs2 = getDBResultSet(query2);
-                 JSONArray paths = new JSONArray();
-                 while(rs2.next())
-                {
-                    Double lat = rs2.getDouble("yattitude");                    
-                    Double lng = rs2.getDouble("xlongitude");
-                    JSONObject latlng = new JSONObject();
-                    latlng.put("lat", lat);                    
-                    latlng.put("lng", lng);
-                    paths.add(latlng);
+            tripsarr = new JSONArray();
+            
+           
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+                myFirebaseRef.child("trips").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                int did = postSnapshot.child("did").getValue(Integer.class);
+                                JSONArray paths = new JSONArray();
+                                if(did == id){
+
+                                    int tid = Integer.parseInt(postSnapshot.getName());
+                                    String comment = postSnapshot.child("comment").getValue(String.class);
+//                                    String details = postSnapshot.child("details").getValue(String.class);
+                                    String pid = postSnapshot.child("pid").getValue(String.class);
+                                    String end = postSnapshot.child("end").getValue(String.class);
+                                    String price = postSnapshot.child("price").getValue(String.class);
+                                    String ratting = postSnapshot.child("ratting").getValue(String.class);
+                                    String start = postSnapshot.child("start").getValue(String.class);
+
+                                    JSONObject o = new JSONObject();
+                                    o.put("trip_id",tid  );
+                                    o.put("start", start);
+                                    o.put("end", end);
+                                    o.put("price ",price );
+                                    o.put("comment", comment);
+                                    o.put("ratting", ratting);
+                                    o.put("driver_id",did);
+                                    o.put("passenger_id",pid);
+
+                                    
+                                    try{
+                                        for (DataSnapshot postSnapshot2 : postSnapshot.child("pathway").getChildren()) {
+
+                                            double lat = postSnapshot2.child("lat").getValue(Double.class);
+                                            double lng = postSnapshot2.child("lng").getValue(Double.class);
+
+                                            JSONObject latlng = new JSONObject();
+                                            latlng.put("lat", lat);                    
+                                            latlng.put("lng", lng);
+                                            paths.add(latlng);
+
+                                        }
+                                    }catch(NullPointerException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }catch(NumberFormatException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }
+                               
+                                    o.put("pathway",paths);
+                                    tripsarr.add(o);
+                                    
+                                }
+                            
+                            
+                        }
+                        
+                          resobj.put("trips", tripsarr);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
                 }
-                 o.put("pathway",paths);
-                 arr.add(o);
-             }
-                 
-            obj.put("lasttrips", arr);  
-            conn.close();
-        } catch (SQLException ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+                });
+
+//             while(rs.next())
+//             {
+//                 int trip_id = rs.getInt(1);
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 String price = rs.getString(4);  
+//                 String comment = rs.getString(5);
+//                 String ratting = rs.getString(6);
+//                 String passenger_id= rs.getString(8);
+//                                     
+//                 JSONObject o = new JSONObject();
+//                 o.put("trip_id",trip_id  );
+//                 o.put("start", start);
+//                 o.put("end", end);
+//                 o.put("price ",price );
+//                 o.put("comment", comment);
+//                 o.put("ratting", ratting);
+//                 o.put("passenger_id",passenger_id);
+//                 
+//                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+//                 ResultSet rs2 = getDBResultSet(query2);
+//                 JSONArray paths = new JSONArray();
+//                 while(rs2.next())
+//                {
+//                    Double lat = rs2.getDouble("yattitude");                    
+//                    Double lng = rs2.getDouble("xlongitude");
+//                    JSONObject latlng = new JSONObject();
+//                    latlng.put("lat", lat);                    
+//                    latlng.put("lng", lng);
+//                    paths.add(latlng);
+//                }
+//                 o.put("pathway",paths);
+//                 arr.add(o);
+//             }
+               //conn.close();
+
+//            resobj.put("lasttrips", arr);  
+    
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
+        
     }
     
     
@@ -278,59 +358,123 @@ public class DriverAppServiceJersey {
     @Path("/getlasttrip/{tripid}")
       @Produces(MediaType.APPLICATION_JSON)
    public Response getLasttrip(@PathParam("tripid") int id){
-        JSONObject obj = new JSONObject();
- try {
-            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
-            JSONObject tripobj = new JSONObject();   
-            while(rs.next())
-             {           
-                
-                 String start = rs.getString(2);
-                 String end = rs.getString(3);
-                 String price = rs.getString(4);  
-                 String comment = rs.getString(5);
-                 String ratting = rs.getString(6);
-                 String passenger_id = rs.getString(7);
-                 String driver_id = rs.getString(8);
-                 
-                 
-                 tripobj.put("start", start);
-                 tripobj.put("end", end);
-                 tripobj.put("price", price);
-                 tripobj.put("comment",  comment);
-                 tripobj.put("ratting", ratting);
-                 tripobj.put("passenger_id", passenger_id);
-                tripobj.put("driver_id ",  driver_id );
-                
-                    
-                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-                 ResultSet rs2 = getDBResultSet(query2);
-                 JSONArray paths = new JSONArray();
-                 while(rs2.next())
-                {
-                    Double lat = rs2.getDouble("yattitude");                    
-                    Double lng = rs2.getDouble("xlongitude");
-                    JSONObject latlng = new JSONObject();
-                    latlng.put("lat", lat);                    
-                    latlng.put("lng", lng);
-                    paths.add(latlng);
+       
+        //JSONObject obj = new JSONObject();
+    try {
+        resobj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        
+        
+                myFirebaseRef.child("trips").child(String.valueOf(id)).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        JSONObject tripobj = new JSONObject();
+                        JSONArray paths = new JSONArray();
+                        
+//                        String status = dataSnapshot.child("status").getValue(String.class);                        
+                        String comment = dataSnapshot.child("comment").getValue(String.class);
+//                        String details = dataSnapshot.child("details").getValue(String.class);
+                        String did = dataSnapshot.child("did").getValue(String.class);
+                        String end = dataSnapshot.child("end").getValue(String.class);
+                        String pid = dataSnapshot.child("pid").getValue(String.class);
+                        String price = dataSnapshot.child("price").getValue(String.class);
+                        String ratting = dataSnapshot.child("ratting").getValue(String.class);
+                        String start = dataSnapshot.child("start").getValue(String.class);
+                        
+                        tripobj.put("start", start);
+                        tripobj.put("end", end);
+                        tripobj.put("price", price);
+                        tripobj.put("comment",  comment);
+                        tripobj.put("ratting", ratting);
+                        tripobj.put("passenger_id", pid);
+                        tripobj.put("driver_id ",  did );
+                        tripobj.put("passenger_id ",  pid );
+
+                        try{
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("pathway").getChildren()) {
+
+                                double lat = postSnapshot.child("lat").getValue(Double.class);
+                                double lng = postSnapshot.child("lng").getValue(Double.class);
+                                
+                                JSONObject latlng = new JSONObject();
+                                latlng.put("lat", lat);                    
+                                latlng.put("lng", lng);
+                                paths.add(latlng);
+
+                            }
+                        }catch(NullPointerException ne){
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                        }catch(NumberFormatException ne){
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                        }
+                          tripobj.put("pathway",paths);
+                          resobj.put("trip", tripobj);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
-                 tripobj.put("pathway",paths);
-                
-                obj.put("trip", tripobj);
-             }
-            //obj.put("trip", tripobj);
-            obj.put("success", "1");
-            obj.put("msg", "Selected Successfully");
-            
-            conn.close();
+                });
+        
+        
+//            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
+//            JSONObject tripobj = new JSONObject();   
+//            while(rs.next())
+//             {           
+//                
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 String price = rs.getString(4);  
+//                 String comment = rs.getString(5);
+//                 String ratting = rs.getString(6);
+//                 String passenger_id = rs.getString(7);
+//                 String driver_id = rs.getString(8);
+//                 
+//                 
+//                 tripobj.put("start", start);
+//                 tripobj.put("end", end);
+//                 tripobj.put("price", price);
+//                 tripobj.put("comment",  comment);
+//                 tripobj.put("ratting", ratting);
+//                 tripobj.put("passenger_id", passenger_id);
+//                tripobj.put("driver_id ",  driver_id );
+//                
+//                    
+//                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+//                 ResultSet rs2 = getDBResultSet(query2);
+//                 JSONArray paths = new JSONArray();
+//                 while(rs2.next())
+//                {
+//                    Double lat = rs2.getDouble("yattitude");                    
+//                    Double lng = rs2.getDouble("xlongitude");
+//                    JSONObject latlng = new JSONObject();
+//                    latlng.put("lat", lat);                    
+//                    latlng.put("lng", lng);
+//                    paths.add(latlng);
+//                }
+//                 tripobj.put("pathway",paths);
+//                
+//                obj.put("trip", tripobj);
+//             }
+//            //obj.put("trip", tripobj);
+//            obj.put("success", "1");
+//            obj.put("msg", "Selected Successfully");
+//            
+//            conn.close();
+            latch.await();
         } catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
 
     }
     

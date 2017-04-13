@@ -60,7 +60,7 @@ import net.sf.json.JSONObject;
 @ApplicationPath("/")
 @Path("/passengerservice")
 public class PassengerAppServiceJersey {
-    Connection conn;
+   // Connection conn;
     
     List<Integer> driversIDs;
     List<Double> driversLats,driversLngs, driverDistance;
@@ -108,86 +108,83 @@ public class PassengerAppServiceJersey {
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static String getFiredata(String url, String param ) throws Exception{
-        
-
-        String charset = "UTF-8"; 
-        URLConnection connection = new URL(url).openConnection();
-        connection.setDoOutput(true); // Triggers POST.
-        connection.setRequestProperty("Accept-Charset", charset);
-        connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
-
-        OutputStream output = connection.getOutputStream();
-        output.write(param.getBytes(charset));
-
-
-        InputStream response = connection.getInputStream();
-
-        BufferedReader streamReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
-        StringBuilder responseStrBuilder = new StringBuilder();
-
-        String inputStr;
-        while ((inputStr = streamReader.readLine()) != null)
-            responseStrBuilder.append(inputStr);
-
-        String s = responseStrBuilder.toString();
-
-       return s;
-  }
-
-    
-    
-    ResultSet getDBResultSet(String query) throws Exception{
-                    
-        Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");     
-        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-        
-        Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery(query);
-        return rs;            
-    }
-    void excDB(String query) throws Exception{
-                    
-        Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-       // conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-        
-        Statement st = conn.createStatement();
-        st.executeUpdate(query);
-    }
-    
-    int excDBgetID(String query, String tableName) throws Exception{
-                    
-        Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-        
-        Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+//    public static String getFiredata(String url, String param ) throws Exception{
+//        
+//
+//        String charset = "UTF-8"; 
+//        URLConnection connection = new URL(url).openConnection();
+//        connection.setDoOutput(true); // Triggers POST.
+//        connection.setRequestProperty("Accept-Charset", charset);
+//        connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+//
+//        OutputStream output = connection.getOutputStream();
+//        output.write(param.getBytes(charset));
+//
+//
+//        InputStream response = connection.getInputStream();
+//
+//        BufferedReader streamReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
+//        StringBuilder responseStrBuilder = new StringBuilder();
+//
+//        String inputStr;
+//        while ((inputStr = streamReader.readLine()) != null)
+//            responseStrBuilder.append(inputStr);
+//
+//        String s = responseStrBuilder.toString();
+//
+//       return s;
+//  }
+//    ResultSet getDBResultSet(String query) throws Exception{
+//                    
+//        Class.forName("com.mysql.jdbc.Driver");            
+//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");     
+//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+//        
+//        Statement st = conn.createStatement();
 //        ResultSet rs = st.executeQuery(query);
-//        ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
-//        int insertedid = 0;
-//        if (rs.next()){
-//            insertedid =rs.getInt(1);
-//        }
-
-        int insertedidrow = st.executeUpdate(query);
-        ResultSet rs = st.executeQuery("select last_insert_id() as last_id from "+tableName);
-        rs.next();
-        int insertedid = rs.getInt("last_id");        
-
-        return insertedid;
-    }
+//        return rs;            
+//    }
+//    void excDB(String query) throws Exception{
+//                    
+//        Class.forName("com.mysql.jdbc.Driver");            
+//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+//       // conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+//        
+//        Statement st = conn.createStatement();
+//        st.executeUpdate(query);
+//    }
+//    int excDBgetID(String query, String tableName) throws Exception{
+//                    
+//        Class.forName("com.mysql.jdbc.Driver");            
+//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+//        
+//        Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+////        ResultSet rs = st.executeQuery(query);
+////        ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
+////        int insertedid = 0;
+////        if (rs.next()){
+////            insertedid =rs.getInt(1);
+////        }
+//
+//        int insertedidrow = st.executeUpdate(query);
+//        ResultSet rs = st.executeQuery("select last_insert_id() as last_id from "+tableName);
+//        rs.next();
+//        int insertedid = rs.getInt("last_id");        
+//
+//        return insertedid;
+//    }
+//    
+    
     
     JSONObject resobj;
     @POST
@@ -512,21 +509,23 @@ public class PassengerAppServiceJersey {
         return Response.status(200).entity(resobj).build();
     }
     
+    JSONArray tripsarr;
     @GET
     @Path("/getlasttrips/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response getLasttrips(@PathParam("id") int id) throws Exception{
+    public Response getLasttrips(@PathParam("id") final int id) throws Exception{
          //String query = "SELECT * FROM trip WHERE driver_id = "+id;
         //JSONObject obj = new JSONObject();
         resobj = new JSONObject();
         final CountDownLatch latch = new CountDownLatch(1);
         try {
 //            ResultSet rs = getDBResultSet(query);
-            resobj.put("success", "1");
-            resobj.put("msg", "done");
+//            resobj.put("success", "1");
+//            resobj.put("msg", "done");
             
-            JSONArray arr = new JSONArray();
+            tripsarr = new JSONArray();
+            
            
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             
@@ -535,33 +534,59 @@ public class PassengerAppServiceJersey {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            try{
-                            int tid = Integer.parseInt(postSnapshot.getName());
-                            String comment = postSnapshot.child("comment").getValue(String.class);
-                            String details = postSnapshot.child("details").getValue(String.class);
-                            String did = postSnapshot.child("did").getValue(String.class);
-                            String pid = postSnapshot.child("pid").getValue(String.class);
-                            String end = postSnapshot.child("end").getValue(String.class);
-                            String price = postSnapshot.child("price").getValue(String.class);
-                            String ratting = postSnapshot.child("ratting").getValue(String.class);
-                            String start = postSnapshot.child("start").getValue(String.class);
+                                int pid = postSnapshot.child("pid").getValue(Integer.class);
+                                JSONArray paths = new JSONArray();
+                                if(pid == id){
 
-                            JSONObject o = new JSONObject();
-                            o.put("trip_id",tid  );
-                            o.put("start", start);
-                            o.put("end", end);
-                            o.put("price ",price );
-                            o.put("comment", comment);
-                            o.put("ratting", ratting);
-                            o.put("passenger_id",pid);
+                                    int tid = Integer.parseInt(postSnapshot.getName());
+                                    String comment = postSnapshot.child("comment").getValue(String.class);
+//                                    String details = postSnapshot.child("details").getValue(String.class);
+                                    String did = postSnapshot.child("did").getValue(String.class);
+                                    String end = postSnapshot.child("end").getValue(String.class);
+                                    String price = postSnapshot.child("price").getValue(String.class);
+                                    String ratting = postSnapshot.child("ratting").getValue(String.class);
+                                    String start = postSnapshot.child("start").getValue(String.class);
+
+                                    JSONObject o = new JSONObject();
+                                    o.put("trip_id",tid  );
+                                    o.put("start", start);
+                                    o.put("end", end);
+                                    o.put("price ",price );
+                                    o.put("comment", comment);
+                                    o.put("ratting", ratting);
+                                    o.put("driver_id",did);
+                                    o.put("passenger_id",pid);
+
+                                    try{
+                                        for (DataSnapshot postSnapshot2 : postSnapshot.child("pathway").getChildren()) {
+
+                                            double lat = postSnapshot2.child("lat").getValue(Double.class);
+                                            double lng = postSnapshot2.child("lng").getValue(Double.class);
+
+                                            JSONObject latlng = new JSONObject();
+                                            latlng.put("lat", lat);                    
+                                            latlng.put("lng", lng);
+                                            paths.add(latlng);
+
+                                        }
+                                    }catch(NullPointerException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }catch(NumberFormatException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }
+                               
+                                    o.put("pathway",paths);
+                                    tripsarr.add(o);
+                                    
+                                }
                             
                             
-                            }catch(NullPointerException ne){
-                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
-                            }catch(NumberFormatException ne){
-                                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
-                            }
                         }
+                        
+                          resobj.put("trips", tripsarr);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
                         
                     }
 
@@ -608,7 +633,9 @@ public class PassengerAppServiceJersey {
 //             }
                //conn.close();
 
-            resobj.put("lasttrips", arr);  
+//            resobj.put("lasttrips", arr);  
+    
+            latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
@@ -621,61 +648,125 @@ public class PassengerAppServiceJersey {
     
     @GET
     @Path("/getlasttrip/{tripid}")
-      @Produces(MediaType.APPLICATION_JSON)
-   public Response getLasttrip(@PathParam("tripid") int id){
-        JSONObject obj = new JSONObject();
- try {
-            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
-            JSONObject tripobj = new JSONObject();   
-            while(rs.next())
-             {           
-                
-                 String start = rs.getString(2);
-                 String end = rs.getString(3);
-                 String price = rs.getString(4);  
-                 String comment = rs.getString(5);
-                 String ratting = rs.getString(6);
-                 String passenger_id = rs.getString(7);
-                 String driver_id = rs.getString(8);
-                 
-                 
-                 tripobj.put("start", start);
-                 tripobj.put("end", end);
-                 tripobj.put("price", price);
-                 tripobj.put("comment",  comment);
-                 tripobj.put("ratting", ratting);
-                 tripobj.put("passenger_id", passenger_id);
-                tripobj.put("driver_id ",  driver_id );
-                
-                    
-                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-                 ResultSet rs2 = getDBResultSet(query2);
-                 JSONArray paths = new JSONArray();
-                 while(rs2.next())
-                {
-                    Double lat = rs2.getDouble("yattitude");                    
-                    Double lng = rs2.getDouble("xlongitude");
-                    JSONObject latlng = new JSONObject();
-                    latlng.put("lat", lat);                    
-                    latlng.put("lng", lng);
-                    paths.add(latlng);
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLasttrip(@PathParam("tripid") int id){
+        //JSONObject obj = new JSONObject();
+    try {
+        resobj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        
+        
+                myFirebaseRef.child("trips").child(String.valueOf(id)).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        JSONObject tripobj = new JSONObject();
+                        JSONArray paths = new JSONArray();
+                        
+//                        String status = dataSnapshot.child("status").getValue(String.class);                        
+                        String comment = dataSnapshot.child("comment").getValue(String.class);
+//                        String details = dataSnapshot.child("details").getValue(String.class);
+                        String did = dataSnapshot.child("did").getValue(String.class);
+                        String end = dataSnapshot.child("end").getValue(String.class);
+                        String pid = dataSnapshot.child("pid").getValue(String.class);
+                        String price = dataSnapshot.child("price").getValue(String.class);
+                        String ratting = dataSnapshot.child("ratting").getValue(String.class);
+                        String start = dataSnapshot.child("start").getValue(String.class);
+                        
+                        tripobj.put("start", start);
+                        tripobj.put("end", end);
+                        tripobj.put("price", price);
+                        tripobj.put("comment",  comment);
+                        tripobj.put("ratting", ratting);
+                        tripobj.put("passenger_id", pid);
+                        tripobj.put("driver_id ",  did );
+                        tripobj.put("passenger_id ",  pid );
+
+
+                        try{
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("pathway").getChildren()) {
+
+                                double lat = postSnapshot.child("lat").getValue(Double.class);
+                                double lng = postSnapshot.child("lng").getValue(Double.class);
+                                
+                                JSONObject latlng = new JSONObject();
+                                latlng.put("lat", lat);                    
+                                latlng.put("lng", lng);
+                                paths.add(latlng);
+
+                            }
+                        }catch(NullPointerException ne){
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                        }catch(NumberFormatException ne){
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                        }
+                          tripobj.put("pathway",paths);
+                          resobj.put("trip", tripobj);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
-                 tripobj.put("pathway",paths);
-                
-                obj.put("trip", tripobj);
-             }
-            //obj.put("trip", tripobj);
-            obj.put("success", "1");
-            obj.put("msg", "Selected Successfully");
-            
-            conn.close();
+                });
+        
+        
+//            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
+//            JSONObject tripobj = new JSONObject();   
+//            while(rs.next())
+//             {           
+//                
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 String price = rs.getString(4);  
+//                 String comment = rs.getString(5);
+//                 String ratting = rs.getString(6);
+//                 String passenger_id = rs.getString(7);
+//                 String driver_id = rs.getString(8);
+//                 
+//                 
+//                 tripobj.put("start", start);
+//                 tripobj.put("end", end);
+//                 tripobj.put("price", price);
+//                 tripobj.put("comment",  comment);
+//                 tripobj.put("ratting", ratting);
+//                 tripobj.put("passenger_id", passenger_id);
+//                tripobj.put("driver_id ",  driver_id );
+//                
+//                    
+//                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
+//                 ResultSet rs2 = getDBResultSet(query2);
+//                 JSONArray paths = new JSONArray();
+//                 while(rs2.next())
+//                {
+//                    Double lat = rs2.getDouble("yattitude");                    
+//                    Double lng = rs2.getDouble("xlongitude");
+//                    JSONObject latlng = new JSONObject();
+//                    latlng.put("lat", lat);                    
+//                    latlng.put("lng", lng);
+//                    paths.add(latlng);
+//                }
+//                 tripobj.put("pathway",paths);
+//                
+//                obj.put("trip", tripobj);
+//             }
+//            //obj.put("trip", tripobj);
+//            obj.put("success", "1");
+//            obj.put("msg", "Selected Successfully");
+//            
+//            conn.close();
+            latch.await();
         } catch (Exception ex) {
-            obj.put("success", "0");
-            obj.put("msg", ex.getMessage());
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return Response.status(200).entity(obj).build();
+        return Response.status(200).entity(resobj).build();
 
     }
    
