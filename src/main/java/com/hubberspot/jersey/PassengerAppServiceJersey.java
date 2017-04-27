@@ -351,6 +351,10 @@ public class PassengerAppServiceJersey {
                                 response = Response.status(200).entity(resobj).build();
                                 latch.countDown();
                             }
+                            else{
+                                resobj.put("success", "0");
+                                resobj.put("msg", "Wrong Cred");
+                            }
                             
                             
                             
@@ -362,6 +366,7 @@ public class PassengerAppServiceJersey {
                                 Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                             }
                         }
+                        latch.countDown();
                         
                     }
 

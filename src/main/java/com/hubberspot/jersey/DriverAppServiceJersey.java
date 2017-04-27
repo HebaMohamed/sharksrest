@@ -36,7 +36,7 @@ import net.sf.json.JSONObject;
 @ApplicationPath("/")
 @Path("/driverservice")
 public class DriverAppServiceJersey {
-    Connection conn;
+//    Connection conn;
     
     double KMCOST = 2;//2 LE :D
     
@@ -59,31 +59,31 @@ public class DriverAppServiceJersey {
 
     }
 
-    ResultSet getDBResultSet(String query) throws Exception{
-                    
-        Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        //conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-        //conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-        conn = DriverManager.getConnection("jdbc:mysql://sharksspace-heba-mohamed.c9users.io:8080/mysharksdb?" + "user=hoba_hoby&password=");
-        
-        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-
-        Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery(query);
-        return rs;            
-    }
-    void excDB(String query) throws Exception{
-                    
-        Class.forName("com.mysql.jdbc.Driver");            
-        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-        Statement st = conn.createStatement();
-        st.executeUpdate(query);//
-    }
+//    ResultSet getDBResultSet(String query) throws Exception{
+//                    
+//        Class.forName("com.mysql.jdbc.Driver");            
+//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+//        //conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+//        //conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+//        conn = DriverManager.getConnection("jdbc:mysql://sharksspace-heba-mohamed.c9users.io:8080/mysharksdb?" + "user=hoba_hoby&password=");
+//        
+//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+//
+//        Statement st = conn.createStatement();
+//        ResultSet rs = st.executeQuery(query);
+//        return rs;            
+//    }
+//    void excDB(String query) throws Exception{
+//                    
+//        Class.forName("com.mysql.jdbc.Driver");            
+//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
+//        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
+//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
+//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
+//        Statement st = conn.createStatement();
+//        st.executeUpdate(query);//
+//    }
     
     
     
@@ -135,12 +135,17 @@ public class DriverAppServiceJersey {
 //                                response = Response.status(200).entity(resobj).build();
                                 latch.countDown();
                             }
+                            else{
+                                resobj.put("success", "0");
+                                resobj.put("msg", "Wrong cred");
+                            }
                             }catch(NullPointerException ne){
                                 Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                             }catch(NumberFormatException ne){
                                 Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                             }
                         }
+                        latch.countDown();
                         
                     }
 

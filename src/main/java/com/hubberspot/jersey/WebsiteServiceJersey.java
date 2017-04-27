@@ -943,6 +943,11 @@ public class WebsiteServiceJersey {
                      resobj.put("member", m);
                      latch.countDown();                       
                     }
+                    else{
+                        resobj.put("success", "0");
+                        resobj.put("msg", "Wrong Password");
+                        latch.countDown();      
+                    }
                     
                  }
 
@@ -993,6 +998,7 @@ public class WebsiteServiceJersey {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            latch.countDown();      
         }
 
         return Response.status(200).entity(resobj).build();
