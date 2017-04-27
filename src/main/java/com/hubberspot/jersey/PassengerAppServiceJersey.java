@@ -472,13 +472,13 @@ public class PassengerAppServiceJersey {
                         
                         
                         
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("age").setValue(age);
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("gender").setValue(gender);
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("fullname").setValue(name);
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("phone").setValue(phone);
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("password").setValue(password);
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("relatedphone").setValue(relatedphone);
-                    myFirebaseRef.child("passenger").child(String.valueOf(2)).child("language").setValue(language);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("age").setValue(age);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("gender").setValue(gender);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("fullname").setValue(name);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("phone").setValue(phone);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("password").setValue(password);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("relatedphone").setValue(relatedphone);
+                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("language").setValue(language);
 
                         resobj.put("success", "1");
                         resobj.put("msg", "Added Successfully");
