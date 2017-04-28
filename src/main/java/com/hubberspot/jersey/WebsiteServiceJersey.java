@@ -146,7 +146,7 @@ public class WebsiteServiceJersey {
 
 
             resobj.put("success", "1");
-            resobj.put("msg", "Added Successfully");
+            resobj.put("msg", "Deleted Successfully");
             
 //            conn.close();
         } catch (Exception ex) {
@@ -895,6 +895,7 @@ public class WebsiteServiceJersey {
         } catch (Exception ex) {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
+            latch.countDown();  
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -1308,12 +1309,12 @@ public class WebsiteServiceJersey {
                         
                         int tid = Integer.parseInt(dataSnapshot.getName());
 
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                int pid = postSnapshot.child("pid").getValue(Integer.class);
-                                JSONArray paths = new JSONArray();
+//                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+//                                int pid = postSnapshot.child("pid").getValue(Integer.class);
+//                                JSONArray paths = new JSONArray();
 //                                if(pid == id){
                                     try{
-                                        for (DataSnapshot postSnapshot2 : postSnapshot.child("pathway").getChildren()) {
+                                        for (DataSnapshot postSnapshot2 : dataSnapshot.child("pathway").getChildren()) {
 
                                             double lat = postSnapshot2.child("lat").getValue(Double.class);
                                             double lng = postSnapshot2.child("lng").getValue(Double.class);
@@ -1331,7 +1332,7 @@ public class WebsiteServiceJersey {
                                         Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                                     }
 //                                }
-                        }
+//                        }
                         
                           resobj.put("pathwaymap", arr); 
                           resobj.put("success", "1");
