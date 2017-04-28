@@ -774,7 +774,7 @@ public class WebsiteServiceJersey {
                                     String color = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("color").getValue(String.class);
                                     String plate_number = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("plate_number").getValue(String.class);
                                     int status = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("status").getValue(Integer.class);
-                                    if(status==1)
+                                    if(status==0)
                                         onlineDriversCount++;
                                     
                                     JSONObject o = new JSONObject();
@@ -1369,6 +1369,7 @@ public class WebsiteServiceJersey {
 //                 
 //            obj.put("pathwaymap", arr);  
 //            conn.close();
+            latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
