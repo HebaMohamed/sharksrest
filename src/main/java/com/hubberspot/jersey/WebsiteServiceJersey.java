@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -1445,6 +1446,312 @@ public class WebsiteServiceJersey {
     }
     
     
+    ////////////////////////////////////////////////////////////////for report
+    @GET
+    @Path("/getdriveravg/{did}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDriverAvg(@PathParam("did") final int driverid){
+
+            resobj = new JSONObject();
+            arr = new JSONArray();
+            final CountDownLatch latch = new CountDownLatch(1);
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        try {
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        long start_timestamp = 0;             
+                        int svid = 0;
+                        long end_timestamp = 0;
+                        
+                        ArrayList<Long> starts = new ArrayList<Long>() ;
+                        ArrayList<Long> ends = new ArrayList<Long>() ;
+                        ArrayList<Integer> vehicles = new ArrayList<Integer>() ;
+                        int i = 0;
+                        
+                        int vcount = (int) dataSnapshot.child("vehicleshistory").getChildrenCount();
+
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicleshistory").getChildren()) {
+                            i++;
+                            Long timestamp = Long.parseLong(postSnapshot.getName());
+                            int did = postSnapshot.child("did").getValue(int.class);   
+                            int vid = postSnapshot.child("vid").getValue(int.class);     
+                            
+                            if(did==driverid){
+                                if(start_timestamp==0){
+                                    start_timestamp=timestamp;
+                                    svid=vid;
+                                    
+                                    //tb momkn akon ana bs da a5r record y3ny check
+                                    if (i==vcount){
+                                    end_timestamp=System.currentTimeMillis();//y3ny wsl ll a5r w lsa sh8al feha l7d nw
+                                    //kda a5dt range
+                                    starts.add(start_timestamp);                                    
+                                    ends.add(end_timestamp);
+                                    vehicles.add(svid);
+                                    
+                                    //sfr for other ranges
+                                    start_timestamp=0;
+                                    end_timestamp=0;
+                                    svid=0;
+                            }
+                                }
+                            }
+                            else if (i==vcount){
+                                    end_timestamp=System.currentTimeMillis();//y3ny wsl ll a5r w lsa sh8al feha l7d nw
+                                    //kda a5dt range
+                                    starts.add(start_timestamp);                                    
+                                    ends.add(end_timestamp);
+                                    vehicles.add(svid);
+                                    
+                                    //sfr for other ranges
+                                    start_timestamp=0;
+                                    end_timestamp=0;
+                                    svid=0;
+                            }
+                            else if(start_timestamp!=0){//da lw l driver l vehicle bta3to et8yrt
+                                    end_timestamp=timestamp;
+                                    //kda a5dt range
+                                    starts.add(start_timestamp);                                    
+                                    ends.add(end_timestamp);
+                                    vehicles.add(svid);
+                                    
+                                    //sfr for other ranges
+                                    start_timestamp=0;
+                                    end_timestamp=0;
+                                    svid=0;
+                                    
+                                    //tb lw d a5r w7da 
+                                }
+                        }
+                        
+                        JSONArray pattrens = new JSONArray();
+                        
+                        //kda gbt l range bta3ty na2s l pattrens mn l vehicle
+                        for (int j = 0; j < vehicles.size(); j++) {
+                            int currentvid = vehicles.get(j);
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(currentvid)).child("Patterns detected").getChildren()) {
+                                Long timestamp = Long.parseLong(postSnapshot.getName());
+                                if(starts.get(j)<=timestamp && ends.get(j)>=timestamp){
+                                    int pattrenid = postSnapshot.getValue(int.class);     
+                                    JSONObject p = new JSONObject();
+                                    p.put("pattrenid", pattrenid);
+                                    p.put("timestamp",timestamp);
+                                    pattrens.add(p);
+                                }
+                            }
+                        }
+                        //kda gbt list bl pattrens elly 3mlha fy 7yato kolha
+                        
+                        int rates_1 = 0;                        
+                        int rates_2 = 0;
+                        int rates_3 = 0;
+                        int rates_4 = 0;
+                        int rates_5 = 0;
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()) {
+                            int did = postSnapshot.child("did").getValue(int.class);    
+                            if(did==driverid){
+                                int triprate = postSnapshot.child("ratting").getValue(int.class); 
+                                if(triprate==1)
+                                    rates_1++;
+                                else if(triprate==2)
+                                    rates_2++;
+                                else if(triprate==3)
+                                    rates_3++;
+                                else if(triprate==4)
+                                    rates_4++;
+                                else if(triprate==5)
+                                    rates_5++;
+                            }
+                        }
+                        
+                        
+                        //calculate avg fl lat week
+                        int p1 = 0;
+                        int p2 = 0;
+                        int p3 = 0;
+                        int p4 = 0;
+                        int p5 = 0;
+                        int p6 = 0;
+                        int p7 = 0;
+                        int p8 = 0;
+                        int p9 = 0;
+                        int p10 = 0;
+                        int p11 = 0;
+                        int p12 = 0;
+
+                        
+                        Calendar cal = Calendar.getInstance();
+                        cal.add(Calendar.DAY_OF_YEAR, -7);
+                        long sevenDaysAgo = cal.getTimeInMillis();
+                        
+                        for (int j = 0; j < pattrens.size(); j++) {
+                            JSONObject pattrenobj = pattrens.getJSONObject(j);
+                            long pattrenobj_timestamp = pattrenobj.getLong("timestamp");
+                            if(pattrenobj_timestamp>=sevenDaysAgo){
+                                int pattrenid = pattrenobj.getInt("pattrenid");
+                                if(pattrenid==1)
+                                    p1++;
+                                else if(pattrenid==2)
+                                    p2++;
+                                else if(pattrenid==3)
+                                    p3++;
+                                else if(pattrenid==4)
+                                    p4++;
+                                else if(pattrenid==5)
+                                    p5++;
+                                else if(pattrenid==6)
+                                    p6++;
+                                else if(pattrenid==7)
+                                    p7++;
+                                else if(pattrenid==8)
+                                    p8++;
+                                else if(pattrenid==9)
+                                    p9++;
+                                else if(pattrenid==10)
+                                    p10++;
+                                else if(pattrenid==11)
+                                    p11++;
+                                else if(pattrenid==12)
+                                    p12++;
+                            }
+                        }
+                        
+                        //kda gbt l occurance le kol pattren
+                        //ashof l max b2a
+                        
+                        int avg = 0;
+                        
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
+                            Long cpattrenid = Long.parseLong(postSnapshot.getName());
+                            int max = postSnapshot.child("max").getValue(int.class);    
+                            if(cpattrenid==1){
+                                if(max>p1)
+                                    avg++;
+                            }
+                            else if(cpattrenid==2){
+                                if(max>p2)
+                                    avg++;
+                            }
+                            else if(cpattrenid==3){
+                                if(max>p3)
+                                    avg++;
+                            }
+                            else if(cpattrenid==4){
+                                if(max>p4)
+                                    avg++;
+                            }
+                            else if(cpattrenid==5){
+                                if(max>p5)
+                                    avg++;
+                            }
+                            else if(cpattrenid==6){
+                                if(max>p6)
+                                    avg++;
+                            }
+                            else if(cpattrenid==7){
+                                if(max>p7)
+                                    avg++;
+                            }
+                            else if(cpattrenid==8){
+                                if(max>p8)
+                                    avg++;
+                            }
+                            else if(cpattrenid==9){
+                                if(max>p9)
+                                    avg++;
+                            }
+                            else if(cpattrenid==10){
+                                if(max>p10)
+                                    avg++;
+                            }
+                            else if(cpattrenid==11){
+                                if(max>p11)
+                                    avg++;
+                            }
+                            else if(cpattrenid==12){
+                                if(max>p12)
+                                    avg++;
+                            }
+                            
+                        }
+                        
+                        //avg text
+                        String avgtxt = "";
+                        if(avg<3)
+                            avgtxt="Bad";
+                        else if(avg<6)
+                            avgtxt="Good";
+                        else if(avg<9)
+                            avgtxt="Very Good";
+                        else if(avg<=12)
+                            avgtxt="Excellent";
+                        
+                       myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("avgtxt").setValue(avgtxt);
+
+                        
+                        //respond
+                        
+                    resobj.put("success", "1");
+                    resobj.put("msg", "Selected Successfully");
+                    resobj.put("pattrens", pattrens);  
+                    resobj.put("rates_1", rates_1);  
+                    resobj.put("rates_2", rates_2);  
+                    resobj.put("rates_3", rates_3);  
+                    resobj.put("rates_4", rates_4);  
+                    resobj.put("rates_5", rates_5);  
+                    resobj.put("avg", avg);  
+                    resobj.put("avgtxt", avgtxt);  
+
+                    latch.countDown();   
+                 }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+                });
+            
+            
+//            ResultSet rs = getDBResultSet(query);
+//            obj.put("success", "1");
+//            obj.put("msg", "done");
+//            
+//            JSONArray arr = new JSONArray();
+                   
+//            while(rs.next())
+//             {
+//                 String account_state = rs.getString(6);   
+//                 if(account_state.equals("pending")){
+//
+//                 int user_id = rs.getInt(1);
+//                 String fullname = rs.getString(3);
+//                 String gender = rs.getString(4);
+//                 String lastlogin_time = rs.getString(5);                
+//
+//                 JSONObject o = new JSONObject();
+//                 o.put("user_id", user_id);
+//                 o.put("fullname", fullname);
+//                 o.put("gender", gender);
+//                 o.put("lastlogin_time", lastlogin_time);
+//                 arr.add(o);
+//                 }
+//             }
+                 
+//            obj.put("members", arr);  
+//            conn.close();
+
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
     
     
     
