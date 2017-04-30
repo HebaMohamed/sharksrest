@@ -1109,7 +1109,8 @@ public class WebsiteServiceJersey {
                             o.put("gender", gender);
                             o.put("lastlogin_time", lastlogin_time);
                             o.put("account_state", account_state);
-                            arr.add(o);
+                            if(account_state.equals("0"))
+                                arr.add(o);
                         }
 
                     resobj.put("success", "1");
@@ -1161,6 +1162,27 @@ public class WebsiteServiceJersey {
         }
         
         return Response.status(200).entity(resobj).build();
+    }
+    
+        @GET
+    @Path("/acceptmember/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response acceptmember(@PathParam("id") int id){
+        try {
+        resobj = new JSONObject();
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        myFirebaseRef.child("monitoring_member").child(String.valueOf(id)).child("account_state").setValue("1");
+
+            resobj.put("success", "1");
+            resobj.put("msg", "Accepted Successfully");
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+
     }
     
     /////////////////////////////////////////////////////////////////////////////for trips
