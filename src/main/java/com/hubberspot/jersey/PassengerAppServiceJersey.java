@@ -318,6 +318,8 @@ public class PassengerAppServiceJersey {
 
                         JSONObject d = new JSONObject();
 
+                        resobj.put("success", "0");
+                        resobj.put("msg", "Wrong Cred");//e7tyaty
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             try{
@@ -350,10 +352,6 @@ public class PassengerAppServiceJersey {
                                 resobj.put("msg", "logged in");
                                 response = Response.status(200).entity(resobj).build();
                                 latch.countDown();
-                            }
-                            else{
-                                resobj.put("success", "0");
-                                resobj.put("msg", "Wrong Cred");
                             }
                             
                             

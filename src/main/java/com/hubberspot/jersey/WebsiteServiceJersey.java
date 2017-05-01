@@ -770,6 +770,8 @@ public class WebsiteServiceJersey {
 
                             String vid = postSnapshot.child("vid").getValue(String.class);
                             String fullname = postSnapshot.child("fullname").getValue(String.class);
+                            String avgtxt = postSnapshot.child("avgtxt").getValue(String.class);
+                            int avg = postSnapshot.child("avg").getValue(int.class);
 
                                     String model = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("model").getValue(String.class);
                                     String color = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("color").getValue(String.class);
@@ -785,6 +787,8 @@ public class WebsiteServiceJersey {
                                     o.put("plate_number", plate_number);
                                     o.put("driver_id", did);
                                     o.put("fullname", fullname);
+                                    o.put("avgtxt", avgtxt);
+                                    o.put("avg", avg);
                                     o.put("vehicle_datetime", "");
 
                             arr.add(o);
@@ -1622,56 +1626,71 @@ public class WebsiteServiceJersey {
                         //kda gbt l occurance le kol pattren
                         //ashof l max b2a
                         
+                        String p1_name="",p2_name="",p3_name="",p4_name="",p5_name="",p6_name="",p7_name="",p8_name="",p9_name="",p10_name="",p11_name="",p12_name="";
+                        
                         int avg = 0;
                         
                         for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
                             Long cpattrenid = Long.parseLong(postSnapshot.getName());
                             int max = postSnapshot.child("max").getValue(int.class);    
+                            String name = postSnapshot.child("name").getValue(String.class);    
                             if(cpattrenid==1){
+                                p1_name=name;
                                 if(max>p1)
                                     avg++;
                             }
                             else if(cpattrenid==2){
+                                p2_name=name;
                                 if(max>p2)
                                     avg++;
                             }
                             else if(cpattrenid==3){
+                                p3_name=name;
                                 if(max>p3)
                                     avg++;
                             }
                             else if(cpattrenid==4){
+                                p4_name=name;
                                 if(max>p4)
                                     avg++;
                             }
                             else if(cpattrenid==5){
+                                p5_name=name;
                                 if(max>p5)
                                     avg++;
                             }
                             else if(cpattrenid==6){
+                                p6_name=name;
                                 if(max>p6)
                                     avg++;
                             }
                             else if(cpattrenid==7){
+                                p7_name=name;
                                 if(max>p7)
                                     avg++;
                             }
                             else if(cpattrenid==8){
+                                p8_name=name;
                                 if(max>p8)
                                     avg++;
                             }
                             else if(cpattrenid==9){
+                                p9_name=name;
                                 if(max>p9)
                                     avg++;
                             }
                             else if(cpattrenid==10){
+                                p10_name=name;
                                 if(max>p10)
                                     avg++;
                             }
                             else if(cpattrenid==11){
+                                p11_name=name;
                                 if(max>p11)
                                     avg++;
                             }
                             else if(cpattrenid==12){
+                                p12_name=name;
                                 if(max>p12)
                                     avg++;
                             }
@@ -1691,6 +1710,8 @@ public class WebsiteServiceJersey {
                         
                        myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("avgtxt").setValue(avgtxt);
 
+                       String dname = dataSnapshot.child("driver").child(String.valueOf(driverid)).child("fullname").getValue(String.class); 
+
                         
                         //respond
                         
@@ -1702,8 +1723,24 @@ public class WebsiteServiceJersey {
                     resobj.put("rates_3", rates_3);  
                     resobj.put("rates_4", rates_4);  
                     resobj.put("rates_5", rates_5);  
+                    
+                    resobj.put("p1_name", p1_name);  
+                    resobj.put("p2_name", p2_name);  
+                    resobj.put("p3_name", p3_name);  
+                    resobj.put("p4_name", p4_name);  
+                    resobj.put("p5_name", p5_name);  
+                    resobj.put("p6_name", p6_name);  
+                    resobj.put("p7_name", p7_name);  
+                    resobj.put("p8_name", p8_name);  
+                    resobj.put("p9_name", p9_name);  
+                    resobj.put("p10_name", p10_name);  
+                    resobj.put("p11_name", p11_name);  
+                    resobj.put("p12_name", p12_name);  
+
+                    
                     resobj.put("avg", avg);  
                     resobj.put("avgtxt", avgtxt);  
+                    resobj.put("dname", dname);  
 
                     latch.countDown();   
                  }
@@ -1753,6 +1790,222 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(resobj).build();
     }
     
+    
+    
+    //////////////////////////////////////////tenaaa
+    @GET
+    @Path("/getpattrens")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getpatterns(){
+       
+        try {
+           
+               
+            resobj = new JSONObject();
+            arr = new JSONArray();
+            final CountDownLatch latch = new CountDownLatch(1);
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+            
+            myFirebaseRef.child("pattrens").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                    int pattrnsid = Integer.parseInt(postSnapshot.getName());
+                                    String name = postSnapshot.child("name").getValue(String.class);
+                                    String max = postSnapshot.child("max").getValue(String.class);
+                                
+
+                                    JSONObject o = new JSONObject();
+                                    o.put("id", pattrnsid);
+                                    o.put("max", max);
+                                    o.put("name", name);
+                                    
+                                    arr.add(o);
+                        }
+                        
+                          resobj.put("pattrens", arr);  
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); 
+                    
+                }
+                });
+            
+            
+
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
+    
+    
+    ////
+    @GET
+    @Path("/getwanings")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getwanings(){
+
+        resobj = new JSONObject();
+        arr = new JSONArray();
+        final CountDownLatch latch = new CountDownLatch(1);
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+
+        try {
+//            ResultSet rs = getDBResultSet(query);
+            resobj.put("success", "1");
+            resobj.put("msg", "done");
+            
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {                              
+                                    try{
+                                        for (DataSnapshot postSnapshot2 : dataSnapshot.child("warning").child("ristrected").getChildren()) {
+
+//                                            int timestamp = postSnapshot2.child("timestamp").getValue(int.class);
+                                            String timestamp = postSnapshot2.getName();
+                                            int driver_id = postSnapshot2.child("did").getValue(int.class);
+                                            
+                                            String dname = dataSnapshot.child("driver").child(String.valueOf(driver_id)).child("fullname").getValue(String.class);
+
+                                            
+                                            JSONArray ristrictedroute = new JSONArray();
+                                            for (DataSnapshot postSnapshot : dataSnapshot.child("driver").child(String.valueOf(driver_id)).child("route_restrictions").getChildren()) {
+                                                int rid = Integer.parseInt(postSnapshot.getName());
+                                                double lat = postSnapshot.child("lat").getValue(Double.class);
+                                                double lng = postSnapshot.child("lng").getValue(Double.class);
+
+                                                JSONObject routeobj = new JSONObject(); 
+                                                routeobj.put("xlongitude", lat);
+                                                routeobj.put("ylatitude", lng);
+                                                ristrictedroute.add(routeobj);
+                                            }
+                                            
+                                            
+                                            
+                                            JSONObject o = new JSONObject();
+                                            o.put("timestamp",timestamp);                    
+                                            o.put("did", driver_id);
+                                            o.put("dname", dname);
+                                            o.put("ristrictedroute",ristrictedroute);                    
+                                            arr.add(o);
+
+                                        }
+                                    }catch(NullPointerException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }catch(NumberFormatException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }
+                               
+                                    
+                                    
+
+                            
+                            
+//                        }
+                        
+                          resobj.put("warning", arr);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); 
+                    
+                }
+                });
+
+
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
+    
+    
+    ///////
+    @GET
+    @Path("/getfemaleevents")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getfemaleevents(){
+
+        resobj = new JSONObject();
+        arr = new JSONArray();
+        final CountDownLatch latch = new CountDownLatch(1);
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+ 
+        try {
+//            ResultSet rs = getDBResultSet(query);
+            resobj.put("success", "1");
+            resobj.put("msg", "done");
+            
+            myFirebaseRef.child("warning").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            try{
+                                        for (DataSnapshot postSnapshot2 : dataSnapshot.child("femalesaftey").getChildren()) {
+
+                                            double lat = postSnapshot2.child("lat").getValue(Double.class);
+                                            double lng = postSnapshot2.child("lng").getValue(Double.class);
+                                            int trip_id = postSnapshot2.child("tid").getValue(int.class);
+
+                                            JSONObject events = new JSONObject();
+                                            events.put("lat", lat);                    
+                                            events.put("lng", lng);
+                                           arr .add(events);
+
+                                        }
+                                    }catch(NullPointerException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }catch(NumberFormatException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }
+                               
+                           
+                          resobj.put("warning", arr);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); 
+                    
+                }
+                });
+
+
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
     
     
     
