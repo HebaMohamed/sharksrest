@@ -198,8 +198,8 @@ public class WebsiteServiceJersey {
                             double lng = postSnapshot.child("lng").getValue(Double.class);
                             
                             JSONObject routeobj = new JSONObject(); 
-                            routeobj.put("xlongitude", lat);
-                            routeobj.put("ylatitude", lng);
+                            routeobj.put("xlongitude", lng);
+                            routeobj.put("ylatitude", lat);
                             ristrictedroute.add(routeobj);
                         }
                         
