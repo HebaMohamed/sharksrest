@@ -1965,13 +1965,18 @@ public class WebsiteServiceJersey {
                             try{
                                         for (DataSnapshot postSnapshot2 : dataSnapshot.child("femalesaftey").getChildren()) {
 
-                                            double lat = postSnapshot2.child("lat").getValue(Double.class);
-                                            double lng = postSnapshot2.child("lng").getValue(Double.class);
+                                            String ts = postSnapshot2.getName();
+                                            double lat = postSnapshot2.child("lat").getValue(double.class);
+                                            double lng = postSnapshot2.child("lng").getValue(double.class);
                                             int trip_id = postSnapshot2.child("tid").getValue(int.class);
 
                                             JSONObject events = new JSONObject();
                                             events.put("lat", lat);                    
                                             events.put("lng", lng);
+                                            events.put("tid", trip_id);
+                                            events.put("timestamp", ts);
+
+
                                            arr .add(events);
 
                                         }
@@ -1998,6 +2003,39 @@ public class WebsiteServiceJersey {
 
 
             latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
+    
+    
+    /////////////////////
+    
+//        @Path("/editpattren/{id}/{name}/{max}")
+//    public Response editPattren(@PathParam("id") int id, @PathParam("name") String name, @PathParam("max") String max){
+    @POST
+    @Path("/editpattren")
+    @Produces(MediaType.APPLICATION_JSON)  
+    public Response editPattren(String data){
+
+             //as post request
+            JSONObject dataObj = JSONObject.fromObject(data);
+            final String id = dataObj.getString("id");
+            final String name = dataObj.getString("name");
+            final String max = dataObj.getString("max");
+
+        try {
+            resobj = new JSONObject();
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            myFirebaseRef.child("pattrens").child(String.valueOf(id)).child("name").setValue(name);
+            myFirebaseRef.child("pattrens").child(String.valueOf(id)).child("max").setValue(max);
+            
+            resobj.put("success", "1");
+            resobj.put("msg", "Edited Successfully");
         } catch (Exception ex) {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
