@@ -67,8 +67,8 @@ public class PassengerAppServiceJersey {
     //int pickupSelectedDriverID;
 
     public static Firebase myFirebaseRef;
-    int min_id = 0;
-    double min_distance = 0;
+//    int min_id = 0;
+//    double min_distance = 0;
 
     @GET //test only
     @Path("/go")
@@ -188,7 +188,7 @@ public class PassengerAppServiceJersey {
     
     JSONObject resobj;
     @POST
-    @Path("/addfirebasepassenger")
+    @Path("/getneardrivers")
     @Produces(MediaType.APPLICATION_JSON)    
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response addfirebasepassenger(String data) throws Exception{
@@ -227,12 +227,12 @@ public class PassengerAppServiceJersey {
             
 
 
-                myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
+                myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        JSONArray darr = new JSONArray();
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
                             try{
                             int vid = Integer.parseInt(postSnapshot.getName());
                             double lat = postSnapshot.child("lat").getValue(Double.class);
@@ -241,14 +241,25 @@ public class PassengerAppServiceJersey {
                             if(status==0){
                                 
                                 double dist = distance(ilat, lat, ilng, lng);
-                                if(min_id==0){//first time only
-                                    min_id = vid;
-                                    min_distance = dist;
-                                }
-                                else{
-                                    if(min_distance>dist){
-                                         min_id = vid;
-                                         min_distance = dist;
+                                
+                                if(dist<= 50000){
+                                    for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                        int dvid = postSnapshot2.child("vid").getValue(int.class);
+                                        if(dvid==vid){
+                                            int did = Integer.parseInt(postSnapshot2.getName());
+                                            int avg = postSnapshot2.child("avg").getValue(int.class);
+                                            String avgtxt = postSnapshot2.child("avgtxt").getValue(String.class);
+                                            String fullname = postSnapshot2.child("fullname").getValue(String.class);
+
+                                            JSONObject d = new JSONObject();
+                                            d.put("did", did);
+                                            d.put("avg", avg);
+                                            d.put("avgtxt", avgtxt);
+                                            d.put("vid", vid);
+                                            d.put("dist", dist);
+                                            d.put("fullname",fullname);
+                                            darr.add(d);
+                                        }
                                     }
                                 }
                             
@@ -263,7 +274,12 @@ public class PassengerAppServiceJersey {
                             }
                         }
                         
-                        resobj.put("selectedid", min_id);
+                        
+                         
+                         
+                        
+                        resobj.put("neardrivers", darr);
+
                         response = Response.status(200).entity(resobj).build();
                         latch.countDown();
                     }

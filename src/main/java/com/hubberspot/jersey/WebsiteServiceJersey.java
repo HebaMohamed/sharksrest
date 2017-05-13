@@ -47,7 +47,9 @@ public class WebsiteServiceJersey {
     @Path("/go")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getgo(){
-        String output = "gooooooooooooooooooooo Hebat" ;
+        String output = "gooooooooooooooooooooo Hebat";
+//        Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+//        myFirebaseRef.child("driver").removeValue();
         return Response.status(200).entity(output).build();
     }
    
@@ -180,6 +182,7 @@ public class WebsiteServiceJersey {
                         String demail = dataSnapshot.child("driver").child(String.valueOf(id)).child("email").getValue(String.class);
                         int vid = dataSnapshot.child("driver").child(String.valueOf(id)).child("vid").getValue(Integer.class);
                         String img = dataSnapshot.child("driver").child(String.valueOf(id)).child("img").getValue(String.class);
+                        boolean logged = dataSnapshot.child("driver").child(String.valueOf(id)).child("logged").getValue(boolean.class);
 
                         JSONObject driverobj = new JSONObject();  
                         driverobj.put("id", id);
@@ -188,7 +191,20 @@ public class WebsiteServiceJersey {
                         driverobj.put("email", demail);
                         driverobj.put("password", "");
                         driverobj.put("image", img);
+                        driverobj.put("logged", logged);
                         
+                        driverobj.put("intrip", false);//for init only
+                        //get current trip status
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()) {
+                            int did = postSnapshot.child("did").getValue(int.class);
+                            if(did == id){
+                                String status = postSnapshot.child("status").getValue(String.class);
+                                if(status.equals("started")){
+                                    driverobj.put("intrip", true);
+                                }
+                            }
+                        }
+
                         
                         
                         JSONArray ristrictedroute = new JSONArray();
@@ -300,6 +316,7 @@ public class WebsiteServiceJersey {
     
     //@GET
     //@Path("/adddriver/{name}/{email}/{password}/{img}")
+    long insertedid;
     @POST
     @Path("/adddriver")
     @Produces(MediaType.APPLICATION_JSON)
@@ -315,7 +332,10 @@ public class WebsiteServiceJersey {
             
 //    JSONObject obj = new JSONObject();
         resobj = new JSONObject();
+        insertedid = 0;
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        final CountDownLatch latch = new CountDownLatch(1);
+
         
         try {
             
@@ -324,15 +344,9 @@ public class WebsiteServiceJersey {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         long count = dataSnapshot.getChildrenCount();      
-                        long insertedid = count+1;
-                        
-                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("email").setValue(email);
-                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("fullname").setValue(name);
-                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("password").setValue(password);
-                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("img").setValue(img);
+                        insertedid = count+1;
+                        latch.countDown();   
 
-                        resobj.put("success", "1");
-                        resobj.put("msg", "Added Successfully");
                     }
 
                 @Override
@@ -347,7 +361,21 @@ public class WebsiteServiceJersey {
 //            excPreparedStatmentDB("INSERT INTO driver (driver_id, fullname, sharp_turns_freq, lane_changing_freq, harch_acc_freq, last_trip_behavoir_map, wrong_u_turns_severity, harsh_breaking_freq, awareness_level, vehicle_id, vehicle_datetime, email, password, image)"+
 //                                                         " VALUES (NULL, '"+name+"', 0, 0, 0, NULL, 0, 0, 0, NULL, NULL, '"+email+"', '"+password+"', ? );",bytearr);
           
+            latch.await();
             
+            
+                        
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("email").setValue(email);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("fullname").setValue(name);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("password").setValue(password);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("img").setValue(img);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("token").setValue(" ");
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("logged").setValue(0);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("vid").setValue(0);
+
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Added Successfully");
+
 //            conn.close();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -490,21 +518,29 @@ public class WebsiteServiceJersey {
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             
             
-            myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
                                     int vehicle_id = Integer.parseInt(postSnapshot.getName());
                                     String model = postSnapshot.child("model").getValue(String.class);
                                     String color = postSnapshot.child("color").getValue(String.class);
                                     String plate_number = postSnapshot.child("plate_number").getValue(String.class);
+                                    String outside_working_time_state = "yes";
+                                    for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                    int vid = postSnapshot2.child("vid").getValue(int.class);
+                                        if(vid==vehicle_id){
+                                            outside_working_time_state = "no";
+                                        }
+                                    }
+                                    
 
                                     JSONObject o = new JSONObject();
                                     o.put("vehicle_id", vehicle_id);
                                     o.put("model", model);
                                     o.put("color", color);
-                                    o.put("outside_working_time_state", "yes");// for ex
+                                    o.put("outside_working_time_state", outside_working_time_state);
                                     o.put("plate_number", plate_number);
                                     arr.add(o);
                         }
@@ -557,7 +593,7 @@ public class WebsiteServiceJersey {
     @GET
     @Path("/getvehicle/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getVehicle(@PathParam("id") int id){
+    public Response getVehicle(@PathParam("id") final int id){
 //        JSONObject obj = new JSONObject();
 
             resobj = new JSONObject();
@@ -565,20 +601,28 @@ public class WebsiteServiceJersey {
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
 
         try {
-            myFirebaseRef.child("vehicles").child(String.valueOf(id)).addValueEventListener(new ValueEventListener() {
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                    int vehicle_id = Integer.parseInt(dataSnapshot.getName());
-                                    String model = dataSnapshot.child("model").getValue(String.class);
-                                    String color = dataSnapshot.child("color").getValue(String.class);
-                                    String plate_number = dataSnapshot.child("plate_number").getValue(String.class);
+                                    int vehicle_id = Integer.parseInt(dataSnapshot.child("vehicles").child(String.valueOf(id)).getName());
+                                    String model = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("model").getValue(String.class);
+                                    String color = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("color").getValue(String.class);
+                                    String plate_number = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("plate_number").getValue(String.class);
+                                    
+                                    String outside_working_time_state = "yes";
+                                    for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                    int vid = postSnapshot2.child("vid").getValue(int.class);
+                                        if(vid==vehicle_id){
+                                            outside_working_time_state = "no";
+                                        }
+                                    }
 
                                     JSONObject vehicleobj = new JSONObject();
                                     vehicleobj.put("vehicle_id", vehicle_id);
                                     vehicleobj.put("model", model);
                                     vehicleobj.put("color", color);
-                                    vehicleobj.put("outside_working_time_state", "yes");
+                                    vehicleobj.put("outside_working_time_state", outside_working_time_state);
                                     vehicleobj.put("plate_number", plate_number);
                         
                                     resobj.put("vehicle", vehicleobj);  
@@ -1224,7 +1268,12 @@ public class WebsiteServiceJersey {
                                     String price = postSnapshot.child("price").getValue(String.class);
                                     String ratting = postSnapshot.child("ratting").getValue(String.class);
                                     String start = postSnapshot.child("start").getValue(String.class);
-
+                                    
+                                    
+                                    double fromlat = postSnapshot.child("ilat").getValue(double.class);
+                                    double fromlng = postSnapshot.child("ilng").getValue(double.class);
+                                    double tolat = postSnapshot.child("destlat").getValue(double.class);
+                                    double tolng = postSnapshot.child("destlng").getValue(double.class);
                                     
                                     JSONObject o = new JSONObject();
                                     o.put("trip_id", tid);
@@ -1235,6 +1284,11 @@ public class WebsiteServiceJersey {
                                     o.put("ratting", ratting);
                                     o.put("passenger_id", pid);
                                     o.put("driver_id", did);
+                                    
+                                    o.put("fromlat", fromlat);
+                                    o.put("fromlng", fromlng);
+                                    o.put("tolat", tolat);
+                                    o.put("tolng", tolng);
 
                                     try{
                                         for (DataSnapshot postSnapshot2 : postSnapshot.child("pathway").getChildren()) {
@@ -2045,7 +2099,508 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(resobj).build();
     }
     
+    ////get 
+    @GET
+    @Path("/getdrivertrips/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDriverTripsReport(@PathParam("id") final int id){
+        resobj = new JSONObject();
+        arr = new JSONArray();
+        final CountDownLatch latch = new CountDownLatch(1);
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+
+        try {
+//            ResultSet rs = getDBResultSet(query);
+            resobj.put("success", "1");
+            resobj.put("msg", "done");
+            
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
+                     @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        double wallet =  dataSnapshot.child("driver").child(String.valueOf(id)).child("wallet").getValue(double.class);
+                        String dname =  dataSnapshot.child("driver").child(String.valueOf(id)).child("fullname").getValue(String.class);
+
+                        int ignoredcount = 0, acceptedcount = 0;
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()) {
+                                int pid = postSnapshot.child("pid").getValue(Integer.class);
+                                JSONArray paths = new JSONArray();
+//                                if(pid == id){
+
+                                    int tid = Integer.parseInt(postSnapshot.getName());
+                                    String comment = postSnapshot.child("comment").getValue(String.class);
+//                                    String details = postSnapshot.child("details").getValue(String.class);
+                                    int did = postSnapshot.child("did").getValue(int.class);
+                                    if(did == id){
+                                    
+                                    String end = postSnapshot.child("end").getValue(String.class);
+                                    String price = postSnapshot.child("price").getValue(String.class);
+                                    String ratting = postSnapshot.child("ratting").getValue(String.class);
+                                    String start = postSnapshot.child("start").getValue(String.class);
+                                    String status = postSnapshot.child("status").getValue(String.class);
+                                    
+                                    if(status.equals("ignored")){
+                                        ignoredcount++;
+                                    }
+                                    else{
+                                        acceptedcount++;
+                                    }
+
+                                    
+                                    double fromlat = postSnapshot.child("ilat").getValue(double.class);
+                                    double fromlng = postSnapshot.child("ilng").getValue(double.class);
+                                    double tolat = postSnapshot.child("destlat").getValue(double.class);
+                                    double tolng = postSnapshot.child("destlng").getValue(double.class);
+                                    
+                                    JSONObject o = new JSONObject();
+                                    o.put("trip_id", tid);
+                                    o.put("start", start);
+                                    o.put("end", end);
+                                    o.put("price", price);
+                                    o.put("comment", comment);
+                                    o.put("ratting", ratting);
+                                    o.put("passenger_id", pid);
+                                    o.put("driver_id", did);
+                                    
+                                    o.put("status", status);
+
+                                    o.put("fromlat", fromlat);
+                                    o.put("fromlng", fromlng);
+                                    o.put("tolat", tolat);
+                                    o.put("tolng", tolng);
+
+                                    try{
+                                        for (DataSnapshot postSnapshot2 : postSnapshot.child("pathway").getChildren()) {
+
+                                            double lat = postSnapshot2.child("lat").getValue(Double.class);
+                                            double lng = postSnapshot2.child("lng").getValue(Double.class);
+
+                                            JSONObject latlng = new JSONObject();
+                                            latlng.put("lat", lat);                    
+                                            latlng.put("lng", lng);
+                                            paths.add(latlng);
+
+                                        }
+                                    }catch(NullPointerException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }catch(NumberFormatException ne){
+                                        Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                                    }
+                               
+                                    o.put("pathway",paths);
+                                    arr.add(o);
+                                    
+//                                }
+                                    }
+                            
+                            
+                        }
+                        
+                          resobj.put("trips", arr);
+                          resobj.put("ignoredcount", ignoredcount);
+                          resobj.put("acceptedcount", acceptedcount);
+                          resobj.put("dname", dname);
+                          resobj.put("wallet", wallet);
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+
+            
+            
+//            JSONArray arr = new JSONArray();
+                   
+//            while(rs.next())
+//             {
+//                 int trip_id = rs.getInt(1);
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 Double price = rs.getDouble(4);
+//                 String comment = rs.getString(5);
+//                 Double ratting = rs.getDouble(6);
+//                 int passenger_id = rs.getInt(7);    
+//                 int driver_id = rs.getInt(8);
+//                 
+//                 JSONObject o = new JSONObject();
+//                 o.put("trip_id", trip_id);
+//                 o.put("start", start);
+//                 o.put("end", end);
+//                 o.put("price", price);
+//                 o.put("comment", comment);
+//                 o.put("ratting", ratting);
+//                 o.put("passenger_id", passenger_id);
+//                 o.put("driver_id", driver_id);
+//                 arr.add(o);
+//             }
+//                 
+//            obj.put("trips", arr);  
+//            conn.close();
+
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
     
+    
+    @GET
+    @Path("/gettrip/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTrip(@PathParam("id") final int id){
+        resobj = new JSONObject();
+        final CountDownLatch latch = new CountDownLatch(1);
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+
+        try {
+//            ResultSet rs = getDBResultSet(query);
+            resobj.put("success", "1");
+            resobj.put("msg", "done");
+            
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
+                     @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        DataSnapshot tnode = dataSnapshot.child("trips").child(String.valueOf(id));
+                        int did =  tnode.child("did").getValue(int.class);
+                        String drivername = dataSnapshot.child("driver").child(String.valueOf(did)).child("fullname").getValue(String.class);
+                        int vid = dataSnapshot.child("driver").child(String.valueOf(did)).child("vid").getValue(int.class);//bs d 8lt 3shn momkn tb2a l vehicle et8yert b3dha impppppp
+                        int pid =  tnode.child("pid").getValue(int.class);
+                        String passengername = dataSnapshot.child("passenger").child(String.valueOf(pid)).child("fullname").getValue(String.class);
+                        
+                        String status = tnode.child("status").getValue(String.class);
+                        long start = tnode.child("start").getValue(long.class);
+                        long end = tnode.child("end").getValue(long.class);
+                        double ilat = tnode.child("ilat").getValue(double.class);
+                        double ilng = tnode.child("ilng").getValue(double.class);
+                        double destlat = tnode.child("destlat").getValue(double.class);
+                        double destlng = tnode.child("destlng").getValue(double.class);
+                        double price = tnode.child("price").getValue(double.class);
+                        int ratting = tnode.child("ratting").getValue(int.class);
+                        String comment = tnode.child("comment").getValue(String.class);
+                        long timestamp = tnode.child("timestamp").getValue(long.class);
+                        JSONArray paths = new JSONArray();
+                        try{
+                            for (DataSnapshot postSnapshot2 : tnode.child("pathway").getChildren()) {
+                                double lat = postSnapshot2.child("lat").getValue(Double.class);
+                                double lng = postSnapshot2.child("lng").getValue(Double.class);
+
+                                JSONObject latlng = new JSONObject();
+                                latlng.put("lat", lat);                    
+                                latlng.put("lng", lng);
+                                paths.add(latlng);
+
+                            }
+                        }catch(NullPointerException ne){
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                        }catch(NumberFormatException ne){
+                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
+                        }
+
+                        //get pattrens
+                        JSONArray pattrens = new JSONArray();
+                        for (DataSnapshot postSnapshot2 : dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("Patterns detected").getChildren()) {
+                                Long pattimestamp = Long.parseLong(postSnapshot2.getName());
+                                if(start<=pattimestamp && end>=pattimestamp){
+                                    int pattrenid = postSnapshot2.getValue(int.class);     
+                                    JSONObject p = new JSONObject();
+                                    p.put("pattrenid", pattrenid);
+                                    p.put("timestamp",pattimestamp);
+                                    pattrens.add(p);
+                                }
+                            
+                        }
+                        
+                        String p1_name="",p2_name="",p3_name="",p4_name="",p5_name="",p6_name="",p7_name="",p8_name="",p9_name="",p10_name="",p11_name="",p12_name="";
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
+                            Long cpattrenid = Long.parseLong(postSnapshot.getName());
+                            int max = postSnapshot.child("max").getValue(int.class);    
+                            String name = postSnapshot.child("name").getValue(String.class);    
+                            if(cpattrenid==1){
+                                p1_name=name;
+                            }else if(cpattrenid==2){
+                                p2_name=name;
+                            }else if(cpattrenid==3){
+                                p3_name=name;
+                            }else if(cpattrenid==4){
+                                p4_name=name;
+                            }else if(cpattrenid==5){
+                                p5_name=name;
+                            }else if(cpattrenid==6){
+                                p6_name=name;
+                            }else if(cpattrenid==7){
+                                p7_name=name;
+                            }else if(cpattrenid==8){
+                                p8_name=name;
+                            }else if(cpattrenid==9){
+                                p9_name=name;
+                            }else if(cpattrenid==10){
+                                p10_name=name;
+                            }else if(cpattrenid==11){
+                                p11_name=name;
+                            }else if(cpattrenid==12){
+                                p12_name=name;
+                            }
+                        }
+                        
+                            
+                        JSONObject t = new JSONObject();
+                        t.put("did", did);
+                        t.put("drivername", drivername);
+                        t.put("pid", pid);
+                        t.put("passengername", passengername);
+                        t.put("status", status);
+                        t.put("start", start);
+                        t.put("end", end);
+                        t.put("ilat", ilat);
+                        t.put("ilng", ilng);
+                        t.put("destlat", destlat);
+                        t.put("destlng", destlng);
+                        t.put("price", price);
+                        t.put("ratting", ratting);
+                        t.put("comment", comment);
+                        t.put("timestamp", timestamp);
+                        t.put("pathway", paths);
+                        resobj.put("pattrens", pattrens);//
+                        
+                        resobj.put("p1_name", p1_name);  
+                        resobj.put("p2_name", p2_name);  
+                        resobj.put("p3_name", p3_name);  
+                        resobj.put("p4_name", p4_name);  
+                        resobj.put("p5_name", p5_name);  
+                        resobj.put("p6_name", p6_name);  
+                        resobj.put("p7_name", p7_name);  
+                        resobj.put("p8_name", p8_name);  
+                        resobj.put("p9_name", p9_name);  
+                        resobj.put("p10_name", p10_name);  
+                        resobj.put("p11_name", p11_name);  
+                        resobj.put("p12_name", p12_name);  
+
+                        resobj.put("trip", t);
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Selected Successfully");
+                        latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+
+            
+            
+//            JSONArray arr = new JSONArray();
+                   
+//            while(rs.next())
+//             {
+//                 int trip_id = rs.getInt(1);
+//                 String start = rs.getString(2);
+//                 String end = rs.getString(3);
+//                 Double price = rs.getDouble(4);
+//                 String comment = rs.getString(5);
+//                 Double ratting = rs.getDouble(6);
+//                 int passenger_id = rs.getInt(7);    
+//                 int driver_id = rs.getInt(8);
+//                 
+//                 JSONObject o = new JSONObject();
+//                 o.put("trip_id", trip_id);
+//                 o.put("start", start);
+//                 o.put("end", end);
+//                 o.put("price", price);
+//                 o.put("comment", comment);
+//                 o.put("ratting", ratting);
+//                 o.put("passenger_id", passenger_id);
+//                 o.put("driver_id", driver_id);
+//                 arr.add(o);
+//             }
+//                 
+//            obj.put("trips", arr);  
+//            conn.close();
+
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
+    
+    
+    
+    /////////////
+    @GET
+    @Path("/getfemaleevent/{timestamp}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFemaleEvent(@PathParam("timestamp") final int timestamp){
+//        JSONObject obj = new JSONObject();
+
+            resobj = new JSONObject();
+            arr = new JSONArray();
+            final CountDownLatch latch = new CountDownLatch(1);
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        try {
+             myFirebaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        long tripid = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("tid").getValue(long.class);
+                        double lat = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("lat").getValue(double.class);
+                        double lng = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("lng").getValue(double.class);
+                        int pid = dataSnapshot.child("trips").child(String.valueOf(tripid)).child("pid").getValue(int.class);
+                        int did = dataSnapshot.child("trips").child(String.valueOf(tripid)).child("did").getValue(int.class);
+                        String dname = dataSnapshot.child("driver").child(String.valueOf(did)).child("fullname").getValue(String.class);
+                        String pname = dataSnapshot.child("passenger").child(String.valueOf(pid)).child("fullname").getValue(String.class);
+
+                        //nearst driver
+                        int vid = dataSnapshot.child("driver").child(String.valueOf(did)).child("vid").getValue(int.class);
+                        double vlat = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("Latitude").getValue(double.class);
+                        double vlng = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("Longitude").getValue(double.class);
+
+                        int neardist = 1000000;
+                        int nearid = 0;
+                        String nearname = "";
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
+                            int cvid = Integer.parseInt(postSnapshot.getName());
+                            double v2lat = postSnapshot.child("Latitude").getValue(double.class);
+                            double v2lng = postSnapshot.child("Longitude").getValue(double.class);
+                            int dist = (int) calculateDistance(vlat, vlng, v2lat, v2lng);
+                            if(dist<neardist){
+                                neardist=dist;
+                                for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                    int cvid2 = postSnapshot2.child("vid").getValue(int.class);
+                                    if(cvid2 == cvid){
+                                        int did2 = Integer.parseInt(postSnapshot2.getName());
+                                        nearid = did2;
+                                        nearname = postSnapshot2.child("fullname").getValue(String.class);
+                                    }
+                                }
+                        }
+                    }
+                        
+                        resobj.put("tripid", tripid);
+                        resobj.put("lat", lat);
+                        resobj.put("lng", lng);
+                        resobj.put("pid", pid);
+                        resobj.put("did", did);
+                        resobj.put("dname", dname);
+                        resobj.put("pname", pname);
+                        
+                        JSONObject neard = new JSONObject();
+                        neard.put("id", nearid);
+                        neard.put("name", nearname);
+
+                        resobj.put("neard", neard);
+                        
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Done Successfully");
+                        latch.countDown();   
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+            
+//            ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+id);
+//            JSONObject driverobj = new JSONObject();   
+//            while(rs.next())
+//             {        
+//                 vid = rs.getInt(10);
+//                 driverobj.put("id", rs.getInt(1));
+//                 driverobj.put("name", rs.getString(2));
+//                 driverobj.put("sharp_turns_freq", rs.getDouble(3));
+//                 driverobj.put("lane_changing_freq", rs.getDouble(4));
+//                 driverobj.put("harch_acc_freq", rs.getDouble(5));
+//                 driverobj.put("last_trip_behavoir_map", rs.getBlob(6));
+//                 driverobj.put("wrong_u_turns_severity", rs.getDouble(7));
+//                 driverobj.put("harsh_breaking_freq", rs.getDouble(8));
+//                 driverobj.put("awareness_level", rs.getDouble(9));
+//                 driverobj.put("vehicle_id", vid);
+//                 driverobj.put("vehicle_datetime", rs.getString(11));
+//                 driverobj.put("email", rs.getString(12));
+//                 driverobj.put("password", rs.getString(13));
+//                 //driverobj.put("image", rs.getString(14));
+//                 
+//                 Blob imageBlob = rs.getBlob(14);
+//                 byte[] byteArray = imageBlob.getBytes(1, (int) imageBlob.length());
+//                 String str = new sun.misc.BASE64Encoder().encode(byteArray);
+//                 driverobj.put("image", str);
+//                 
+//             }            
+//            conn.close();
+            
+            
+//            ResultSet rs2 = getDBResultSet("SELECT * FROM route_restrictions WHERE driver_id = "+id);
+//            JSONArray ristrictedroute = new JSONArray();
+//            while(rs2.next())
+//            {
+//                JSONObject routeobj = new JSONObject(); 
+//                routeobj.put("xlongitude", rs2.getDouble(3));
+//                routeobj.put("ylatitude", rs2.getDouble(4));
+//                ristrictedroute.add(routeobj);
+//            }
+            
+//            ResultSet rs3 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+vid);
+//            JSONObject vobj = new JSONObject(); 
+//            while(rs3.next())
+//            {
+//                vobj.put("vehicle_id", rs3.getInt(1));
+//                vobj.put("model", rs3.getString(2));
+//                vobj.put("color", rs3.getString(3));
+//                vobj.put("plate_number", rs3.getString(5));
+//            }
+            
+            
+            
+//            obj.put("ristrictedroute", ristrictedroute);
+//            obj.put("driver", driverobj);
+//            obj.put("vehicle", vobj);
+//            obj.put("success", "1");
+//            obj.put("msg", "Done Successfully");
+//            conn.close();
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return Response.status(200).entity(resobj).build();
+
+    }
+    
+    
+       public static float calculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        float dLat = (float) Math.toRadians(lat2 - lat1);
+        float dLon = (float) Math.toRadians(lon2 - lon1);
+        float a =
+                (float) (Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
+                        * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2));
+        float c = (float) (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        int earthRadius = 6371;
+        float d = earthRadius * c;
+        return d;
+    }
     
 //    ResultSet getDBResultSet(String query) throws Exception{
 //                    
