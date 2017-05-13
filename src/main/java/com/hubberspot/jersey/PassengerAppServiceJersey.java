@@ -278,7 +278,9 @@ public class PassengerAppServiceJersey {
                          
                          
                         
-                        resobj.put("neardrivers", darr);
+                        resobj.put("neardrivers", darr);                        
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Selected");
 
                         response = Response.status(200).entity(resobj).build();
                         latch.countDown();
