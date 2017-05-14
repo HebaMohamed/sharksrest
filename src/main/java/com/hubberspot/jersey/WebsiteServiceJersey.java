@@ -1592,7 +1592,7 @@ public class WebsiteServiceJersey {
                             int currentvid = vehicles.get(j);
                             for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(currentvid)).child("Patterns detected").getChildren()) {
                                 Long timestamp = Long.parseLong(postSnapshot.getName());
-                                if(starts.get(j)<=timestamp && ends.get(j)>=timestamp){
+                                if(svid == currentvid && starts.get(j)<=timestamp && ends.get(j)>=timestamp){
                                     int pattrenid = postSnapshot.getValue(int.class);     
                                     JSONObject p = new JSONObject();
                                     p.put("pattrenid", pattrenid);
@@ -1751,6 +1751,9 @@ public class WebsiteServiceJersey {
                             
                         }
                         
+                        //added also more parameters
+                        avg+=gettripsavg(rates_1, rates_2, rates_3, rates_4, rates_5, 1,1);//ignored, accepted);
+                        
                         //avg text
                         String avgtxt = "";
                         if(avg<3)
@@ -1844,7 +1847,13 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(resobj).build();
     }
     
-    
+    //////////////
+    int gettripsavg(int rates_1, int rates_2, int rates_3, int rates_4, int rates_5, int ignored, int accepted){
+        int total1 = 0;
+        total1 = (rates_1/5) + (rates_2/5) + (rates_3/5) + (rates_4/5) + (rates_5/5);
+        int total2 = (accepted/ignored) ;
+        return total1+total2;
+    }
     
     //////////////////////////////////////////tenaaa
     @GET
