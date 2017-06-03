@@ -407,8 +407,8 @@ public class WebsiteServiceJersey {
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
         try {         
             //for img 
-            byte[] bytearr = new sun.misc.BASE64Decoder().decodeBuffer(img);
-            String j="";
+//            byte[] bytearr = new sun.misc.BASE64Decoder().decodeBuffer(img);
+//            String j="";
             if(password.equals("null")&&img.equals("")){//if pass="" so it dont changed otherwise change it
 //                j = "UPDATE driver SET fullname = '"+name.replaceAll(","," ")+"' , email = '"+email+"'  WHERE driver_id = "+id+";";
 //                excDB(j);
@@ -816,6 +816,7 @@ public class WebsiteServiceJersey {
                             String fullname = postSnapshot.child("fullname").getValue(String.class);
                             String avgtxt = postSnapshot.child("avgtxt").getValue(String.class);
                             int avg = postSnapshot.child("avg").getValue(int.class);
+                            int lastavg = postSnapshot.child("lastavg").getValue(int.class);
 
                                     String model = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("model").getValue(String.class);
                                     String color = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("color").getValue(String.class);
@@ -833,6 +834,7 @@ public class WebsiteServiceJersey {
                                     o.put("fullname", fullname);
                                     o.put("avgtxt", avgtxt);
                                     o.put("avg", avg);
+                                    o.put("lastavg", lastavg);
                                     o.put("vehicle_datetime", "");
 
                             arr.add(o);
@@ -969,7 +971,7 @@ public class WebsiteServiceJersey {
 
         try {
             
-            myFirebaseRef.child("monitoring_member").child(String.valueOf(id)).addValueEventListener(new ValueEventListener() {
+            myFirebaseRef.child("monitoring_member").child(id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         
@@ -982,7 +984,7 @@ public class WebsiteServiceJersey {
                         String account_state = dataSnapshot.child("account_state").getValue(String.class);     
                         
                     resobj.put("success", "1");
-                    resobj.put("msg", "Added Successfully");
+                    resobj.put("msg", "Loggedin Successfully");
                     JSONObject m = new JSONObject();
                      m.put("id", mid);
                      m.put("name", name);
@@ -1146,20 +1148,24 @@ public class WebsiteServiceJersey {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            int mid = Integer.parseInt(postSnapshot.getName());
-                            String name = postSnapshot.child("fullname").getValue(String.class);                    
-                            String gender = postSnapshot.child("gender").getValue(String.class);                    
-                            String lastlogin_time = postSnapshot.child("lastlogin_time").getValue(String.class);                    
-                            String account_state = postSnapshot.child("account_state").getValue(String.class);  
 
-                            JSONObject o = new JSONObject();
-                            o.put("user_id", mid);
-                            o.put("fullname", name);
-                            o.put("gender", gender);
-                            o.put("lastlogin_time", lastlogin_time);
-                            o.put("account_state", account_state);
-                            if(account_state.equals("0"))
-                                arr.add(o);
+                                int mid = Integer.parseInt(postSnapshot.getName());
+                                String name = postSnapshot.child("fullname").getValue(String.class);                    
+                                String gender = postSnapshot.child("gender").getValue(String.class);                    
+                                String lastlogin_time = postSnapshot.child("lastlogin_time").getValue(String.class);                    
+                                String account_state = postSnapshot.child("account_state").getValue(String.class);  
+
+                                JSONObject o = new JSONObject();
+                                o.put("user_id", mid);
+                                o.put("fullname", name);
+                                o.put("gender", gender);
+                                o.put("lastlogin_time", lastlogin_time);
+                                o.put("account_state", account_state);
+                                if(account_state.equals("0"))
+                                    arr.add(o);
+                        
+                                
+                            
                         }
 
                     resobj.put("success", "1");
@@ -2508,6 +2514,7 @@ public class WebsiteServiceJersey {
                         resobj.put("lng", lng);
                         resobj.put("pid", pid);
                         resobj.put("did", did);
+                        resobj.put("vid", vid);
                         resobj.put("dname", dname);
                         resobj.put("pname", pname);
                         
