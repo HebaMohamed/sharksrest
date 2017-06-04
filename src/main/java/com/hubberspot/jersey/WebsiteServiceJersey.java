@@ -1148,6 +1148,8 @@ public class WebsiteServiceJersey {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            
+                            try{
 
                                 int mid = Integer.parseInt(postSnapshot.getName());
                                 String name = postSnapshot.child("fullname").getValue(String.class);                    
@@ -1163,7 +1165,10 @@ public class WebsiteServiceJersey {
                                 o.put("account_state", account_state);
                                 if(account_state.equals("0"))
                                     arr.add(o);
-                        
+                            }
+                            catch(NumberFormatException nex){
+                                //it is notification count not monitoring member
+                            }
                                 
                             
                         }
@@ -1609,6 +1614,9 @@ public class WebsiteServiceJersey {
                         }
                         //kda gbt list bl pattrens elly 3mlha fy 7yato kolha
                         
+                        int acceptedcount = 0;
+                        int ignoredcount = 0;
+                        
                         int rates_1 = 0;                        
                         int rates_2 = 0;
                         int rates_3 = 0;
@@ -1618,6 +1626,12 @@ public class WebsiteServiceJersey {
                             int did = postSnapshot.child("did").getValue(int.class);    
                             if(did==driverid){
                                 int triprate = postSnapshot.child("ratting").getValue(int.class); 
+                                String status = postSnapshot.child("status").getValue(String.class); 
+                                if(status.equals("ignored"))
+                                    ignoredcount++;
+                                else
+                                    acceptedcount++;
+
                                 if(triprate==1)
                                     rates_1++;
                                 else if(triprate==2)
@@ -1799,7 +1813,9 @@ public class WebsiteServiceJersey {
                     resobj.put("p10_name", p10_name);  
                     resobj.put("p11_name", p11_name);  
                     resobj.put("p12_name", p12_name);  
-
+                    
+                    resobj.put("acceptedcount", acceptedcount);  
+                    resobj.put("ignoredcount", ignoredcount);  
                     
                     resobj.put("avg", avg);  
                     resobj.put("avgtxt", avgtxt);  

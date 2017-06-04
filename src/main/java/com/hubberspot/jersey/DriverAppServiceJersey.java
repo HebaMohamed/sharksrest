@@ -122,10 +122,13 @@ public class DriverAppServiceJersey {
                                 String email = postSnapshot.child("email").getValue(String.class);
                                 String fullname = postSnapshot.child("fullname").getValue(String.class);
                                 int vid = postSnapshot.child("vid").getValue(Integer.class);
+                                String img = postSnapshot.child("img").getValue(String.class);
+
 
                                 d.put("email", email);
                                 d.put("fullname", fullname);
                                 d.put("vehicle_id", vid);
+                                d.put("img", img);
 
                                 resobj.put("driver", d);
                                 
