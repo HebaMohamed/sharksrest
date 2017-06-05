@@ -112,12 +112,12 @@ public class DriverAppServiceJersey {
 
                         JSONObject d = new JSONObject();
 
+                               int f = 0;
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             try{
                             int did = Integer.parseInt(postSnapshot.getName());
                             String pass = postSnapshot.child("password").getValue(String.class);
-                               int f = 0;
                             if(did==id&&pass.equals(password)){
                                 String email = postSnapshot.child("email").getValue(String.class);
                                 String fullname = postSnapshot.child("fullname").getValue(String.class);
@@ -140,7 +140,7 @@ public class DriverAppServiceJersey {
                                 latch.countDown();
                             }
                             else{
-                                if(f==0){
+                                if(f==0){//
                                     resobj.put("success", "0");
                                     resobj.put("msg", "Wrong cred");
                                 }
