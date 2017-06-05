@@ -117,7 +117,7 @@ public class DriverAppServiceJersey {
                             try{
                             int did = Integer.parseInt(postSnapshot.getName());
                             String pass = postSnapshot.child("password").getValue(String.class);
-                               
+                               int f = 0;
                             if(did==id&&pass.equals(password)){
                                 String email = postSnapshot.child("email").getValue(String.class);
                                 String fullname = postSnapshot.child("fullname").getValue(String.class);
@@ -135,12 +135,15 @@ public class DriverAppServiceJersey {
                                 
                                 resobj.put("success", "1");
                                 resobj.put("msg", "logged in");
+                                f=1;
 //                                response = Response.status(200).entity(resobj).build();
                                 latch.countDown();
                             }
                             else{
-                                resobj.put("success", "0");
-                                resobj.put("msg", "Wrong cred");
+                                if(f==0){
+                                    resobj.put("success", "0");
+                                    resobj.put("msg", "Wrong cred");
+                                }
                             }
                             }catch(NullPointerException ne){
                                 Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
