@@ -194,13 +194,33 @@ public class WebsiteServiceJersey {
                         driverobj.put("logged", logged);
                         
                         driverobj.put("intrip", false);//for init only
+
                         //get current trip status
                         for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()) {
+                            int tid = Integer.parseInt(postSnapshot.getName());
                             int did = postSnapshot.child("did").getValue(int.class);
                             if(did == id){
                                 String status = postSnapshot.child("status").getValue(String.class);
                                 if(status.equals("started")){
                                     driverobj.put("intrip", true);
+                                    
+                                    double ilat = postSnapshot.child("ilat").getValue(double.class);
+                                    double ilng = postSnapshot.child("ilng").getValue(double.class);
+
+                                    double destlat = postSnapshot.child("destlat").getValue(double.class);
+                                    double destlng = postSnapshot.child("destlng").getValue(double.class);
+
+                                    long start = postSnapshot.child("start").getValue(long.class);
+
+                                    JSONObject trip = new JSONObject();
+                                    trip.put("tid", tid);
+                                    trip.put("ilat", ilat);
+                                    trip.put("ilng", ilng);
+                                    trip.put("destlat", destlat);
+                                    trip.put("destlng", destlng);
+                                    trip.put("start",start);
+                                    
+                                    driverobj.put("trip", trip);
                                 }
                             }
                         }
@@ -1279,7 +1299,8 @@ public class WebsiteServiceJersey {
                                     String price = postSnapshot.child("price").getValue(String.class);
                                     String ratting = postSnapshot.child("ratting").getValue(String.class);
                                     String start = postSnapshot.child("start").getValue(String.class);
-                                    
+                                    String status = postSnapshot.child("status").getValue(String.class);
+
                                     
                                     double fromlat = postSnapshot.child("ilat").getValue(double.class);
                                     double fromlng = postSnapshot.child("ilng").getValue(double.class);
@@ -1320,7 +1341,10 @@ public class WebsiteServiceJersey {
                                     }
                                
                                     o.put("pathway",paths);
-                                    arr.add(o);
+                                    
+                                    if(status.equals("ended")){
+                                        arr.add(o);
+                                    }
                                     
 //                                }
                             

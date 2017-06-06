@@ -106,7 +106,7 @@ public class DriverAppServiceJersey {
             
             
             
-                myFirebaseRef.child("driver").addValueEventListener(new ValueEventListener() {
+                myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -114,7 +114,7 @@ public class DriverAppServiceJersey {
 
                                int f = 0;
 
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("driver").getChildren()) {
                             try{
                             int did = Integer.parseInt(postSnapshot.getName());
                             String pass = postSnapshot.child("password").getValue(String.class);
@@ -127,14 +127,30 @@ public class DriverAppServiceJersey {
 
                                 d.put("email", email);
                                 d.put("fullname", fullname);
-                                d.put("vehicle_id", vid);
+//                                d.put("vehicle_id", vid);
                                 d.put("img", img);
 
                                 resobj.put("driver", d);
                                 
+                                //car data
+                                String color = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("color").getValue(String.class);
+                                String plate_number = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("plate_number").getValue(String.class);
+                                String model = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("model").getValue(String.class);
                                 
+                                JSONObject vobj = new JSONObject();
+                                vobj.put("vehicle_id",vid);
+                                vobj.put("color",color);
+                                vobj.put("plate_number",plate_number);
+                                vobj.put("model",model);
+                                
+                                resobj.put("vehicle", vobj);
+
+
                                 resobj.put("success", "1");
                                 resobj.put("msg", "logged in");
+                                
+                                
+                                
                                 f=1;
 //                                response = Response.status(200).entity(resobj).build();
                                 latch.countDown();
