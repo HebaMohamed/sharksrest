@@ -646,33 +646,141 @@ public class WebsiteServiceJersey {
                                     vehicleobj.put("plate_number", plate_number);
                                     JSONArray driversarr = new JSONArray();
                                     
+                                    
+                                    
+                                    
+                                    
+
                                     //get list of the last drivers
                                     for (DataSnapshot postSnapshot : dataSnapshot.child("vehicleshistory").getChildren()) {
+
+                                        
                                      int pvid = postSnapshot.child("vid").getValue(int.class);
                                      if(pvid==id){
                                          int pdid = postSnapshot.child("did").getValue(int.class);
+                                         String pdname = dataSnapshot.child("driver").child(String.valueOf(pdid)).child("fullname").getValue(String.class);
                                          long timestamp = Long.parseLong(postSnapshot.getName());
                                          
-                                         ArrayList<>
                                          
-                                         long lasttimestamp = 0;
-                                         for (DataSnapshot postSnapshot3 : dataSnapshot.child(String.valueOf(id)).child("Patterns detected").getChildren()) {
-                                             long timestamp2 = Long.parseLong(postSnapshot3.getName());
+                                         JSONObject d = new JSONObject();
+                                         d.put("did",pdid);
+                                         d.put("name",pdname);
+                                         d.put("starttimestamp",timestamp);
 
-                                             if(lasttimestamp==0){
-                                                lasttimestamp = timestamp2;
-                                             }
-                                             if(timestamp<=lasttimestamp && timestamp>=timestamp2){
-                                                 int pattrenid = postSnapshot3.getValue(int.class);
-                                                 pattrensarr.ad
-                                             }
-                                         }
                                          
+                                         driversarr.add(d);
+
                                      }
                                     }
+                                    //get pattrens names
+                                    String n1="",n2="",n3="",n4="",n5="",n6="",n7="",n8="",n9="",n10="",n11="",n12="";
+                                    for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
+
+                                        
+                                     int pattrenid = Integer.parseInt(postSnapshot.getName());
+                                     if(pattrenid==1)
+                                         n1=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==2)
+                                         n2=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==3)
+                                         n3=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==4)
+                                         n4=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==5)
+                                         n5=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==6)
+                                         n6=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==7)
+                                         n7=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==8)
+                                         n8=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==9)
+                                         n9=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==10)
+                                         n10=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==11)
+                                         n11=postSnapshot.child("name").getValue(String.class);
+                                     else if(pattrenid==12)
+                                         n12=postSnapshot.child("name").getValue(String.class);
+                                    }
+                                    
+                                    //get pattrens count for each driver
+                                    for (int i = 0; i < driversarr.size(); i++) {
+                                        int p1=0,p2=0,p3=0,p4=0,p5=0,p6=0,p7=0,p8=0,p9=0,p10=0,p11=0,p12=0;
+                                        long t1,t2;
+                                        t1 =  driversarr.getJSONObject(i).getLong("starttimestamp");
+                                        if(i!=driversarr.size()-1)
+                                            t2 =  driversarr.getJSONObject(i+1).getLong("starttimestamp");
+                                        else
+                                            t2=t1;
+                                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(id)).child("Patterns detected").getChildren()) {
+                                            long pattrentimestamp = Long.parseLong(postSnapshot.getName());
+//                                            if(t1==t2){
+//                                                t2=pattrentimestamp;//3shn d a5r mra
+//                                            }
+                                            int pattrenid = postSnapshot.getValue(int.class);
+                                                if((pattrentimestamp>=t1 && pattrentimestamp<=t2) || (t1==t2)){
+                                                    if(pattrenid==1)
+                                                        p1++;
+                                                    else if(pattrenid==2)
+                                                        p2++;
+                                                    else if(pattrenid==3)
+                                                        p3++;
+                                                    else if(pattrenid==4)
+                                                        p4++;
+                                                    else if(pattrenid==5)
+                                                        p5++;
+                                                    else if(pattrenid==6)
+                                                        p6++;
+                                                    else if(pattrenid==7)
+                                                        p7++;
+                                                    else if(pattrenid==8)
+                                                        p8++;
+                                                    else if(pattrenid==9)
+                                                        p9++;
+                                                    else if(pattrenid==10)
+                                                        p10++;
+                                                    else if(pattrenid==11)
+                                                        p11++;
+                                                    else if(pattrenid==12)
+                                                        p12++;
+                                                }
+                                            
+                                        }
+                                        
+                                        JSONObject pattrenscount = new JSONObject();
+                                        pattrenscount.put(n1, p1);
+                                        pattrenscount.put(n2, p2);
+                                        pattrenscount.put(n3, p3);
+                                        pattrenscount.put(n4, p4);
+                                        pattrenscount.put(n5, p5);
+                                        pattrenscount.put(n6, p6);
+                                        pattrenscount.put(n7, p7);
+                                        pattrenscount.put(n8, p8);
+                                        pattrenscount.put(n9, p9);
+                                        pattrenscount.put(n10, p10);
+                                        pattrenscount.put(n11, p11);
+                                        pattrenscount.put(n12, p12);
+
+                                        driversarr.getJSONObject(i).put("pattrens", pattrenscount);
+                                    }
+//                                    for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(id)).child("Patterns detected").getChildren()) {
+//                                        long pattrentimestamp = Long.parseLong(postSnapshot.getName());
+//                                        int pattrenid = postSnapshot.getValue(int.class);
+//                                            if(i!=driversarr.size()-1){
+//                                                long t1 =  driversarr.getJSONObject(i).getLong("starttimestamp");
+//                                                long t2 =  driversarr.getJSONObject(i+1).getLong("starttimestamp");
+//                                                if(pattrentimestamp>=t1 && pattrentimestamp<=t2){
+//                                                    
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+                                    
                                     
                         
                                     resobj.put("vehicle", vehicleobj);  
+                                    resobj.put("drivers", driversarr);
                                     resobj.put("success", "1");
                                     resobj.put("msg", "Selected Successfully");
                                     latch.countDown();  
