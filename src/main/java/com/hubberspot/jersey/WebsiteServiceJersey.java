@@ -703,6 +703,19 @@ public class WebsiteServiceJersey {
                                      else if(pattrenid==12)
                                          n12=postSnapshot.child("name").getValue(String.class);
                                     }
+                                        JSONObject pattrennames = new JSONObject();
+                                        pattrennames.put("p1", n1);
+                                        pattrennames.put("p2", n2);
+                                        pattrennames.put("p3", n3);
+                                        pattrennames.put("p4", n4);
+                                        pattrennames.put("p5", n5);
+                                        pattrennames.put("p6", n6);
+                                        pattrennames.put("p7", n7);
+                                        pattrennames.put("p8", n8);
+                                        pattrennames.put("p9", n9);
+                                        pattrennames.put("p10", n10);
+                                        pattrennames.put("p11", n11);
+                                        pattrennames.put("p12", n12);
                                     
                                     //get pattrens count for each driver
                                     for (int i = 0; i < driversarr.size(); i++) {
@@ -749,18 +762,18 @@ public class WebsiteServiceJersey {
                                         }
                                         
                                         JSONObject pattrenscount = new JSONObject();
-                                        pattrenscount.put(n1, p1);
-                                        pattrenscount.put(n2, p2);
-                                        pattrenscount.put(n3, p3);
-                                        pattrenscount.put(n4, p4);
-                                        pattrenscount.put(n5, p5);
-                                        pattrenscount.put(n6, p6);
-                                        pattrenscount.put(n7, p7);
-                                        pattrenscount.put(n8, p8);
-                                        pattrenscount.put(n9, p9);
-                                        pattrenscount.put(n10, p10);
-                                        pattrenscount.put(n11, p11);
-                                        pattrenscount.put(n12, p12);
+                                        pattrenscount.put("p1", p1);
+                                        pattrenscount.put("p2", p2);
+                                        pattrenscount.put("p3", p3);
+                                        pattrenscount.put("p4", p4);
+                                        pattrenscount.put("p5", p5);
+                                        pattrenscount.put("p6", p6);
+                                        pattrenscount.put("p7", p7);
+                                        pattrenscount.put("p8", p8);
+                                        pattrenscount.put("p9", p9);
+                                        pattrenscount.put("p10", p10);
+                                        pattrenscount.put("p11", p11);
+                                        pattrenscount.put("p12", p12);
 
                                         driversarr.getJSONObject(i).put("pattrens", pattrenscount);
                                     }
@@ -781,6 +794,7 @@ public class WebsiteServiceJersey {
                         
                                     resobj.put("vehicle", vehicleobj);  
                                     resobj.put("drivers", driversarr);
+                                    resobj.put("pattrennames",pattrennames);
                                     resobj.put("success", "1");
                                     resobj.put("msg", "Selected Successfully");
                                     latch.countDown();  
