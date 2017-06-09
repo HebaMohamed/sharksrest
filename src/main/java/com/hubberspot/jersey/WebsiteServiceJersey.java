@@ -644,6 +644,33 @@ public class WebsiteServiceJersey {
                                     vehicleobj.put("color", color);
                                     vehicleobj.put("outside_working_time_state", outside_working_time_state);
                                     vehicleobj.put("plate_number", plate_number);
+                                    JSONArray driversarr = new JSONArray();
+                                    
+                                    //get list of the last drivers
+                                    for (DataSnapshot postSnapshot : dataSnapshot.child("vehicleshistory").getChildren()) {
+                                     int pvid = postSnapshot.child("vid").getValue(int.class);
+                                     if(pvid==id){
+                                         int pdid = postSnapshot.child("did").getValue(int.class);
+                                         long timestamp = Long.parseLong(postSnapshot.getName());
+                                         
+                                         ArrayList<>
+                                         
+                                         long lasttimestamp = 0;
+                                         for (DataSnapshot postSnapshot3 : dataSnapshot.child(String.valueOf(id)).child("Patterns detected").getChildren()) {
+                                             long timestamp2 = Long.parseLong(postSnapshot3.getName());
+
+                                             if(lasttimestamp==0){
+                                                lasttimestamp = timestamp2;
+                                             }
+                                             if(timestamp<=lasttimestamp && timestamp>=timestamp2){
+                                                 int pattrenid = postSnapshot3.getValue(int.class);
+                                                 pattrensarr.ad
+                                             }
+                                         }
+                                         
+                                     }
+                                    }
+                                    
                         
                                     resobj.put("vehicle", vehicleobj);  
                                     resobj.put("success", "1");
