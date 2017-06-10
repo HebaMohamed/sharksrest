@@ -597,37 +597,7 @@ public class DriverAppServiceJersey {
         return Response.status(200).entity(resobj).build();
     }
    
-   double calculate_pathway(int id) throws Exception{
-       double fulldistance = 0;
-       
-       
-       
-       
-//       String query = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-//       ResultSet rs = getDBResultSet(query);
-//       JSONArray paths = new JSONArray();
-//       while(rs.next())
-//       {
-//           Double lat = rs.getDouble("yattitude"); 
-//           Double lng = rs.getDouble("xlongitude");
-//                    
-//           JSONObject latlng = new JSONObject();
-//           latlng.put("lat", lat);                    
-//           latlng.put("lng", lng);
-//           paths.add(latlng);
-//        }
-//       double fulldistance = 0;
-//       for (int i = 0; i < paths.size()-1; i++) {
-//           double lat1 = paths.getJSONObject(i).getDouble("lat");           
-//           double lng1 = paths.getJSONObject(i).getDouble("lng");
-//           
-//           double lat2 = paths.getJSONObject(i+1).getDouble("lat");           
-//           double lng2 = paths.getJSONObject(i+1).getDouble("lng");
-//
-//           fulldistance+= distance(lat1, lat2, lng1, lng2);
-//       }
-       return fulldistance;
-   }
+   
 
    
    

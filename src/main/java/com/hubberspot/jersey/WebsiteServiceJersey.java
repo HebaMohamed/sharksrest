@@ -392,6 +392,9 @@ public class WebsiteServiceJersey {
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("token").setValue(" ");
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("logged").setValue(0);
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("vid").setValue(0);
+                        
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("warninghelp").child("femalesafteyid").setValue(0);
+
 
                         resobj.put("success", "1");
                         resobj.put("msg", "Added Successfully");
