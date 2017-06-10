@@ -513,10 +513,10 @@ public class DriverAppServiceJersey {
     
    
     @GET
-    @Path("/donetrip/{tripid}")
+    @Path("/donetrip/{tripid}/{vehicleid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-   public Response donetrip(@PathParam("tripid") final int id) throws Exception{
+   public Response donetrip(@PathParam("tripid") final int id, @PathParam("vehicleid") final int vehicleid) throws Exception{
 //       JSONObject obj = new JSONObject();
    
             //get current datetime 
@@ -533,13 +533,13 @@ public class DriverAppServiceJersey {
             final CountDownLatch latch = new CountDownLatch(1);
             
             
-                myFirebaseRef.child("trips").child(String.valueOf(id)).child("pathway").addValueEventListener(new ValueEventListener() {
+                myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                          
                         JSONArray paths = new JSONArray();
 
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("trips").child(String.valueOf(id)).child("pathway").getChildren()) {
                             
                             long timestamp = Long.parseLong(postSnapshot.getName());
                             double lat = postSnapshot.child("lat").getValue(Double.class);
@@ -564,15 +564,99 @@ public class DriverAppServiceJersey {
                         }
                         
                             
+                        
+                        int p1=0,p2=0,p3=0,p4=0,p5=0,p6=0,p7=0,p8=0,p9=0,p10=0,p11=0,p12=0;
+                            //get pattrens during trip
+                            long start = dataSnapshot.child("trips").child(String.valueOf(id)).child("start").getValue(long.class);
+                            long end = dataSnapshot.child("trips").child(String.valueOf(id)).child("end").getValue(long.class);
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(vehicleid)).child("Patterns detected").getChildren()) {
+                                long patrentimestamp = Long.parseLong(postSnapshot.getName());
+                                if(patrentimestamp>=start && patrentimestamp <= end){//m3ana
+                                    int pattrenid = postSnapshot.getValue(int.class);
+//                                    pattrenobj.put("timestamp", patrentimestamp);
+//                                    pattrenobj.put("pattrenid",pattrenid);
+//                                    pattrensarr.add(pattrenobj);
+
+                                    if(pattrenid == 1){
+                                        p1++;
+                                    }
+                                    else if(pattrenid == 2){
+                                        p2++;
+                                    }
+                                    else if(pattrenid == 3){
+                                        p3++;
+                                    }
+                                    else if(pattrenid == 4){
+                                        p4++;
+                                    }
+                                    else if(pattrenid == 5){
+                                        p5++;
+                                    }
+                                    else if(pattrenid == 6){
+                                        p6++;
+                                    }
+                                    else if(pattrenid == 7){
+                                        p7++;
+                                    }
+                                    else if(pattrenid == 8){
+                                        p8++;
+                                    }
+                                    else if(pattrenid == 9){
+                                        p9++;
+                                    }
+                                    else if(pattrenid == 10){
+                                        p10++;
+                                    }
+                                    else if(pattrenid == 11){
+                                        p11++;
+                                    }
+                                    else if(pattrenid == 12){
+                                        p12++;
+                                    }
+                                    
+
+                                }
+                            }
+                            
+                            JSONObject pattrenobj = new JSONObject();
+                            pattrenobj.put("p1", p1);
+                            pattrenobj.put("p2", p2);
+                            pattrenobj.put("p3", p3);
+                            pattrenobj.put("p4", p4);
+                            pattrenobj.put("p5", p5);
+                            pattrenobj.put("p6", p6);
+                            pattrenobj.put("p7", p7);
+                            pattrenobj.put("p8", p8);
+                            pattrenobj.put("p9", p9);
+                            pattrenobj.put("p10", p10);
+                            pattrenobj.put("p11", p11);
+                            pattrenobj.put("p12", p12);
+
+                            
+                            //get pattrens names
+                            String n="";
+                            JSONObject pattrennames = new JSONObject();
+
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
+                                int pattrenid = Integer.parseInt(postSnapshot.getName());
+                                n=postSnapshot.child("name").getValue(String.class);
+                                     
+                                pattrennames.put(String.valueOf("p"+pattrenid), n);
+                            }
+                                    
+                            
+                        
+                        
                             //add it
                             double distancecost = KMCOST/1000*fulldistance;
                             resobj.put("distance", fulldistance);
                             resobj.put("distancecost", distancecost);
-            
+                            resobj.put("pattrenobj", pattrenobj);
+                            resobj.put("pattrennames", pattrennames);
+                            
                             myFirebaseRef.child("trips").child(String.valueOf(id)).child("end").setValue(System.currentTimeMillis());
                             myFirebaseRef.child("trips").child(String.valueOf(id)).child("price").setValue(distancecost);
-                        
-                            
+                                                       
                             resobj.put("success", "1");
                             resobj.put("msg", "Added Successfully");
                             latch.countDown();
