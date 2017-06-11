@@ -1706,72 +1706,100 @@ public class WebsiteServiceJersey {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         
-                        long start_timestamp = 0;             
-                        int svid = 0;
-                        long end_timestamp = 0;
+//                        long start_timestamp = 0;             
+//                        int svid = 0;
+//                        long end_timestamp = 0;
                         
                         ArrayList<Long> starts = new ArrayList<Long>() ;
                         ArrayList<Long> ends = new ArrayList<Long>() ;
                         ArrayList<Integer> vehicles = new ArrayList<Integer>() ;
                         int i = 0;
                         
-                        int vcount = (int) dataSnapshot.child("vehicleshistory").getChildrenCount();
+//                        int vcount = (int) dataSnapshot.child("vehicleshistory").getChildrenCount();
 
-
+                        long lasttimestamp = 0;
                         for (DataSnapshot postSnapshot : dataSnapshot.child("vehicleshistory").getChildren()) {
-                            i++;
                             Long timestamp = Long.parseLong(postSnapshot.getName());
                             int did = postSnapshot.child("did").getValue(int.class);   
-                            int vid = postSnapshot.child("vid").getValue(int.class);     
-                            
-                            if(did==driverid){
-                                if(start_timestamp==0){
-                                    start_timestamp=timestamp;
-                                    svid=vid;
-                                    
-                                    //tb momkn akon ana bs da a5r record y3ny check
-                                    if (i==vcount){
-                                    end_timestamp=System.currentTimeMillis();//y3ny wsl ll a5r w lsa sh8al feha l7d nw
-                                    //kda a5dt range
-                                    starts.add(start_timestamp);                                    
-                                    ends.add(end_timestamp);
-                                    vehicles.add(svid);
-                                    
-                                    //sfr for other ranges
-                                    start_timestamp=0;
-                                    end_timestamp=0;
-                                    svid=0;
-                            }
+                            int vid = postSnapshot.child("vid").getValue(int.class);    
+                             if(did==driverid){
+                                i++;
+
+                                if(i == 1){
+                                    starts.add(timestamp);
+                                    vehicles.add(vid);
                                 }
-                            }
-                            else if (i==vcount){
-                                    end_timestamp=System.currentTimeMillis();//y3ny wsl ll a5r w lsa sh8al feha l7d nw
-                                    //kda a5dt range
-                                    starts.add(start_timestamp);                                    
-                                    ends.add(end_timestamp);
-                                    vehicles.add(svid);
-                                    
-                                    //sfr for other ranges
-                                    start_timestamp=0;
-                                    end_timestamp=0;
-                                    svid=0;
-                            }
-                            else if(start_timestamp!=0){//da lw l driver l vehicle bta3to et8yrt
-                                    end_timestamp=timestamp;
-                                    //kda a5dt range
-                                    starts.add(start_timestamp);                                    
-                                    ends.add(end_timestamp);
-                                    vehicles.add(svid);
-                                    
-                                    //sfr for other ranges
-                                    start_timestamp=0;
-                                    end_timestamp=0;
-                                    svid=0;
-                                    
-                                    //tb lw d a5r w7da 
+                                else{
+                                    starts.add(timestamp);
+                                    ends.add(timestamp);
+                                    vehicles.add(vid);
                                 }
+//                                else if (i == dataSnapshot.child("vehicleshistory").getChildrenCount()){//msh hynf3 3shn kl l history msh le nfs l driver !
+//                                    starts.add(timestamp);
+//                                    ends.add(timestamp);
+//                                    ends.add(System.currentTimeMillis());
+//                                    vehicles.add(vid);
+//                                }
+                                lasttimestamp = timestamp;
+                             }
                         }
-                        
+                        //after that check if last end is current (still working) so add current time stamp as end
+                        ends.add(System.currentTimeMillis());
+
+//                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicleshistory").getChildren()) {
+//                            i++;
+//                            Long timestamp = Long.parseLong(postSnapshot.getName());
+//                            int did = postSnapshot.child("did").getValue(int.class);   
+//                            int vid = postSnapshot.child("vid").getValue(int.class);     
+//                            
+//                            if(did==driverid){
+//                                if(start_timestamp==0){
+//                                    start_timestamp=timestamp;
+//                                    svid=vid;
+//                                    
+//                                    //tb momkn akon ana bs da a5r record y3ny check
+//                                    if (i==vcount){
+//                                    end_timestamp=System.currentTimeMillis();//y3ny wsl ll a5r w lsa sh8al feha l7d nw
+//                                    //kda a5dt range
+//                                    starts.add(start_timestamp);                                    
+//                                    ends.add(end_timestamp);
+//                                    vehicles.add(svid);
+//                                    
+//                                    //sfr for other ranges
+//                                    start_timestamp=0;
+//                                    end_timestamp=0;
+//                                    svid=0;
+//                            }
+//                                }
+//                            }
+//                            else if (i==vcount){
+//                                    end_timestamp=System.currentTimeMillis();//y3ny wsl ll a5r w lsa sh8al feha l7d nw
+//                                    //kda a5dt range
+//                                    starts.add(start_timestamp);                                    
+//                                    ends.add(end_timestamp);
+//                                    vehicles.add(svid);
+//                                    
+//                                    //sfr for other ranges
+//                                    start_timestamp=0;
+//                                    end_timestamp=0;
+//                                    svid=0;
+//                            }
+//                            else if(start_timestamp!=0){//da lw l driver l vehicle bta3to et8yrt
+//                                    end_timestamp=timestamp;
+//                                    //kda a5dt range
+//                                    starts.add(start_timestamp);                                    
+//                                    ends.add(end_timestamp);
+//                                    vehicles.add(svid);
+//                                    
+//                                    //sfr for other ranges
+//                                    start_timestamp=0;
+//                                    end_timestamp=0;
+//                                    svid=0;
+//                                    
+//                                    //tb lw d a5r w7da 
+//                                }
+//                        }
+//                        
                         JSONArray pattrens = new JSONArray();
                         
                         //kda gbt l range bta3ty na2s l pattrens mn l vehicle
@@ -1779,7 +1807,10 @@ public class WebsiteServiceJersey {
                             int currentvid = vehicles.get(j);
                             for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(currentvid)).child("Patterns detected").getChildren()) {
                                 Long timestamp = Long.parseLong(postSnapshot.getName());
-                                if(svid == currentvid && starts.get(j)<=timestamp && ends.get(j)>=timestamp){
+//                                if(svid == currentvid && starts.get(j)<=timestamp && ends.get(j)>=timestamp){
+                                    long s = starts.get(j);
+                                    long e = ends.get(j);
+                                  if(s<=timestamp && e>=timestamp){
                                     int pattrenid = postSnapshot.getValue(int.class);     
                                     JSONObject p = new JSONObject();
                                     p.put("pattrenid", pattrenid);
