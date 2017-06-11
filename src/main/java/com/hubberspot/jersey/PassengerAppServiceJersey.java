@@ -235,6 +235,7 @@ public class PassengerAppServiceJersey {
                         for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
                             try{
                             int vid = Integer.parseInt(postSnapshot.getName());
+                            String model = postSnapshot.child("model").getValue(String.class);
                             double lat = postSnapshot.child("lat").getValue(Double.class);
                             double lng = postSnapshot.child("lng").getValue(Double.class);
                             int status = postSnapshot.child("status").getValue(Integer.class);
@@ -256,6 +257,7 @@ public class PassengerAppServiceJersey {
                                             d.put("avg", avg);
                                             d.put("avgtxt", avgtxt);
                                             d.put("vid", vid);
+                                            d.put("model", model);
                                             d.put("dist", dist);
                                             d.put("fullname",fullname);
                                             darr.add(d);
