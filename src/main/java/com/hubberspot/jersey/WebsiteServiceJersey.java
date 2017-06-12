@@ -42,6 +42,8 @@ import net.sf.json.JSONObject;
 public class WebsiteServiceJersey {
     
 //    Connection conn;
+    
+    int f;
             
     @GET //test only
     @Path("/go")
@@ -842,21 +844,30 @@ public class WebsiteServiceJersey {
 
     }
     
-    @GET
-    @Path("/addvehicle/{model}/{color}/{plate_number}")
+    @POST
+    @Path("/addvehicle")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addVehicle(@PathParam("model") final String model, @PathParam("color") final String color, @PathParam("plate_number") final String plate_number){
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addVehicle(String data){
 //        JSONObject obj = new JSONObject();
         try {
+            JSONObject dataObj = JSONObject.fromObject(data);
+            final String vmodel = dataObj.getString("vmodel");
+            final String vcolor = dataObj.getString("vcolor");
+            final String vplatenumber = dataObj.getString("vplatenumber");
             
             resobj = new JSONObject();
             final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-            
+            f=0;
             
             myFirebaseRef.child("vehicles").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(f == 0){
+                            f=1;
+                        
+                        
                         long count = dataSnapshot.getChildrenCount();      
                         long insertedid = count+1;
                         
@@ -868,17 +879,18 @@ public class WebsiteServiceJersey {
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("RPM").setValue("0");
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("Speed").setValue("0");
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("Throttle").setValue("0");
-                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("color").setValue(color);
+                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("color").setValue(vcolor);
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("lat").setValue("0");
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("lng").setValue("0");
-                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("model").setValue(model);
-                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("plate_number").setValue(plate_number);
+                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("model").setValue(vmodel);
+                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("plate_number").setValue(vplatenumber);
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("status").setValue("0");
 
                     resobj.put("success", "1");
                     resobj.put("msg", "Added Successfully");
 
                     resobj.put("insertedid", insertedid);
+                    }
                  }
 
                 @Override
@@ -1147,28 +1159,35 @@ public class WebsiteServiceJersey {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         
-                    String pass = dataSnapshot.child("password").getValue(String.class);                    
-                    if(pass.equals(password)){
+                      
+                        
+                    String pass = dataSnapshot.child("password").getValue(String.class);    
+                    
+                      if(pass == null){//wrong id
+                            resobj.put("success", "0");
+                            resobj.put("msg", "Wrong ID");
+                            latch.countDown();      
+                        }else if(pass.equals(password)){
                         int mid = Integer.parseInt(dataSnapshot.getName());
                         String name = dataSnapshot.child("fullname").getValue(String.class);                    
                         String gender = dataSnapshot.child("gender").getValue(String.class);                    
                         String lastlogin_time = dataSnapshot.child("lastlogin_time").getValue(String.class);                    
                         String account_state = dataSnapshot.child("account_state").getValue(String.class);     
                         
-                    resobj.put("success", "1");
-                    resobj.put("msg", "Loggedin Successfully");
-                    JSONObject m = new JSONObject();
-                     m.put("id", mid);
-                     m.put("name", name);
-                     m.put("gender", gender);
-                     m.put("lastlogin_time", lastlogin_time);
-                     m.put("account_state", account_state);
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Loggedin Successfully");
+                        JSONObject m = new JSONObject();
+                         m.put("id", mid);
+                         m.put("name", name);
+                         m.put("gender", gender);
+                         m.put("lastlogin_time", lastlogin_time);
+                         m.put("account_state", account_state);
 
-                     resobj.put("member", m);
-                     latch.countDown();                       
+                         resobj.put("member", m);
+                         latch.countDown();                       
                     }
                     else{
-                        resobj.put("success", "0");
+                         resobj.put("success", "0");
                         resobj.put("msg", "Wrong Password");
                         latch.countDown();      
                     }
@@ -1240,30 +1259,37 @@ public class WebsiteServiceJersey {
             resobj = new JSONObject();
             final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            f=0;
             
             
             myFirebaseRef.child("monitoring_member").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        if(f==0){
+                            f=1;
+                        
+                        
                         long count = dataSnapshot.getChildrenCount();      
                         long insertedid = count+1;
                         
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("account_state").setValue("0");
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_monitor_driver").setValue("0");
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_vehicle_monitor").setValue("0");
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("Load").setValue("0");
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("driver_id").setValue("0");
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("fullname").setValue(name);
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("gender").setValue(gender);
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("lastlogin_time").setValue("0");
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("password").setValue(password);
-                    myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("vehicle_id").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("account_state").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_monitor_driver").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_vehicle_monitor").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("Load").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("driver_id").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("fullname").setValue(name);
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("gender").setValue(gender);
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("lastlogin_time").setValue("0");
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("password").setValue(password);
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("vehicle_id").setValue("0");
 
-                    resobj.put("success", "1");
-                    resobj.put("msg", "Added Successfully");
+                        resobj.put("success", "1");
+                        resobj.put("msg", "Added Successfully");
 
-                    resobj.put("insertedid", insertedid);
-                    latch.countDown();   
+                        resobj.put("insertedid", insertedid);
+                        latch.countDown();   
+                    }
                  }
 
                 @Override
@@ -1655,7 +1681,6 @@ public class WebsiteServiceJersey {
                 
             resobj = new JSONObject();
             arr = new JSONArray();
-            final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
 //        JSONObject obj = new JSONObject();
         try {
@@ -1701,10 +1726,15 @@ public class WebsiteServiceJersey {
             arr = new JSONArray();
             final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            f=0;
         try {
             myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        if(f==0){
+                            f=1;
+                        
                         
 //                        long start_timestamp = 0;             
 //                        int svid = 0;
@@ -2029,6 +2059,7 @@ public class WebsiteServiceJersey {
                     resobj.put("dname", dname);  
 
                     latch.countDown();   
+                    }
                  }
 
                 @Override
@@ -2716,21 +2747,40 @@ public class WebsiteServiceJersey {
                         String nearname = "";
                         for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
                             int cvid = Integer.parseInt(postSnapshot.getName());
-                            double v2lat = postSnapshot.child("Latitude").getValue(double.class);
-                            double v2lng = postSnapshot.child("Longitude").getValue(double.class);
-                            int dist = (int) calculateDistance(vlat, vlng, v2lat, v2lng);
-                            if(dist<neardist){
-                                neardist=dist;
-                                for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
-                                    int cvid2 = postSnapshot2.child("vid").getValue(int.class);
-                                    if(cvid2 == cvid){
-                                        int did2 = Integer.parseInt(postSnapshot2.getName());
-                                        nearid = did2;
-                                        nearname = postSnapshot2.child("fullname").getValue(String.class);
+                            if(cvid != vid){
+                                double v2lat = postSnapshot.child("Latitude").getValue(double.class);
+                                double v2lng = postSnapshot.child("Longitude").getValue(double.class);
+                                int dist = (int) calculateDistance(vlat, vlng, v2lat, v2lng);
+                                if(dist<neardist){
+                                    neardist=dist;
+                                    for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                        int cvid2 = postSnapshot2.child("vid").getValue(int.class);
+                                        if(cvid2 == cvid){
+                                            int did2 = Integer.parseInt(postSnapshot2.getName());
+                                            boolean logged = postSnapshot2.child("logged").getValue(boolean.class);
+                                            
+                                            if(logged){
+                                                nearid = did2;
+                                                nearname = postSnapshot2.child("fullname").getValue(String.class);
+                                            }
+                                        }
                                     }
                                 }
-                        }
+                            }
                     }
+                        
+                        JSONObject neard = new JSONObject();
+                        //check if no one is near
+                        if(nearid==0)
+                            neard.put("f",0);
+                        else
+                            neard.put("f",1);           
+                        
+                        neard.put("id", nearid);
+                        neard.put("name", nearname);
+
+                            
+                        
                         
                         resobj.put("tripid", tripid);
                         resobj.put("lat", lat);
@@ -2741,9 +2791,6 @@ public class WebsiteServiceJersey {
                         resobj.put("dname", dname);
                         resobj.put("pname", pname);
                         
-                        JSONObject neard = new JSONObject();
-                        neard.put("id", nearid);
-                        neard.put("name", nearname);
 
                         resobj.put("neard", neard);
                         

@@ -67,6 +67,8 @@ public class PassengerAppServiceJersey {
     //int pickupSelectedDriverID;
 
     public static Firebase myFirebaseRef;
+    
+    int f;
 //    int min_id = 0;
 //    double min_distance = 0;
 
@@ -481,7 +483,7 @@ public class PassengerAppServiceJersey {
 
 //            JSONObject obj = new JSONObject();
             CountDownLatch latch = new CountDownLatch(1);
-           
+           f=0;
 //                int insertedid = excDBgetID("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
 //                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')", "passenger");
 //                
@@ -490,23 +492,27 @@ public class PassengerAppServiceJersey {
                 myFirebaseRef.child("passenger").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(f==0){
+                            f=1;
+                        
                         long count = dataSnapshot.getChildrenCount();      
                         long insertedid = count+1;
                         
                         
                         
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("age").setValue(age);
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("gender").setValue(gender);
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("fullname").setValue(name);
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("phone").setValue(phone);
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("password").setValue(password);
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("relatedphone").setValue(relatedphone);
-                    myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("language").setValue(language);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("age").setValue(age);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("gender").setValue(gender);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("fullname").setValue(name);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("phone").setValue(phone);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("password").setValue(password);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("relatedphone").setValue(relatedphone);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("language").setValue(language);
 
-                        resobj.put("success", "1");
-                        resobj.put("msg", "Added Successfully");
+                            resobj.put("success", "1");
+                            resobj.put("msg", "Added Successfully");
 
-                        resobj.put("insertedid", insertedid);
+                            resobj.put("insertedid", insertedid);
+                        }
                     }
 
                 @Override
@@ -887,7 +893,6 @@ public class PassengerAppServiceJersey {
     
     Response response;
     //JSONObject obj;
-    static int onetimeflag;
 
     @POST
     @Path("/submitpickup")
@@ -901,7 +906,7 @@ public class PassengerAppServiceJersey {
             final int passengerid = dataObj.getInt("passengerid");
             final int nearestvehicleid = dataObj.getInt("vid");
             
-            onetimeflag = 0;
+            f = 0;
 
             resobj = new JSONObject();
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
@@ -919,9 +924,9 @@ public class PassengerAppServiceJersey {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         
-                        if(onetimeflag == 0){
+                        if(f == 0){
                             
-                        onetimeflag = 1;
+                        f = 1;
                         
                         String selecteddrivertoken = "";
                         int pickupSelectedDriverID = 0;
@@ -985,7 +990,7 @@ public class PassengerAppServiceJersey {
 //                             v.put("plate_number", plate_number);
 //                             obj.put("vehicle", v);
 //                         }
-//                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, driver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
+//                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, dr0iver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
                         //set trip status
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("status").setValue("requested");
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ilat").setValue(ilat);

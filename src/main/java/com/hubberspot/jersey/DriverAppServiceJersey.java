@@ -42,7 +42,7 @@ public class DriverAppServiceJersey {
     
     public static Firebase myFirebaseRef;
     
-    int f;
+    int f; //to check that ondatachanged fired only once
     
     @GET
     @Path("/initFirebase")    
@@ -104,16 +104,20 @@ public class DriverAppServiceJersey {
             JSONObject objj = JSONObject.fromObject(data);   
             final int id = objj.getInt("driver_id");            
             final String password = objj.getString("password");
-            
+            f=0;
             
             
                 myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        if(f==0){
+                            f=1;
+                        
+                        
 
                         JSONObject d = new JSONObject();
 
-                               int f = 0;
 
                         for (DataSnapshot postSnapshot : dataSnapshot.child("driver").getChildren()) {
                             try{
@@ -169,7 +173,7 @@ public class DriverAppServiceJersey {
                             }
                         }
                         latch.countDown();
-                        
+                        }
                     }
 
                 @Override
@@ -259,6 +263,7 @@ public class DriverAppServiceJersey {
 //            resobj.put("msg", "done");
             
             tripsarr = new JSONArray();
+            f=0;
             
            
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
@@ -266,6 +271,10 @@ public class DriverAppServiceJersey {
                 myFirebaseRef.child("trips").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        if(f==0){
+                            f=1;
+                        
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                 int did = postSnapshot.child("did").getValue(Integer.class);
@@ -322,7 +331,7 @@ public class DriverAppServiceJersey {
                           resobj.put("success", "1");
                           resobj.put("msg", "Selected Successfully");
                           latch.countDown();   
-                        
+                        }
                     }
 
                 @Override
@@ -528,6 +537,8 @@ public class DriverAppServiceJersey {
             //excDB(j);
             //conn.close();
             
+            
+            
             //to calculate pathway
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             resobj = new JSONObject();
@@ -732,6 +743,7 @@ public class DriverAppServiceJersey {
              myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             resobj = new JSONObject();
             final CountDownLatch latch = new CountDownLatch(1);
+            f=0;
             
             myFirebaseRef.child("trips").child(String.valueOf(id)).child("status").setValue("approved");
             
@@ -740,17 +752,21 @@ public class DriverAppServiceJersey {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        String fullname = dataSnapshot.child("fullname").getValue(String.class);
-                        String phone = dataSnapshot.child("phone").getValue(String.class);
-                        String token = dataSnapshot.child("token").getValue(String.class);
-
+                        if(f==0){
+                            f=1;
                         
-                        JSONObject p = new JSONObject();
-                        p.put("fullname", fullname);
-                        p.put("phone", phone);
+                            String fullname = dataSnapshot.child("fullname").getValue(String.class);
+                            String phone = dataSnapshot.child("phone").getValue(String.class);
+                            String token = dataSnapshot.child("token").getValue(String.class);
 
-                        resobj.put("passenger", p);
-                         latch.countDown();
+
+                            JSONObject p = new JSONObject();
+                            p.put("fullname", fullname);
+                            p.put("phone", phone);
+
+                            resobj.put("passenger", p);
+                             latch.countDown();
+                        }
                     }
 
                 @Override
