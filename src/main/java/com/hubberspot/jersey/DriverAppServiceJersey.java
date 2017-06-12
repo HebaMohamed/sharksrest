@@ -42,6 +42,7 @@ public class DriverAppServiceJersey {
     
     public static Firebase myFirebaseRef;
     
+    int f;
     
     @GET
     @Path("/initFirebase")    
@@ -531,11 +532,15 @@ public class DriverAppServiceJersey {
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             resobj = new JSONObject();
             final CountDownLatch latch = new CountDownLatch(1);
-            
+            f = 0;
             
                 myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        
+                        if(f==0){
+                            f=1;
+                        
                          
                         JSONArray paths = new JSONArray();
 
@@ -660,6 +665,7 @@ public class DriverAppServiceJersey {
                             resobj.put("success", "1");
                             resobj.put("msg", "Added Successfully");
                             latch.countDown();
+                        }
                 }
                 
 
