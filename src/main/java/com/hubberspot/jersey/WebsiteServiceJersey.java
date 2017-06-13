@@ -2785,6 +2785,7 @@ public class WebsiteServiceJersey {
                         long tripid = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("tid").getValue(long.class);
                         double lat = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("lat").getValue(double.class);
                         double lng = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("lng").getValue(double.class);
+                        String status = dataSnapshot.child("warning").child("femalesaftey").child(String.valueOf(timestamp)).child("status").getValue(String.class);
                         int pid = dataSnapshot.child("trips").child(String.valueOf(tripid)).child("pid").getValue(int.class);
                         int did = dataSnapshot.child("trips").child(String.valueOf(tripid)).child("did").getValue(int.class);
                         String dname = dataSnapshot.child("driver").child(String.valueOf(did)).child("fullname").getValue(String.class);
@@ -2795,32 +2796,46 @@ public class WebsiteServiceJersey {
                         double vlat = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("Latitude").getValue(double.class);
                         double vlng = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("Longitude").getValue(double.class);
 
+                        
+                        
                         int neardist = 1000000;
                         int nearid = 0;
+                        int nearvid = 0;
                         String nearname = "";
-                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
-                            int cvid = Integer.parseInt(postSnapshot.getName());
-                            if(cvid != vid){
-                                double v2lat = postSnapshot.child("Latitude").getValue(double.class);
-                                double v2lng = postSnapshot.child("Longitude").getValue(double.class);
-                                int dist = (int) calculateDistance(vlat, vlng, v2lat, v2lng);
-                                if(dist<neardist){
-                                    neardist=dist;
-                                    for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
-                                        int cvid2 = postSnapshot2.child("vid").getValue(int.class);
-                                        if(cvid2 == cvid){
-                                            int did2 = Integer.parseInt(postSnapshot2.getName());
-                                            boolean logged = postSnapshot2.child("logged").getValue(boolean.class);
-                                            
-                                            if(logged){
-                                                nearid = did2;
-                                                nearname = postSnapshot2.child("fullname").getValue(String.class);
+                        
+                        if(status.equals("new")){
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
+                                int cvid = Integer.parseInt(postSnapshot.getName());
+                                if(cvid != vid){
+                                    double v2lat = postSnapshot.child("Latitude").getValue(double.class);
+                                    double v2lng = postSnapshot.child("Longitude").getValue(double.class);
+                                    int dist = (int) calculateDistance(vlat, vlng, v2lat, v2lng);
+                                    if(dist<neardist){
+                                        neardist=dist;
+                                        for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                            int cvid2 = postSnapshot2.child("vid").getValue(int.class);
+                                            if(cvid2 == cvid){
+                                                int did2 = Integer.parseInt(postSnapshot2.getName());
+                                                boolean logged = postSnapshot2.child("logged").getValue(boolean.class);
+
+                                                if(logged){
+                                                    nearid = did2;
+                                                    nearvid = cvid;
+                                                    nearname = postSnapshot2.child("fullname").getValue(String.class);
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                    }
+                        }
+                        else if(status.equals("assigned")){
+                            for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
+                                nearid = Integer.parseInt(postSnapshot2.getName());
+                                nearname = postSnapshot2.child("fullname").getValue(String.class);
+                                nearvid = postSnapshot2.child("vid").getValue(int.class);
+                            }
+                        }
                         
                         JSONObject neard = new JSONObject();
                         //check if no one is near
@@ -2831,11 +2846,14 @@ public class WebsiteServiceJersey {
                         
                         neard.put("id", nearid);
                         neard.put("name", nearname);
+                        neard.put("vid", nearvid);
+
 
                             
                         
                         
                         resobj.put("tripid", tripid);
+                        resobj.put("status", status);
                         resobj.put("lat", lat);
                         resobj.put("lng", lng);
                         resobj.put("pid", pid);
@@ -2844,7 +2862,7 @@ public class WebsiteServiceJersey {
                         resobj.put("dname", dname);
                         resobj.put("pname", pname);
                         
-
+                        
                         resobj.put("neard", neard);
                         
                         resobj.put("success", "1");
@@ -2942,16 +2960,54 @@ public class WebsiteServiceJersey {
     }
        
     @GET
-    @Path("/sendhelp/{did}/{vid}/{fid}")
+    @Path("/sendhelp/{fid}/{neardid/{nearvid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sendhelp(@PathParam("did") final int did,@PathParam("vid") final int vid){
-          Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-          myFirebaseRef.child("driver").child(String.valueOf(did)).child("warninghelp").child("vid").setValue(vid);
+    public Response sendhelp(@PathParam("neardid") final int neardid,@PathParam("nearvid") final int nearvid,@PathParam("fid") final long fid){
+        try{  
+            Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            myFirebaseRef.child("driver").child(String.valueOf(neardid)).child("warninghelp").child("femalesafteyid").setValue(fid);
+            myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(0);
+
+            myFirebaseRef.child("warning").child("femalesaftey").child(String.valueOf(fid)).child("status").setValue("assigned");
+
+            resobj.put("success", "1");
+            resobj.put("msg", "Assigned Successfully");
+            
+          } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
           
-                  return Response.status(200).entity(resobj).build();
+         return Response.status(200).entity(resobj).build();
 
     }
-    
+    @GET
+    @Path("/closehelp/{fid}/{neardid/{nearvid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response closehelp(@PathParam("neardid") final int neardid,@PathParam("nearvid") final int nearvid,@PathParam("fid") final long fid){
+        try{  
+            Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+            if(neardid!=0){
+                myFirebaseRef.child("driver").child(String.valueOf(neardid)).child("warninghelp").child("femalesafteyid").setValue(0);
+                myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(1);
+            }
+
+            myFirebaseRef.child("warning").child("femalesaftey").child(String.valueOf(fid)).child("status").setValue("closed");
+
+            resobj.put("success", "1");
+            resobj.put("msg", "Assigned Successfully");
+            
+          } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+          
+         return Response.status(200).entity(resobj).build();
+
+    }
 //    ResultSet getDBResultSet(String query) throws Exception{
 //                    
 //        Class.forName("com.mysql.jdbc.Driver");            
