@@ -396,6 +396,7 @@ public class WebsiteServiceJersey {
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("vid").setValue(0);
                         
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("warninghelp").child("femalesafteyid").setValue(0);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("warninghelp").child("response").setValue("");
 
 
                         resobj.put("success", "1");
@@ -890,6 +891,7 @@ public class WebsiteServiceJersey {
                     resobj.put("msg", "Added Successfully");
 
                     resobj.put("insertedid", insertedid);
+                    latch.countDown();
                     }
                  }
 
@@ -2130,11 +2132,11 @@ public class WebsiteServiceJersey {
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             
             
-            myFirebaseRef.child("pattrens").addValueEventListener(new ValueEventListener() {
+            myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
                                     int pattrnsid = Integer.parseInt(postSnapshot.getName());
                                     String name = postSnapshot.child("name").getValue(String.class);
                                     String max = postSnapshot.child("max").getValue(String.class);
@@ -2148,7 +2150,58 @@ public class WebsiteServiceJersey {
                                     arr.add(o);
                         }
                         
+                        int p1=0,p2=0,p3=0,p4=0,p5=0,p6=0,p7=0,p8=0,p9=0,p10=0,p11=0,p12=0;
+                        JSONObject counts = new JSONObject();
+                        //get pattrens count
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
+                            for (DataSnapshot postSnapshot2 : postSnapshot.child("Patterns detected").getChildren()){
+                                
+                                int patid = postSnapshot2.getValue(int.class);
+                                if(patid==1)
+                                    p1++;
+                                else if(patid==2)
+                                    p2++;
+                                else if(patid==3)
+                                    p3++;
+                                else if(patid==4)
+                                    p4++;
+                                else if(patid==5)
+                                    p5++;
+                                else if(patid==6)
+                                    p6++;
+                                else if(patid==7)
+                                    p7++;
+                                else if(patid==8)
+                                    p8++;
+                                else if(patid==9)
+                                    p9++;
+                                else if(patid==10)
+                                    p10++;
+                                else if(patid==11)
+                                    p11++;
+                                else if(patid==12)
+                                    p12++;
+
+                            }
+                        }
+                        
+                        counts.put("p1", p1);
+                        counts.put("p2", p2);
+                        counts.put("p3", p3);
+                        counts.put("p4", p4);
+                        counts.put("p5", p5);
+                        counts.put("p6", p6);
+                        counts.put("p7", p7);
+                        counts.put("p8", p8);
+                        counts.put("p9", p9);
+                        counts.put("p10", p10);
+                        counts.put("p11", p11);
+                        counts.put("p12", p12);
+
+                        
+                        
                           resobj.put("pattrens", arr);  
+                          resobj.put("counts",counts);
                           resobj.put("success", "1");
                           resobj.put("msg", "Selected Successfully");
                           latch.countDown();   
@@ -2886,6 +2939,17 @@ public class WebsiteServiceJersey {
         int earthRadius = 6371;
         float d = earthRadius * c;
         return d;
+    }
+       
+    @GET
+    @Path("/sendhelp/{did}/{vid}/{fid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response sendhelp(@PathParam("did") final int did,@PathParam("vid") final int vid){
+          Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+          myFirebaseRef.child("driver").child(String.valueOf(did)).child("warninghelp").child("vid").setValue(vid);
+          
+                  return Response.status(200).entity(resobj).build();
+
     }
     
 //    ResultSet getDBResultSet(String query) throws Exception{
