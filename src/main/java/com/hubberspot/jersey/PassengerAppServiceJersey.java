@@ -501,6 +501,7 @@ public class PassengerAppServiceJersey {
                         
                         
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("age").setValue(age);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("useremail").setValue(email);
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("gender").setValue(gender);
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("fullname").setValue(name);
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("phone").setValue(phone);

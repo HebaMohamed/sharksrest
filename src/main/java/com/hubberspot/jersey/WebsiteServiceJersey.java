@@ -2964,7 +2964,7 @@ public class WebsiteServiceJersey {
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendhelp(@PathParam("neardid") final int neardid,@PathParam("nearvid") final int nearvid,@PathParam("fid") final long fid){
         try{  
-            Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             myFirebaseRef.child("driver").child(String.valueOf(neardid)).child("warninghelp").child("femalesafteyid").setValue(fid);
             myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(0);
 
@@ -2987,7 +2987,7 @@ public class WebsiteServiceJersey {
     @Produces(MediaType.APPLICATION_JSON)
     public Response closehelp(@PathParam("neardid") final int neardid,@PathParam("nearvid") final int nearvid,@PathParam("fid") final long fid){
         try{  
-            Firebase  myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             
             if(neardid!=0){
                 myFirebaseRef.child("driver").child(String.valueOf(neardid)).child("warninghelp").child("femalesafteyid").setValue(0);
