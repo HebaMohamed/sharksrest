@@ -8,13 +8,6 @@ package com.hubberspot.jersey;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.ValueEventListener;
-import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
@@ -22,17 +15,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.spi.http.HttpContext;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -1424,7 +1413,7 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(resobj).build();
     }
     
-        @GET
+    @GET
     @Path("/acceptmember/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response acceptmember(@PathParam("id") int id){
@@ -2946,7 +2935,7 @@ public class WebsiteServiceJersey {
     }
     
     
-       public static float calculateDistance(double lat1, double lon1, double lat2, double lon2)
+    public static float calculateDistance(double lat1, double lon1, double lat2, double lon2)
     {
         float dLat = (float) Math.toRadians(lat2 - lat1);
         float dLon = (float) Math.toRadians(lon2 - lon1);
@@ -2960,7 +2949,7 @@ public class WebsiteServiceJersey {
     }
        
     @GET
-    @Path("/sendhelp/{fid}/{neardid/{nearvid}")
+    @Path("/sendhelp/{fid}/{neardid}/{nearvid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendhelp(@PathParam("neardid") final int neardid,@PathParam("nearvid") final int nearvid,@PathParam("fid") final long fid){
         try{  
@@ -2983,7 +2972,7 @@ public class WebsiteServiceJersey {
 
     }
     @GET
-    @Path("/closehelp/{fid}/{neardid/{nearvid}")
+    @Path("/closehelp/{fid}/{neardid}/{nearvid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response closehelp(@PathParam("neardid") final int neardid,@PathParam("nearvid") final int nearvid,@PathParam("fid") final long fid){
         try{  
