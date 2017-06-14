@@ -2779,6 +2779,8 @@ public class WebsiteServiceJersey {
                         int did = dataSnapshot.child("trips").child(String.valueOf(tripid)).child("did").getValue(int.class);
                         String dname = dataSnapshot.child("driver").child(String.valueOf(did)).child("fullname").getValue(String.class);
                         String pname = dataSnapshot.child("passenger").child(String.valueOf(pid)).child("fullname").getValue(String.class);
+                        String phone = dataSnapshot.child("passenger").child(String.valueOf(pid)).child("phone").getValue(String.class);
+                        String relatedphone = dataSnapshot.child("passenger").child(String.valueOf(pid)).child("relatedphone").getValue(String.class);
 
                         //nearst driver
                         int vid = dataSnapshot.child("driver").child(String.valueOf(did)).child("vid").getValue(int.class);
@@ -2850,7 +2852,8 @@ public class WebsiteServiceJersey {
                         resobj.put("vid", vid);
                         resobj.put("dname", dname);
                         resobj.put("pname", pname);
-                        
+                        resobj.put("phone", phone);
+                        resobj.put("relatedphone", relatedphone);
                         
                         resobj.put("neard", neard);
                         
