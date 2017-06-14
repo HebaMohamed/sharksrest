@@ -2010,7 +2010,7 @@ public class WebsiteServiceJersey {
                             avgtxt="Good";
                         else if(avg<9)
                             avgtxt="Very Good";
-                        else if(avg<=12)
+                        else //if(avg<=12)
                             avgtxt="Excellent";
                         
                        myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("avgtxt").setValue(avgtxt);
