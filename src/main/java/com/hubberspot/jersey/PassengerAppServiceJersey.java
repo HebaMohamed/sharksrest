@@ -1082,4 +1082,48 @@ public class PassengerAppServiceJersey {
 
          return Math.sqrt(distance);
      }
+         
+         
+         
+         //////edit data
+         
+    @POST
+    @Path("/editpassenger")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+  public Response editDriver(String data){
+        JSONObject dataobj = JSONObject.fromObject(data);
+        int pid = dataobj.getInt("pid");
+        String name = dataobj.getString("name");
+        String email = dataobj.getString("email");
+        String pass = dataobj.getString("pass");
+        String ph = dataobj.getString("ph");
+        String relativeph = dataobj.getString("relativeph");
+
+//        JSONObject obj = new JSONObject();
+        resobj = new JSONObject();
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        try {         
+            
+            myFirebaseRef.child("passenger").child(String.valueOf(pid)).child("fullname").setValue(name);
+            myFirebaseRef.child("passenger").child(String.valueOf(pid)).child("useremail").setValue(email);
+            myFirebaseRef.child("passenger").child(String.valueOf(pid)).child("password").setValue(pass);
+            myFirebaseRef.child("passenger").child(String.valueOf(pid)).child("phone").setValue(ph);
+            myFirebaseRef.child("passenger").child(String.valueOf(pid)).child("relatedphone").setValue(relativeph);
+
+            
+            resobj.put("success", "1");
+            resobj.put("msg", "Edited Successfully");
+            
+//            conn.close();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
+  
+  
 }
