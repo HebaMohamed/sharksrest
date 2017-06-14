@@ -90,7 +90,21 @@ public class PassengerAppServiceJersey {
         httpcon.connect();
         System.out.println("Connected!");
 
-        byte[] outputBytes = String.valueOf("{\"notification\":{\"title\": \""+title+"\", \"text\": \""+msg+"\", \"sound\": \"default\"}, \"to\": \""+token+"\"}").getBytes("UTF-8");
+//        byte[] outputBytes = String.valueOf("{\"notification\":{\"title\": \""+title+"\", \"text\": \""+msg+"\", \"sound\": \"default\"}, \"to\": \""+token+"\"}").getBytes("UTF-8");
+        JSONObject notify = new JSONObject();
+        JSONObject notification = new JSONObject();
+        notification.put("title", title);
+        notification.put("body", msg);
+        
+        notify.put("notification", notification);
+        notify.put("to", token);
+        
+        
+        byte[] outputBytes = notify.toString().getBytes("UTF-8");
+
+
+        
+        
         OutputStream os = httpcon.getOutputStream();
         os.write(outputBytes);
         os.close();
@@ -105,7 +119,7 @@ public class PassengerAppServiceJersey {
             while ((inputStr = streamReader.readLine()) != null)
                 responseStrBuilder.append(inputStr);
 
-            
+            int x=0;
         } catch (Exception ex) {
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
         }

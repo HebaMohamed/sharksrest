@@ -50,13 +50,14 @@ public class DriverAppServiceJersey {
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
        myFirebaseRef.child("test").setValue(1);
        
-       String g = myFirebaseRef.child("trips").child("1").child("status").endAt().toString();
+       //String g = myFirebaseRef.child("trips").child("1").child("status").endAt().toString();
 
                
-       String testtoken = "cyLo5aqZHFQ:APA91bF9j1_GeV55qDAmlNOlNs1CkLtsuoCwgfE8nHWqV8eTMfRLdJi3n9eGNNIMWIAGqeowF--1ycczbgsRo0e9oafgbLER5o2zn9I8X28Rc6eQAEfxWpGyH6mYuoI2d6wkW4oUgR-j"; 
+       String testtoken = "cdD9IoljfkM:APA91bFeN7ZYCFdyrFrd9iVpFBkDI_c24TyKhSSCy7F9SzytsOgPv0W2cTA8jld2GuuJ1GNVbZ8Rg-b8kAd0HNWlxJdwX6roGIG7c2YZsKQ6VHwGB1vOvbOAPbqeWD3hTQIZP05vhUcQ"; 
         //send notification to driver
        sendFireNotification(testtoken,"Trip Request Test","You have new trip request");
-       return Response.status(200).entity(g+" k").build();
+       
+       return Response.status(200).entity("sentttttttt").build();
 
     }
 

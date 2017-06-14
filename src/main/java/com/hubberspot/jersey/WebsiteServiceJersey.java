@@ -2334,12 +2334,14 @@ public class WebsiteServiceJersey {
                                             double lat = postSnapshot2.child("lat").getValue(double.class);
                                             double lng = postSnapshot2.child("lng").getValue(double.class);
                                             int trip_id = postSnapshot2.child("tid").getValue(int.class);
+                                            String status = postSnapshot2.child("status").getValue(String.class);
 
                                             JSONObject events = new JSONObject();
                                             events.put("lat", lat);                    
                                             events.put("lng", lng);
                                             events.put("tid", trip_id);
                                             events.put("timestamp", ts);
+                                            events.put("status", status);
 
 
                                            arr .add(events);
