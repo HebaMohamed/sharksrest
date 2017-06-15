@@ -255,7 +255,17 @@ public class PassengerAppServiceJersey {
                             double lat = postSnapshot.child("lat").getValue(Double.class);
                             double lng = postSnapshot.child("lng").getValue(Double.class);
                             int status = postSnapshot.child("status").getValue(Integer.class);
-                            if(status==0){
+                            
+                            //check if it has a live trip
+                            boolean intripflag = false;
+                            for (DataSnapshot postSnapshot2 : dataSnapshot.child("trips").getChildren()) {
+                                String tripstatus = postSnapshot2.child("status").getValue(String.class);
+                                if(tripstatus.equals("requested") || tripstatus.equals("started")|| tripstatus.equals("approved")){
+                                    intripflag = true;
+                                }
+                            }
+                            
+                            if(status==1 && intripflag==false){
                                 
                                 double dist = distance(ilat, lat, ilng, lng);
                                 
