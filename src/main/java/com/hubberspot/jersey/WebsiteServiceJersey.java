@@ -44,7 +44,7 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(output).build();
     }
    
-    JSONArray arr;
+    JSONArray arr,poweredvehicles;
     JSONObject resobj;
     Firebase myFirebaseRef;
     
@@ -2225,6 +2225,8 @@ public class WebsiteServiceJersey {
 
         resobj = new JSONObject();
         arr = new JSONArray();
+        poweredvehicles = new JSONArray();
+
         final CountDownLatch latch = new CountDownLatch(1);
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
 
@@ -2268,6 +2270,30 @@ public class WebsiteServiceJersey {
                                             arr.add(o);
 
                                         }
+                                        
+                                        //get vehicles outside working time
+                                        for (DataSnapshot postSnapshot2 : dataSnapshot.child("vehicles").getChildren()){
+                                             int vid = Integer.parseInt(postSnapshot2.getName());
+                                             int status = postSnapshot2.child("status").getValue(int.class);
+                                             
+                                             for (DataSnapshot postSnapshot3 : dataSnapshot.child("driver").getChildren()){
+                                                 int dvid = postSnapshot3.child("vid").getValue(int.class);
+                                                 boolean logged = postSnapshot3.child("logged").getValue(boolean.class);
+                                                 if(dvid == vid){
+                                                     if(logged==false && status == 1){
+                                                         
+                                                         String plate_number = postSnapshot3.child("plate_number").getValue(String.class);
+                                                         JSONObject vehicle = new JSONObject();
+                                                         vehicle.put("vid", vid);
+                                                         vehicle.put("plate_number", plate_number);
+                                                         poweredvehicles.add(vehicle);
+                                                         
+                                                     }
+                                                 }
+                                             }
+                                             
+                                        }
+                                        
                                     }catch(NullPointerException ne){
                                         Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ne);
                                     }catch(NumberFormatException ne){
@@ -2282,6 +2308,7 @@ public class WebsiteServiceJersey {
 //                        }
                         
                           resobj.put("warning", arr);
+                          resobj.put("poweredvehicles", poweredvehicles);
                           resobj.put("success", "1");
                           resobj.put("msg", "Selected Successfully");
                           latch.countDown();   
