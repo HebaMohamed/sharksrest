@@ -136,7 +136,8 @@ public class WebsiteServiceJersey {
     
         resobj = new JSONObject();
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-        myFirebaseRef.child("driver").child(String.valueOf(id)).setValue("0");
+//        myFirebaseRef.child("driver").child(String.valueOf(id)).setValue("0");
+        myFirebaseRef.child("driver").child(String.valueOf(id)).removeValue();
 
 
             resobj.put("success", "1");
@@ -355,7 +356,14 @@ public class WebsiteServiceJersey {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         long count = dataSnapshot.getChildrenCount();      
-                        insertedid = count+1;
+                        insertedid = count+1;//msh hynf3 3shn lw 7sl delete
+                        
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            int pastid = Integer.parseInt(postSnapshot.getName());
+                            if(insertedid==pastid)
+                                insertedid++;
+                        }
+                        
                         latch.countDown();   
 
                     }
@@ -859,7 +867,13 @@ public class WebsiteServiceJersey {
                         
                         
                         long count = dataSnapshot.getChildrenCount();      
-                        long insertedid = count+1;
+                        long insertedid = count+1;//msh hynf3 3shn lw 7sl delete
+                        
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            int pastid = Integer.parseInt(postSnapshot.getName());
+                            if(insertedid==pastid)
+                                insertedid++;
+                        }
                         
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("Altitude").setValue("0");
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("Heading").setValue("0");
@@ -943,8 +957,9 @@ public class WebsiteServiceJersey {
 
             resobj = new JSONObject();
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-            myFirebaseRef.child("vehicles").child(String.valueOf(id)).setValue("0");
-            
+//            myFirebaseRef.child("vehicles").child(String.valueOf(id)).setValue("0");
+            myFirebaseRef.child("vehicles").child(String.valueOf(id)).removeValue();
+
             resobj.put("success", "1");
             resobj.put("msg", "Deleted Successfully");
             
@@ -1262,7 +1277,12 @@ public class WebsiteServiceJersey {
                         
                         
                         long count = dataSnapshot.getChildrenCount();      
-                        long insertedid = count+1;
+                        long insertedid = count+1;//msh hynf3 3shn lw 7sl delete
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            int pastid = Integer.parseInt(postSnapshot.getName());
+                            if(insertedid==pastid)
+                                insertedid++;
+                        }
                         
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("account_state").setValue("0");
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_monitor_driver").setValue("0");
