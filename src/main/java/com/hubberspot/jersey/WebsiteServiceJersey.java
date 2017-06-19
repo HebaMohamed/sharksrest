@@ -1169,16 +1169,24 @@ public class WebsiteServiceJersey {
                         
                     String pass = dataSnapshot.child("password").getValue(String.class);    
                     
+                    int account_state = dataSnapshot.child("account_state").getValue(int.class);     
+
+                    
                       if(pass == null){//wrong id
                             resobj.put("success", "0");
                             resobj.put("msg", "Wrong ID");
                             latch.countDown();      
-                        }else if(pass.equals(password)){
+                      }else if(account_state == 0){
+                          resobj.put("success", "0");
+                          resobj.put("msg", "Member account not approved yet");
+                          latch.countDown(); 
+                      }else if(pass.equals(password)){
                         int mid = Integer.parseInt(dataSnapshot.getName());
                         String name = dataSnapshot.child("fullname").getValue(String.class);                    
                         String gender = dataSnapshot.child("gender").getValue(String.class);                    
-                        String lastlogin_time = dataSnapshot.child("lastlogin_time").getValue(String.class);                    
-                        String account_state = dataSnapshot.child("account_state").getValue(String.class);     
+                        String lastlogin_time = dataSnapshot.child("lastlogin_time").getValue(String.class);  
+                        
+                        myFirebaseRef.child("monitoring_member").child(String.valueOf(id)).child("lastlogin_time").setValue(System.currentTimeMillis());
                         
                         resobj.put("success", "1");
                         resobj.put("msg", "Loggedin Successfully");
@@ -1750,6 +1758,9 @@ public class WebsiteServiceJersey {
 //                        long start_timestamp = 0;             
 //                        int svid = 0;
 //                        long end_timestamp = 0;
+
+                    //store last avg
+                    int tobelastavg = dataSnapshot.child("avg").getValue(int.class);
                         
                         ArrayList<Long> starts = new ArrayList<Long>() ;
                         ArrayList<Long> ends = new ArrayList<Long>() ;
@@ -2034,6 +2045,8 @@ public class WebsiteServiceJersey {
                             avgtxt="Excellent";
                         
                        myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("avgtxt").setValue(avgtxt);
+                       myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("avg").setValue(avg);
+                       myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("lastavg").setValue(tobelastavg);
 
                        String dname = dataSnapshot.child("driver").child(String.valueOf(driverid)).child("fullname").getValue(String.class); 
 
@@ -2066,6 +2079,7 @@ public class WebsiteServiceJersey {
                     resobj.put("ignoredcount", ignoredcount);  
                     
                     resobj.put("avg", avg);  
+                    resobj.put("lastavg", tobelastavg);  
                     resobj.put("avgtxt", avgtxt);  
                     resobj.put("dname", dname);  
 

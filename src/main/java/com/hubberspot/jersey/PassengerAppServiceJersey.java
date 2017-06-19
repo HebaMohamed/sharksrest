@@ -80,7 +80,7 @@ public class PassengerAppServiceJersey {
         return Response.status(200).entity(output).build();
     }
     
-    public static void sendFireNotification(String token, String title, String msg){
+    public static String sendFireNotification(String token, String title, String msg){
         try{
        HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://fcm.googleapis.com/fcm/send").openConnection()));
         httpcon.setDoOutput(true);
@@ -119,9 +119,11 @@ public class PassengerAppServiceJersey {
             while ((inputStr = streamReader.readLine()) != null)
                 responseStrBuilder.append(inputStr);
 
-            int x=0;
+            String res = responseStrBuilder.toString();
+            return res;
         } catch (Exception ex) {
             Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+            return "error";
         }
     }
 //    public static String getFiredata(String url, String param ) throws Exception{
@@ -269,7 +271,7 @@ public class PassengerAppServiceJersey {
                                 
                                 double dist = distance(ilat, lat, ilng, lng);
                                 
-                                if(dist<= 50000){
+                                if(dist<= 10000){
                                     for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
                                         int dvid = postSnapshot2.child("vid").getValue(int.class);
                                         if(dvid==vid){

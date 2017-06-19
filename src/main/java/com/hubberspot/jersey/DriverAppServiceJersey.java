@@ -48,16 +48,16 @@ public class DriverAppServiceJersey {
     @Path("/initFirebase")    
     public Response initFirebase(){
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-       myFirebaseRef.child("test").setValue(1);
+       //myFirebaseRef.child("test").setValue(1);
        
        //String g = myFirebaseRef.child("trips").child("1").child("status").endAt().toString();
 
                
        String testtoken = "cdD9IoljfkM:APA91bFeN7ZYCFdyrFrd9iVpFBkDI_c24TyKhSSCy7F9SzytsOgPv0W2cTA8jld2GuuJ1GNVbZ8Rg-b8kAd0HNWlxJdwX6roGIG7c2YZsKQ6VHwGB1vOvbOAPbqeWD3hTQIZP05vhUcQ"; 
         //send notification to driver
-       sendFireNotification(testtoken,"Trip Request Test","You have new trip request");
+       String r = sendFireNotification(testtoken,"Trip Request Test","You have new trip request");
        
-       return Response.status(200).entity("sentttttttt").build();
+       return Response.status(200).entity(r).build();
 
     }
 
@@ -552,6 +552,19 @@ public class DriverAppServiceJersey {
                         
                         if(f==0){
                             f=1;
+                            
+                            //check if trip exists
+                            boolean exist = false;
+                            for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()){
+                                int stid = Integer.parseInt(postSnapshot.getName());
+                                if(stid==id)
+                                    exist = true;
+                            }
+                            if(!exist){
+                                resobj.put("success", "0");
+                                resobj.put("msg", "There is no trip with this id");
+                                latch.countDown();    
+                            }
                         
                          
                         JSONArray paths = new JSONArray();
@@ -675,7 +688,7 @@ public class DriverAppServiceJersey {
                             myFirebaseRef.child("trips").child(String.valueOf(id)).child("price").setValue(distancecost);
                                                        
                             resobj.put("success", "1");
-                            resobj.put("msg", "Added Successfully");
+                            resobj.put("msg", "Trip Ended Successfully");
                             latch.countDown();
                         }
                 }
