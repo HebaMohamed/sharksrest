@@ -44,7 +44,7 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(output).build();
     }
    
-    JSONArray arr,poweredvehicles;
+    JSONArray arr,poweredvehicles,confiremedmembers;
     JSONObject resobj;
     Firebase myFirebaseRef;
     
@@ -1355,6 +1355,7 @@ public class WebsiteServiceJersey {
 
             resobj = new JSONObject();
             arr = new JSONArray();
+            confiremedmembers = new JSONArray();
             final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
         try {
@@ -1382,6 +1383,9 @@ public class WebsiteServiceJersey {
                                 o.put("account_state", account_state);
                                 if(account_state.equals("0"))
                                     arr.add(o);
+                                else
+                                    confiremedmembers.add(o);
+                                    
                             }
                             catch(NumberFormatException nex){
                                 //it is notification count not monitoring member
@@ -1393,6 +1397,7 @@ public class WebsiteServiceJersey {
                     resobj.put("success", "1");
                     resobj.put("msg", "Selected Successfully");
                     resobj.put("members", arr);  
+                    resobj.put("confiremedmembers",confiremedmembers);
                     latch.countDown();   
                  }
 

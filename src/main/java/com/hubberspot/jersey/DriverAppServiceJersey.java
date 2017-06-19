@@ -279,8 +279,9 @@ public class DriverAppServiceJersey {
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                 int did = postSnapshot.child("did").getValue(Integer.class);
+                                String status = postSnapshot.child("status").getValue(String.class);
                                 JSONArray paths = new JSONArray();
-                                if(did == id){
+                                if(did == id && status.equals("ended")){
 
                                     int tid = Integer.parseInt(postSnapshot.getName());
                                     String comment = postSnapshot.child("comment").getValue(String.class);

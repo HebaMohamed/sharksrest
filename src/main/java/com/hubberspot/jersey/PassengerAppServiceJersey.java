@@ -591,8 +591,10 @@ public class PassengerAppServiceJersey {
 
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                 int pid = postSnapshot.child("pid").getValue(Integer.class);
+                                String status = postSnapshot.child("status").getValue(String.class);
+
                                 JSONArray paths = new JSONArray();
-                                if(pid == id){
+                                if(pid == id && status.equals("ended")){
 
                                     int tid = Integer.parseInt(postSnapshot.getName());
                                     String comment = postSnapshot.child("comment").getValue(String.class);
