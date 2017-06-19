@@ -1361,7 +1361,7 @@ public class WebsiteServiceJersey {
         try {
             
             
-            myFirebaseRef.child("monitoring_member").addValueEventListener(new ValueEventListener() {
+            myFirebaseRef.child("monitoring_member").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
