@@ -1153,7 +1153,7 @@ public class WebsiteServiceJersey {
           resobj = new JSONObject();
           final CountDownLatch latch = new CountDownLatch(1);
           myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-          
+          f=0;
                           
             //in case if there is no member mh hyd5l fl loop asln
             resobj.put("success", "0");
@@ -1161,11 +1161,14 @@ public class WebsiteServiceJersey {
 
         try {
             
-            myFirebaseRef.child("monitoring_member").child(id).addValueEventListener(new ValueEventListener() {
+            myFirebaseRef.child("monitoring_member").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         
-                      
+                        if(f!=1){
+                            f=1;
+                        
+                        
                         
                     String pass = dataSnapshot.child("password").getValue(String.class);    
                     
@@ -1205,7 +1208,7 @@ public class WebsiteServiceJersey {
                         resobj.put("msg", "Wrong Password");
                         latch.countDown();      
                     }
-                    
+                    }
                  }
 
                 @Override
@@ -1262,14 +1265,18 @@ public class WebsiteServiceJersey {
 
     }
     
-    @GET
-    @Path("/addmonitormember/{name}/{gender}/{password}")
+    @POST
+    @Path("/addmonitormember/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addMonitor(@PathParam("name") final String name, @PathParam("gender") final String gender, @PathParam("password") final String password){
+    public Response addMonitor(String data){
 //        JSONObject obj = new JSONObject();
         try {
             
-            
+            JSONObject objj = JSONObject.fromObject(data);   
+            final String name = objj.getString("name");
+            final String gender = objj.getString("gender");
+            final String password = objj.getString("password");
+
             resobj = new JSONObject();
             final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
@@ -1293,15 +1300,10 @@ public class WebsiteServiceJersey {
                         }
                         
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("account_state").setValue("0");
-                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_monitor_driver").setValue("0");
-                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("datetime_vehicle_monitor").setValue("0");
-                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("Load").setValue("0");
-                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("driver_id").setValue("0");
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("fullname").setValue(name);
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("gender").setValue(gender);
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("lastlogin_time").setValue("0");
                         myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("password").setValue(password);
-                        myFirebaseRef.child("monitoring_member").child(String.valueOf(insertedid)).child("vehicle_id").setValue("0");
 
                         resobj.put("success", "1");
                         resobj.put("msg", "Added Successfully");
@@ -1466,7 +1468,26 @@ public class WebsiteServiceJersey {
         return Response.status(200).entity(resobj).build();
 
     }
-    
+    @GET
+    @Path("/removemember/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removemember(@PathParam("id") int id){
+        try {
+        resobj = new JSONObject();
+        myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+        myFirebaseRef.child("monitoring_member").child(String.valueOf(id)).child("account_state").removeValue();
+
+            resobj.put("success", "1");
+            resobj.put("msg", "Removed Successfully");
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+
+    }
     /////////////////////////////////////////////////////////////////////////////for trips
     @GET
     @Path("/gettrips")
