@@ -391,6 +391,7 @@ public class WebsiteServiceJersey {
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("token").setValue(" ");
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("logged").setValue(0);
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("vid").setValue(0);
+                        myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("wallet").setValue(0);
                         
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("warninghelp").child("femalesafteyid").setValue(0);
                         myFirebaseRef.child("driver").child(String.valueOf(insertedid)).child("warninghelp").child("response").setValue("");
@@ -2529,17 +2530,18 @@ public class WebsiteServiceJersey {
 //                                if(pid == id){
 
                                     int tid = Integer.parseInt(postSnapshot.getName());
-                                    String comment = postSnapshot.child("comment").getValue(String.class);
+                                    String status = postSnapshot.child("status").getValue(String.class);
+
 //                                    String details = postSnapshot.child("details").getValue(String.class);
                                     int did = postSnapshot.child("did").getValue(int.class);
-                                    if(did == id){
+                                    if(did == id && status.equals("ended")){
                                     
                                     String end = postSnapshot.child("end").getValue(String.class);
                                     String price = postSnapshot.child("price").getValue(String.class);
                                     String ratting = postSnapshot.child("ratting").getValue(String.class);
                                     String start = postSnapshot.child("start").getValue(String.class);
-                                    String status = postSnapshot.child("status").getValue(String.class);
-                                    
+                                    String comment = postSnapshot.child("comment").getValue(String.class);
+
                                     if(status.equals("ignored")){
                                         ignoredcount++;
                                     }
@@ -3089,6 +3091,89 @@ public class WebsiteServiceJersey {
          return Response.status(200).entity(resobj).build();
 
     }
+    
+    
+    @GET
+    @Path("/getpassengers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPassengers(){
+        try {
+            
+            resobj = new JSONObject();
+            arr = new JSONArray();
+            final CountDownLatch latch = new CountDownLatch(1);
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+                myFirebaseRef.child("passenger").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                    int pid = Integer.parseInt(postSnapshot.getName());
+                                    int age = postSnapshot.child("age").getValue(int.class);
+                                    boolean active = postSnapshot.child("active").getValue(boolean.class);
+                                    String fullname = postSnapshot.child("fullname").getValue(String.class);
+                                    String gender = postSnapshot.child("gender").getValue(String.class);
+                                    String language = postSnapshot.child("language").getValue(String.class);
+                                    String phone = postSnapshot.child("phone").getValue(String.class);
+                                    String useremail = postSnapshot.child("useremail").getValue(String.class);
+
+                                    JSONObject o = new JSONObject();
+                                    o.put("pid", pid);
+                                    o.put("age", age);
+                                    o.put("active", active);
+                                    o.put("name", fullname);
+                                    o.put("gender", gender);
+                                    o.put("language", language);
+                                    o.put("phone", phone);
+                                    o.put("email", useremail);
+
+                                    arr.add(o);
+                        }
+                        
+                          resobj.put("passengers", arr);  
+                          resobj.put("success", "1");
+                          resobj.put("msg", "Selected Successfully");
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+            
+                   
+//            while(rs.next())
+//             {
+//                 int did = rs.getInt(1);
+//                 String dname = rs.getString(2);
+//                 String demail = rs.getString(12);
+//                 int vid = rs.getInt(10);                
+//                 
+//                 JSONObject o = new JSONObject();
+//                 o.put("did", did);
+//                 o.put("dname", dname);
+//                 o.put("demail", demail);
+//                 o.put("vid", vid);
+//                 arr.add(o);
+//             }
+                 
+//            obj.put("drivers", arr);  
+//            conn.close();
+            latch.await();
+        } catch (Exception ex) {
+            resobj.put("success", "0");
+            resobj.put("msg", ex.getMessage());
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(resobj).build();
+    }
+    
+    
 //    ResultSet getDBResultSet(String query) throws Exception{
 //                    
 //        Class.forName("com.mysql.jdbc.Driver");            

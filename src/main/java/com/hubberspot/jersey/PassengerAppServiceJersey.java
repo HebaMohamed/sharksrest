@@ -534,6 +534,7 @@ public class PassengerAppServiceJersey {
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("password").setValue(password);
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("relatedphone").setValue(relatedphone);
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("language").setValue(language);
+                        myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("active").setValue(true);
 
                             resobj.put("success", "1");
                             resobj.put("msg", "Added Successfully");
