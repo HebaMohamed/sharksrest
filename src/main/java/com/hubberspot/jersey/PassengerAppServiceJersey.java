@@ -254,8 +254,8 @@ public class PassengerAppServiceJersey {
                             try{
                             int vid = Integer.parseInt(postSnapshot.getName());
                             String model = postSnapshot.child("model").getValue(String.class);
-                            double lat = postSnapshot.child("lat").getValue(Double.class);
-                            double lng = postSnapshot.child("lng").getValue(Double.class);
+                            double lat = postSnapshot.child("Latitude").getValue(Double.class);
+                            double lng = postSnapshot.child("Longitude").getValue(Double.class);
                             int status = postSnapshot.child("status").getValue(Integer.class);
                             
                             //check if it has a live trip
