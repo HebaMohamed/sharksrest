@@ -271,7 +271,7 @@ public class PassengerAppServiceJersey {
                                 
                                 double dist = distance(ilat, lat, ilng, lng);
                                 
-                                if(dist<= 10000){
+                                if(dist<= 100000){
                                     for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
                                         int dvid = postSnapshot2.child("vid").getValue(int.class);
                                         if(dvid==vid){
