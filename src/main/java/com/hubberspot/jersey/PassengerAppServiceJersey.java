@@ -993,6 +993,11 @@ public class PassengerAppServiceJersey {
                         
                         long tripscount = dataSnapshot.child("trips").getChildrenCount();
                         long tripid = tripscount+1;
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()) {
+                            int tid = Integer.parseInt(postSnapshot.getName());
+                            if(tid==tripid)
+                                tripid++;
+                        }
 //                        ////////////////////////////////////////////////////////////////////////////////
 //                        int pickupSelectedDriverID = 0;
 //                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+nearestvehicleid);
