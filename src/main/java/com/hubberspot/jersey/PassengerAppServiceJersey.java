@@ -834,7 +834,7 @@ public class PassengerAppServiceJersey {
    
     
     @POST
-    @Path("/editpassenger")
+    @Path("/editpassengerr")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response editpassenger(String data){
