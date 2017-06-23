@@ -129,12 +129,23 @@ public class DriverAppServiceJersey {
                                 String fullname = postSnapshot.child("fullname").getValue(String.class);
                                 int vid = postSnapshot.child("vid").getValue(Integer.class);
                                 String img = postSnapshot.child("img").getValue(String.class);
-
+                                
+                                //get restricted route
+                                JSONArray ristrictions = new JSONArray();
+                                for (DataSnapshot rpostSnapshot : postSnapshot.child("route_restrictions").getChildren()) {
+                                    double lat = rpostSnapshot.child("lat").getValue(double.class);
+                                    double lng = rpostSnapshot.child("lng").getValue(double.class);
+                                    JSONObject ris = new JSONObject();
+                                    ris.put("lat", lat);
+                                    ris.put("lng", lng);
+                                    ristrictions.add(ris);
+                                }
 
                                 d.put("email", email);
                                 d.put("fullname", fullname);
 //                                d.put("vehicle_id", vid);
                                 d.put("img", img);
+                                d.put("route", ristrictions);
 
                                 resobj.put("driver", d);
                                 

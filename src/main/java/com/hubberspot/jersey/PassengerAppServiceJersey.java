@@ -923,7 +923,7 @@ public class PassengerAppServiceJersey {
     
     Response response;
     //JSONObject obj;
-
+    int selectednearvid;
     @POST
     @Path("/submitpickup")
     @Produces(MediaType.APPLICATION_JSON)
@@ -958,12 +958,54 @@ public class PassengerAppServiceJersey {
                             
                         f = 1;
                         
+                        //if nearest vehicle id is 0 so pick the nearest else it is selected
+                        if(nearestvehicleid==0){
+                            double mindis = 0; int minid = 0;
+                             for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
+                                 int nvid = Integer.parseInt(postSnapshot.getName());
+                                 double vlat = postSnapshot.child("Latitude").getValue(double.class);
+                                 double vlng = postSnapshot.child("Longitude").getValue(double.class);
+                                 
+                                 //check if this vehicle is free of trips
+                                 boolean intripflag = false;
+                                  for (DataSnapshot postSnapshot2 : dataSnapshot.child("trips").getChildren()) {
+                                      int tripvid = postSnapshot2.child("vid").getValue(int.class);
+                                      String tripstatus = postSnapshot2.child("status").getValue(String.class);
+                                      if(tripvid==nearestvehicleid){
+                                          if(tripstatus.equals("started") || tripstatus.equals("requested")){
+                                              intripflag=true;
+                                          }
+                                      }
+                                  }
+                                  if(!intripflag){//not on trip socheck distance
+                                    double dist = mindis = distance(ilat, vlat, ilng, vlng);
+                                    if(mindis == 0){
+                                       mindis = dist;
+                                       minid = nvid;
+                                    }
+                                    else if (dist<mindis){
+                                       mindis = dist;
+                                       minid = nvid;
+                                    }
+                                }
+                             }
+                             selectednearvid=minid;
+                        }
+                        else
+                            selectednearvid=nearestvehicleid;
+                        
+                        
+                        
+                        
+                        
+                        //////////////////
+                        
                         String selecteddrivertoken = "";
                         int pickupSelectedDriverID = 0;
                         for (DataSnapshot postSnapshot : dataSnapshot.child("driver").getChildren()) {
                             int did = Integer.parseInt(postSnapshot.getName());
                             int vid = postSnapshot.child("vid").getValue(Integer.class);
-                            if(vid==nearestvehicleid){
+                            if(vid==selectednearvid){
                              JSONObject d = new JSONObject();
                              String fullname = postSnapshot.child("fullname").getValue(String.class);
                              selecteddrivertoken = postSnapshot.child("token").getValue(String.class);
@@ -976,13 +1018,13 @@ public class PassengerAppServiceJersey {
                         }
                         for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").getChildren()) {
                             int vid = Integer.parseInt(postSnapshot.getName());
-                            if(vid==nearestvehicleid){
+                            if(vid==selectednearvid){
                                 JSONObject v = new JSONObject();
                                 String model = postSnapshot.child("model").getValue(String.class);
                                 String color = postSnapshot.child("color").getValue(String.class);
                                 String plate_number = postSnapshot.child("plate_number").getValue(String.class);
 
-                                v.put("vehicle_id", nearestvehicleid);
+                                v.put("vehicle_id", selectednearvid);
                                 v.put("model", model);
                                 v.put("color", color);
                                 v.put("plate_number", plate_number);
