@@ -8,6 +8,9 @@ package com.hubberspot.jersey;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.ValueEventListener;
+import java.sql.Date;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
@@ -3217,6 +3220,133 @@ public class WebsiteServiceJersey {
     
     
     
+    String output = "";
+    
+    @GET
+    @Path("/unitygetdrivers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response unityGetDrivers(){
+        try {            
+            final CountDownLatch latch = new CountDownLatch(1);
+            
+            myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
+            
+                myFirebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("driver").getChildren()) {
+                                    int did = Integer.parseInt(postSnapshot.getName());
+                                    String dname = postSnapshot.child("fullname").getValue(String.class);
+                                    String demail = postSnapshot.child("email").getValue(String.class);
+                                    int vid = postSnapshot.child("vid").getValue(Integer.class);
+                                    
+                                    String tmpstr = "driver_id="+did+"|fullname="+dname+"|email="+demail;
+                                    
+                                    int p1=0,p2=0,p3=0,p4=0,p5=0,p6=0,p7=0,p8=0,p9=0,p10=0,p11=0,p12=0;
+                                    
+                                    long lasttimestamp = 0;
+                                    long nexttimestamp = 0;
+                                    for (DataSnapshot postSnapshot2 : dataSnapshot.child("vehicleshistory").getChildren()) {
+                                        long ts = Long.parseLong(postSnapshot2.getName());  
+                                        int hdid = postSnapshot2.child("did").getValue(Integer.class);
+                                        int hvid = postSnapshot2.child("vid").getValue(Integer.class);
+                                        if(hdid == did){
+                                            nexttimestamp = ts;
+                                            //search for pattrens this time
+                                             for (DataSnapshot postSnapshot3 : dataSnapshot.child("vehicles").child(String.valueOf(hvid)).child("Patterns detected").getChildren()) {
+                                                 int p = postSnapshot3.getValue(Integer.class);
+                                                 if(p==1)
+                                                     p1++;
+                                                 else if(p==2)
+                                                     p2++;
+                                                 else if(p==3)
+                                                     p3++;
+                                                 else if(p==4)
+                                                     p4++;
+                                                 else if(p==5)
+                                                     p5++;
+                                                 else if(p==6)
+                                                     p6++;
+                                                 else if(p==7)
+                                                     p7++;
+                                                 else if(p==8)
+                                                     p8++;
+                                                 else if(p==9)
+                                                     p9++;
+                                                 else if(p==10)
+                                                     p10++;
+                                                 else if(p==11)
+                                                     p11++;
+                                                 else if(p==12)
+                                                     p12++;
+                                             }                                           
+                                            
+                                        }
+                                        lasttimestamp = ts;
+                                    }
+                                    
+                                    tmpstr+= "|p1="+p1+"|p2="+p2+"|p3="+p3+"|p4="+p4+"|p5="+p5+"|p6="+p6+"|p7="+p7+"|p8="+p8+"|p9="+p9+"|p10="+p10+"|p11="+p11+"|p12="+p12;
+                                    
+                                    Date date = new Date(nexttimestamp);
+                                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                    String s = formatter.format(date);
+                                    
+                                    tmpstr+= "|vehicle_id="+vid+"|vehicle_datetime="+s;
+                                    
+                                    output+=tmpstr+"\n";
+                        }
+                        
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
+                            int patternid = Integer.parseInt(postSnapshot.getName());
+                            String patternname = "";
+                            if(patternid==1)
+                                output+="|p1name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==2)
+                                output+="|p2name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==3)
+                                output+="|p3name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==4)
+                                output+="|p4name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==5)
+                                output+="|p5name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==6)
+                                output+="|p6name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==7)
+                                output+="|p7name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==8)
+                                output+="|p8name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==9)
+                                output+="|p9name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==10)
+                                output+="|p10name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==11)
+                                output+="|p11name="+postSnapshot.child("name").getValue(String.class);
+                            else if(patternid==12)
+                                output+="|p12name="+postSnapshot.child("name").getValue(String.class);
+                                
+                                
+                        }
+                        
+                          latch.countDown();   
+                        
+                    }
+
+                @Override
+                public void onCancelled() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    
+                }
+                });
+            
+            latch.await();
+        } catch (Exception ex) {
+            output =  ex.getMessage();
+            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return Response.status(200).entity(output).build();
+    }
     
 
 }
