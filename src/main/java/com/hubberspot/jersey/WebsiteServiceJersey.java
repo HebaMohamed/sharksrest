@@ -1790,7 +1790,7 @@ public class WebsiteServiceJersey {
 //                        long end_timestamp = 0;
 
                     //store last avg
-                    int tobelastavg = dataSnapshot.child("avg").getValue(int.class);
+                    int tobelastavg = dataSnapshot.child("driver").child(String.valueOf(driverid)).child("avg").getValue(int.class);
                         
                         ArrayList<Long> starts = new ArrayList<Long>() ;
                         ArrayList<Long> ends = new ArrayList<Long>() ;
@@ -2079,6 +2079,7 @@ public class WebsiteServiceJersey {
                        myFirebaseRef.child("driver").child(String.valueOf(driverid)).child("lastavg").setValue(tobelastavg);
 
                        String dname = dataSnapshot.child("driver").child(String.valueOf(driverid)).child("fullname").getValue(String.class); 
+                       double wallet = dataSnapshot.child("driver").child(String.valueOf(driverid)).child("wallet").getValue(double.class);
 
                         
                         //respond
@@ -2112,6 +2113,7 @@ public class WebsiteServiceJersey {
                     resobj.put("lastavg", tobelastavg);  
                     resobj.put("avgtxt", avgtxt);  
                     resobj.put("dname", dname);  
+                    resobj.put("wallet", wallet);  
 
                     latch.countDown();   
                     }
