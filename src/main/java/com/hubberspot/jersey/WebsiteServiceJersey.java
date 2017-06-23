@@ -3294,7 +3294,7 @@ public class WebsiteServiceJersey {
                                     
                                     tmpstr+= "|vehicle_id="+vid+"|vehicle_datetime="+s;
                                     
-                                    output+=tmpstr+"\n";
+                                    output+=tmpstr+";\n";
                         }
                         
                         for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
@@ -3327,7 +3327,7 @@ public class WebsiteServiceJersey {
                                 
                                 
                         }
-                        
+                        output+=";";
                           latch.countDown();   
                         
                     }
