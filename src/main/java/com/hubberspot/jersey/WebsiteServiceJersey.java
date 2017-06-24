@@ -493,21 +493,7 @@ public class WebsiteServiceJersey {
             myFirebaseRef.child("vehicleshistory").child(String.valueOf(t)).child("did").setValue(did);
             myFirebaseRef.child("vehicleshistory").child(String.valueOf(t)).child("vid").setValue(vid);
 
-            //get current datetime 
-//            java.util.Date dt = new java.util.Date();
-//            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            String currentTime = sdf.format(dt);
-//            String j = "UPDATE driver SET vehicle_id = '"+vid+"' , vehicle_datetime = '"+currentTime+"' WHERE driver_id = "+did+";";
-//            excDB(j);
-//            conn.close();
             
-//            String jj = "UPDATE vehicle SET outside_working_time_state = 'no' WHERE vehicle_id = "+vid+";";
-//            excDB(jj);
-//            conn.close();
-//            
-//            String jjj = "UPDATE vehicle SET outside_working_time_state = 'yes' WHERE vehicle_id = "+ovid+";";
-//            excDB(jjj);
-//            conn.close();
             
             resobj.put("success", "1");
             resobj.put("msg", "Edited Successfully");
@@ -554,11 +540,13 @@ public class WebsiteServiceJersey {
                                     String model = postSnapshot.child("model").getValue(String.class);
                                     String color = postSnapshot.child("color").getValue(String.class);
                                     String plate_number = postSnapshot.child("plate_number").getValue(String.class);
-                                    String outside_working_time_state = "yes";
+                                    int status = postSnapshot.child("status").getValue(int.class);
+
+                                    boolean outside_working_time_state = true;
                                     for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
                                     int vid = postSnapshot2.child("vid").getValue(int.class);
                                         if(vid==vehicle_id){
-                                            outside_working_time_state = "no";
+                                            outside_working_time_state = false;
                                         }
                                     }
                                     
@@ -569,6 +557,7 @@ public class WebsiteServiceJersey {
                                     o.put("color", color);
                                     o.put("outside_working_time_state", outside_working_time_state);
                                     o.put("plate_number", plate_number);
+                                    o.put("status", status);
                                     arr.add(o);
                         }
                         
@@ -587,26 +576,6 @@ public class WebsiteServiceJersey {
                 });
             
             
-//            while(rs.next())
-//             {
-//                 int vehicle_id = rs.getInt(1);
-//                 String model = rs.getString(2);
-//                 String color = rs.getString(3);
-//                 String outside_working_time_state = rs.getString(4);  
-//                 String plate_number = rs.getString(5);
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("vehicle_id", vehicle_id);
-//                 o.put("model", model);
-//                 o.put("color", color);
-//                 o.put("outside_working_time_state", outside_working_time_state);
-//                 o.put("plate_number", plate_number);
-//
-//                 arr.add(o);
-//             }
-                 
-//            obj.put("vehicles", arr);  
-//            conn.close();
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -636,12 +605,13 @@ public class WebsiteServiceJersey {
                                     String model = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("model").getValue(String.class);
                                     String color = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("color").getValue(String.class);
                                     String plate_number = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("plate_number").getValue(String.class);
+                                    int status = dataSnapshot.child("vehicles").child(String.valueOf(id)).child("status").getValue(int.class);
                                     
-                                    String outside_working_time_state = "yes";
+                                    boolean outside_working_time_state = true;
                                     for (DataSnapshot postSnapshot2 : dataSnapshot.child("driver").getChildren()) {
                                     int vid = postSnapshot2.child("vid").getValue(int.class);
                                         if(vid==vehicle_id){
-                                            outside_working_time_state = "no";
+                                            outside_working_time_state = false;
                                         }
                                     }
 
@@ -651,6 +621,7 @@ public class WebsiteServiceJersey {
                                     vehicleobj.put("color", color);
                                     vehicleobj.put("outside_working_time_state", outside_working_time_state);
                                     vehicleobj.put("plate_number", plate_number);
+                                    vehicleobj.put("status", status);
                                     JSONArray driversarr = new JSONArray();
                                     
                                     
@@ -814,27 +785,6 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-//            ResultSet rs = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+id);
-//            JSONObject vehicleobj = new JSONObject();   
-//            while(rs.next())
-//             {           
-//                 int vehicle_id = rs.getInt(1);
-//                 String model = rs.getString(2);
-//                 String color = rs.getString(3);
-//                 String outside_working_time_state = rs.getString(4);  
-//                 String plate_number = rs.getString(5);
-//                 
-//                 vehicleobj.put("vehicle_id", vehicle_id);
-//                 vehicleobj.put("model", model);
-//                 vehicleobj.put("color", color);
-//                 vehicleobj.put("outside_working_time_state", outside_working_time_state);
-//                 vehicleobj.put("plate_number", plate_number);
-//             }
-//            obj.put("vehicle", vehicleobj);
-//            obj.put("success", "1");
-//            obj.put("msg", "Selected Successfully");
-            
-//            conn.close();
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -908,10 +858,7 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-//            excDB("INSERT INTO vehicle (vehicle_id, model, color, outside_working_time_state, plate_number) "+
-//                                 "VALUES (NULL, '"+model+"', '"+color+"', 'yes', '"+plate_number+"');");
-//            resobj.put("success", "1");
-//            resobj.put("msg", "Added Successfully");
+            
         
             latch.await();
             
@@ -990,8 +937,7 @@ public class WebsiteServiceJersey {
             final CountDownLatch latch = new CountDownLatch(1);
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
         
-//        String query = "SELECT * FROM vehicle, driver WHERE outside_working_time_state = 'no' AND vehicle.vehicle_id = driver.vehicle_id";
-//        JSONObject obj = new JSONObject();
+            
         try {
 //            ResultSet rs = getDBResultSet(query);
             resobj.put("success", "1");
