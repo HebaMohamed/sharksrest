@@ -1915,6 +1915,7 @@ public class WebsiteServiceJersey {
                         int rates_3 = 0;
                         int rates_4 = 0;
                         int rates_5 = 0;
+                        int totaltripscount = 0;
                         for (DataSnapshot postSnapshot : dataSnapshot.child("trips").getChildren()) {
                             int did = postSnapshot.child("did").getValue(int.class);    
                             if(did==driverid){
@@ -1935,6 +1936,8 @@ public class WebsiteServiceJersey {
                                     rates_4++;
                                 else if(triprate==5)
                                     rates_5++;
+                                
+                                totaltripscount++;
                             }
                         }
                         
@@ -2065,7 +2068,7 @@ public class WebsiteServiceJersey {
                         }
                         
                         //added also more parameters
-                        avg+=gettripsavg(rates_1, rates_2, rates_3, rates_4, rates_5, 1,1);//ignored, accepted);
+                        avg+=gettripsavg(rates_1, rates_2, rates_3, rates_4, rates_5, ignoredcount,acceptedcount,totaltripscount);//ignored, accepted);
                         
                         //avg text
                         String avgtxt = "";
@@ -2169,11 +2172,21 @@ public class WebsiteServiceJersey {
     }
     
     //////////////
-    int gettripsavg(int rates_1, int rates_2, int rates_3, int rates_4, int rates_5, int ignored, int accepted){
+    int gettripsavg(int rates_1, int rates_2, int rates_3, int rates_4, int rates_5, int ignored, int accepted, int totaltrips){
         int total1 = 0;
-        total1 = (rates_1/5) + (rates_2/5) + (rates_3/5) + (rates_4/5) + (rates_5/5);
-        int total2 = (accepted/ignored) ;
-        return total1+total2;
+        
+        //if rates 4,5 for more than half trips add 1
+        if((rates_5+rates_4)>=(totaltrips/2)){
+            total1++;
+        }
+        
+       if(accepted>=ignored)
+           total1++;
+        
+       // total1 = (int)Math.ceil((rates_1/5) + (rates_2/5) + (rates_3/5) + (rates_4/5) + (rates_5/5));
+       //        int total2 = (accepted/ignored) ;
+
+        return total1;
     }
     
     //////////////////////////////////////////tenaaa
