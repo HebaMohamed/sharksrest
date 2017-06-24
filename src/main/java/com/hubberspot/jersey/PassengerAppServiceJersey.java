@@ -278,11 +278,13 @@ public class PassengerAppServiceJersey {
                                             int did = Integer.parseInt(postSnapshot2.getName());
                                             int avg = postSnapshot2.child("avg").getValue(int.class);
                                             String avgtxt = postSnapshot2.child("avgtxt").getValue(String.class);
+                                            String img = postSnapshot2.child("img").getValue(String.class);
                                             String fullname = postSnapshot2.child("fullname").getValue(String.class);
 
                                             JSONObject d = new JSONObject();
                                             d.put("did", did);
                                             d.put("avg", avg);
+                                            d.put("img", img);
                                             d.put("avgtxt", avgtxt);
                                             d.put("vid", vid);
                                             d.put("model", model);
