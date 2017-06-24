@@ -2176,7 +2176,7 @@ public class WebsiteServiceJersey {
         int total1 = 0;
         
         //if rates 4,5 for more than half trips add 1
-        if((rates_5+rates_4)>=(totaltrips/2)){
+        if((rates_5+rates_4)>=(accepted/2)){
             total1++;
         }
         
