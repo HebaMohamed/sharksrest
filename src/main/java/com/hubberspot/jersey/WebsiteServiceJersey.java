@@ -1795,6 +1795,7 @@ public class WebsiteServiceJersey {
                         ArrayList<Long> starts = new ArrayList<Long>() ;
                         ArrayList<Long> ends = new ArrayList<Long>() ;
                         ArrayList<Integer> vehicles = new ArrayList<Integer>() ;
+                        ArrayList<Integer> drivers = new ArrayList<Integer>() ;
                         int i = 0;
                         
 //                        int vcount = (int) dataSnapshot.child("vehicleshistory").getChildrenCount();
@@ -1804,17 +1805,19 @@ public class WebsiteServiceJersey {
                             Long timestamp = Long.parseLong(postSnapshot.getName());
                             int did = postSnapshot.child("did").getValue(int.class);   
                             int vid = postSnapshot.child("vid").getValue(int.class);    
-                             if(did==driverid){
+                             //if(did==driverid){
                                 i++;
 
                                 if(i == 1){
                                     starts.add(timestamp);
                                     vehicles.add(vid);
+                                    drivers.add(did);
                                 }
                                 else{
                                     starts.add(timestamp);
                                     ends.add(timestamp);
                                     vehicles.add(vid);
+                                    drivers.add(did);
                                 }
 //                                else if (i == dataSnapshot.child("vehicleshistory").getChildrenCount()){//msh hynf3 3shn kl l history msh le nfs l driver !
 //                                    starts.add(timestamp);
@@ -1823,7 +1826,7 @@ public class WebsiteServiceJersey {
 //                                    vehicles.add(vid);
 //                                }
                                 lasttimestamp = timestamp;
-                             }
+                             //}
                         }
                         //after that check if last end is current (still working) so add current time stamp as end
                         ends.add(System.currentTimeMillis());
@@ -1892,7 +1895,8 @@ public class WebsiteServiceJersey {
 //                                if(svid == currentvid && starts.get(j)<=timestamp && ends.get(j)>=timestamp){
                                     long s = starts.get(j);
                                     long e = ends.get(j);
-                                  if(s<=timestamp && e>=timestamp){
+                                    int d = drivers.get(j);
+                                  if(s<=timestamp && e>=timestamp && d == driverid){
                                     int pattrenid = postSnapshot.getValue(int.class);     
                                     JSONObject p = new JSONObject();
                                     p.put("pattrenid", pattrenid);
