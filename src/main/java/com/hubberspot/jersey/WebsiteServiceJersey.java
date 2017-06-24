@@ -1016,7 +1016,7 @@ public class WebsiteServiceJersey {
                                     String color = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("color").getValue(String.class);
                                     String plate_number = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("plate_number").getValue(String.class);
                                     int status = dataSnapshot.child("vehicles").child(String.valueOf(vid)).child("status").getValue(Integer.class);
-                                    if(status==0)
+                                    if(status==1)
                                         onlineDriversCount++;
                                     
                                     JSONObject o = new JSONObject();
@@ -1995,7 +1995,7 @@ public class WebsiteServiceJersey {
                         
                         String p1_name="",p2_name="",p3_name="",p4_name="",p5_name="",p6_name="",p7_name="",p8_name="",p9_name="",p10_name="",p11_name="",p12_name="";
                         
-                        int avg = 0;
+                        int avg = 12;
                         
                         for (DataSnapshot postSnapshot : dataSnapshot.child("pattrens").getChildren()) {
                             Long cpattrenid = Long.parseLong(postSnapshot.getName());
@@ -2003,63 +2003,63 @@ public class WebsiteServiceJersey {
                             String name = postSnapshot.child("name").getValue(String.class);    
                             if(cpattrenid==1){
                                 p1_name=name;
-                                if(max>p1)
-                                    avg++;
+                                if(max<p1)
+                                    avg--;
                             }
                             else if(cpattrenid==2){
                                 p2_name=name;
-                                if(max>p2)
-                                    avg++;
+                                if(max<p2)
+                                    avg--;
                             }
                             else if(cpattrenid==3){
                                 p3_name=name;
-                                if(max>p3)
-                                    avg++;
+                                if(max<p3)
+                                    avg--;
                             }
                             else if(cpattrenid==4){
                                 p4_name=name;
-                                if(max>p4)
-                                    avg++;
+                                if(max<p4)
+                                    avg--;
                             }
                             else if(cpattrenid==5){
                                 p5_name=name;
-                                if(max>p5)
-                                    avg++;
+                                if(max<p5)
+                                    avg--;
                             }
                             else if(cpattrenid==6){
                                 p6_name=name;
-                                if(max>p6)
-                                    avg++;
+                                if(max<p6)
+                                    avg--;
                             }
                             else if(cpattrenid==7){
                                 p7_name=name;
-                                if(max>p7)
-                                    avg++;
+                                if(max<p7)
+                                    avg--;
                             }
                             else if(cpattrenid==8){
                                 p8_name=name;
-                                if(max>p8)
-                                    avg++;
+                                if(max<p8)
+                                    avg--;
                             }
                             else if(cpattrenid==9){
                                 p9_name=name;
-                                if(max>p9)
-                                    avg++;
+                                if(max<p9)
+                                    avg--;
                             }
                             else if(cpattrenid==10){
                                 p10_name=name;
-                                if(max>p10)
-                                    avg++;
+                                if(max<p10)
+                                    avg--;
                             }
                             else if(cpattrenid==11){
                                 p11_name=name;
-                                if(max>p11)
-                                    avg++;
+                                if(max<p11)
+                                    avg--;
                             }
                             else if(cpattrenid==12){
                                 p12_name=name;
-                                if(max>p12)
-                                    avg++;
+                                if(max<p12)
+                                    avg--;
                             }
                             
                         }
@@ -3058,7 +3058,7 @@ public class WebsiteServiceJersey {
         try{  
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
             myFirebaseRef.child("driver").child(String.valueOf(neardid)).child("warninghelp").child("femalesafteyid").setValue(fid);
-            myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(0);
+            //myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(0);
 
             myFirebaseRef.child("warning").child("femalesaftey").child(String.valueOf(fid)).child("status").setValue("assigned");
 
@@ -3083,7 +3083,7 @@ public class WebsiteServiceJersey {
             
             if(neardid!=0){
                 myFirebaseRef.child("driver").child(String.valueOf(neardid)).child("warninghelp").child("femalesafteyid").setValue(0);
-                myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(1);
+               // myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(1);
             }
 
             myFirebaseRef.child("warning").child("femalesaftey").child(String.valueOf(fid)).child("status").setValue("closed");
