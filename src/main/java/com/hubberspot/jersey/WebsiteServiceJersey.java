@@ -2311,7 +2311,7 @@ public class WebsiteServiceJersey {
                                                  if(dvid == vid){
                                                      if(logged==false && status == 1){
                                                          
-                                                         String plate_number = postSnapshot3.child("plate_number").getValue(String.class);
+                                                         String plate_number = postSnapshot2.child("plate_number").getValue(String.class);
                                                          JSONObject vehicle = new JSONObject();
                                                          vehicle.put("vid", vid);
                                                          vehicle.put("plate_number", plate_number);
