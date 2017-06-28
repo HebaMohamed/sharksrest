@@ -385,7 +385,9 @@ public class PassengerAppServiceJersey {
                                 String password = postSnapshot.child("password").getValue(String.class);
                                 String phone = postSnapshot.child("phone").getValue(String.class);
                                 String relatedphone = postSnapshot.child("relatedphone").getValue(String.class);
+                                boolean active = postSnapshot.child("active").getValue(boolean.class);
 
+                                if(active){
                                 d.put("passenger_id", pid);
                                 d.put("fullname", fullname);
                                 d.put("gender", gender);
@@ -394,6 +396,7 @@ public class PassengerAppServiceJersey {
                                 d.put("relatedphone", relatedphone);
                                 d.put("language", language);
                                 d.put("email", email);
+                                d.put("active",active);
 
                                 resobj.put("passenger", d);
                                 
@@ -401,6 +404,13 @@ public class PassengerAppServiceJersey {
                                 resobj.put("success", "1");
                                 resobj.put("msg", "logged in");
                                 response = Response.status(200).entity(resobj).build();
+                                
+                                }
+                                else{
+                                resobj.put("success", "0");
+                                resobj.put("msg", "Your account is deactivated");
+                                response = Response.status(200).entity(resobj).build();
+                                }
                                 latch.countDown();
                             }
                             
