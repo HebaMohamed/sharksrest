@@ -55,13 +55,7 @@ public class WebsiteServiceJersey {
     @Path("/getdrivers")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDrivers(){
-//        String query = "SELECT * FROM driver";
-//        JSONObject obj = new JSONObject();
         try {
-//            ResultSet rs = getDBResultSet(query);
-//            obj.put("success", "1");
-//            obj.put("msg", "done");
-            
             resobj = new JSONObject();
             arr = new JSONArray();
             final CountDownLatch latch = new CountDownLatch(1);
@@ -102,23 +96,6 @@ public class WebsiteServiceJersey {
                 });
             
                    
-//            while(rs.next())
-//             {
-//                 int did = rs.getInt(1);
-//                 String dname = rs.getString(2);
-//                 String demail = rs.getString(12);
-//                 int vid = rs.getInt(10);                
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("did", did);
-//                 o.put("dname", dname);
-//                 o.put("demail", demail);
-//                 o.put("vid", vid);
-//                 arr.add(o);
-//             }
-                 
-//            obj.put("drivers", arr);  
-//            conn.close();
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -133,9 +110,7 @@ public class WebsiteServiceJersey {
     @Path("/deletedriver/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDriver(@PathParam("id") int id){
-//        JSONObject obj = new JSONObject();
         try {
-//            excDB("DELETE FROM driver WHERE driver_id = "+id);
     
         resobj = new JSONObject();
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
@@ -146,7 +121,6 @@ public class WebsiteServiceJersey {
             resobj.put("success", "1");
             resobj.put("msg", "Deleted Successfully");
             
-//            conn.close();
         } catch (Exception ex) {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
@@ -261,63 +235,8 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-//            ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+id);
-//            JSONObject driverobj = new JSONObject();   
-//            while(rs.next())
-//             {        
-//                 vid = rs.getInt(10);
-//                 driverobj.put("id", rs.getInt(1));
-//                 driverobj.put("name", rs.getString(2));
-//                 driverobj.put("sharp_turns_freq", rs.getDouble(3));
-//                 driverobj.put("lane_changing_freq", rs.getDouble(4));
-//                 driverobj.put("harch_acc_freq", rs.getDouble(5));
-//                 driverobj.put("last_trip_behavoir_map", rs.getBlob(6));
-//                 driverobj.put("wrong_u_turns_severity", rs.getDouble(7));
-//                 driverobj.put("harsh_breaking_freq", rs.getDouble(8));
-//                 driverobj.put("awareness_level", rs.getDouble(9));
-//                 driverobj.put("vehicle_id", vid);
-//                 driverobj.put("vehicle_datetime", rs.getString(11));
-//                 driverobj.put("email", rs.getString(12));
-//                 driverobj.put("password", rs.getString(13));
-//                 //driverobj.put("image", rs.getString(14));
-//                 
-//                 Blob imageBlob = rs.getBlob(14);
-//                 byte[] byteArray = imageBlob.getBytes(1, (int) imageBlob.length());
-//                 String str = new sun.misc.BASE64Encoder().encode(byteArray);
-//                 driverobj.put("image", str);
-//                 
-//             }            
-//            conn.close();
-            
-            
-//            ResultSet rs2 = getDBResultSet("SELECT * FROM route_restrictions WHERE driver_id = "+id);
-//            JSONArray ristrictedroute = new JSONArray();
-//            while(rs2.next())
-//            {
-//                JSONObject routeobj = new JSONObject(); 
-//                routeobj.put("xlongitude", rs2.getDouble(3));
-//                routeobj.put("ylatitude", rs2.getDouble(4));
-//                ristrictedroute.add(routeobj);
-//            }
-            
-//            ResultSet rs3 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+vid);
-//            JSONObject vobj = new JSONObject(); 
-//            while(rs3.next())
-//            {
-//                vobj.put("vehicle_id", rs3.getInt(1));
-//                vobj.put("model", rs3.getString(2));
-//                vobj.put("color", rs3.getString(3));
-//                vobj.put("plate_number", rs3.getString(5));
-//            }
-            
-            
-            
-//            obj.put("ristrictedroute", ristrictedroute);
-//            obj.put("driver", driverobj);
-//            obj.put("vehicle", vobj);
-//            obj.put("success", "1");
-//            obj.put("msg", "Done Successfully");
-//            conn.close();
+             
+             
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -516,15 +435,8 @@ public class WebsiteServiceJersey {
     @Path("/getvehicles")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getVehicles(){
-//        String query = "SELECT * FROM vehicle";
-//        JSONObject obj = new JSONObject();
+        
         try {
-//            ResultSet rs = getDBResultSet(query);
-//            obj.put("success", "1");
-//            obj.put("msg", "done");
-            
-//            JSONArray arr = new JSONArray();
-               
             resobj = new JSONObject();
             arr = new JSONArray();
             final CountDownLatch latch = new CountDownLatch(1);
@@ -1018,70 +930,6 @@ public class WebsiteServiceJersey {
                 });
         
             
-//            JSONArray arr = new JSONArray();
-                   
-//            int onlineDriversCount=0;
-//            while(rs.next())
-//             {
-//                 onlineDriversCount++;
-//                 int vehicle_id = rs.getInt(1);
-//                 String model = rs.getString(2);
-//                 String color = rs.getString(3);
-//                 String plate_number = rs.getString(5);
-//                 
-//                 String driver_id = rs.getString(6);
-//                 String fullname = rs.getString(7);
-//                 String vehicle_datetime = rs.getString(16);
-//
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("vehicle_id", vehicle_id);
-//                 o.put("model", model);
-//                 o.put("color", color);
-//                 o.put("plate_number", plate_number);
-//                 o.put("driver_id", driver_id);
-//                 o.put("fullname", fullname);
-//                 o.put("vehicle_datetime", vehicle_datetime);
-//
-//                 arr.add(o);
-//             }
-                 
-//            obj.put("currentvms", arr);  
-//            conn.close();
-            
-            //for another controls
-//            ResultSet rs2 = getDBResultSet("SELECT COUNT(*) FROM driver");
-//            rs2.first();
-//            int alldriverscount =Integer.parseInt(rs2.getString(1));
-//            int offlineDriversCount = alldriverscount-onlineDriversCount;
-//            conn.close();
-            
-//            ResultSet rs3 = getDBResultSet("SELECT COUNT(*) FROM passenger");
-//            rs3.first();
-//            int passengerscount =Integer.parseInt(rs3.getString(1));
-            
-            
-//            int tripscount =0;            
-//            JSONArray rattingArr = new JSONArray();
-//            ResultSet rs4 = getDBResultSet("SELECT * FROM trip");
-//            while(rs4.next())
-//             {
-//                 tripscount++;
-//                 int trip_id = rs4.getInt(1);
-//                 int ratting = rs4.getInt(6);
-//                 JSONObject o = new JSONObject();
-//                 o.put("trip_id", trip_id);
-//                 o.put("ratting", ratting);
-//                 rattingArr.add(o);
-//             }
-//            obj.put("alldriverscount", alldriverscount);
-//            obj.put("passengerscount", passengerscount);
-//            obj.put("tripscount", tripscount);
-//            obj.put("rattingArr", rattingArr);
-//            obj.put("onlineDriversCount", onlineDriversCount);
-//            obj.put("offlineDriversCount", offlineDriversCount);
-            
-//            conn.close();
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -1167,42 +1015,7 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-//            ResultSet rs = getDBResultSet("SELECT * FROM monitoring_member WHERE user_id = "+id);
-             
-//            while(rs.next())
-//             {           
-//
-//                 
-//                 String pass = rs.getString(2);
-//                 if(pass.equals(password))
-//                 {
-//                     //login
-//                     obj.put("success", "1");
-//                     obj.put("msg", "Logged in successfully");
-//                     
-//                     JSONObject m = new JSONObject();
-//                     String name = rs.getString(3);
-//                     String gender = rs.getString(4);
-//                     String lastlogin_time = rs.getString(5);
-//                     String account_state = rs.getString(6);
-//                     
-//                     m.put("id", id);
-//                     m.put("name", name);
-//                     m.put("gender", gender);
-//                     m.put("lastlogin_time", lastlogin_time);
-//                     m.put("account_state", account_state);
-//
-//                     obj.put("member", m);
-//
-//                 }
-//                 else {
-//                     obj.put("success", "0");
-//                     obj.put("msg", "Wrong Password");
-//                 }
-//
-//             }
-//            
-//            conn.close();
+            
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -1269,21 +1082,7 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-            //check if admin
-//            String accstate = "";
-//            ResultSet rs = getDBResultSet("SELECT COUNT(*) FROM monitoring_member");
-//            int count =Integer.parseInt(rs.getString(1));
-//            if(count==0)
-//                accstate="Admin";
-//            else
-//                accstate="Pending";
             
-//            excDB("INSERT INTO monitoring_member (user_id, password, fullname, gender, lastlogin_time, account_state, vehicle_id, datetime_vehicle_monitor, datetime_monitor_driver, driver_id) "+
-//                                             " VALUES (NULL, '"+password+"', '"+name+"', '"+gender+"', NULL, '"+accstate+"', NULL, NULL, NULL, NULL);");
-//            obj.put("success", "1");
-//            obj.put("msg", "Added Successfully");
-            
-//            conn.close();
 
             latch.await();
         } catch (Exception ex) {
@@ -1359,34 +1158,6 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-            
-//            ResultSet rs = getDBResultSet(query);
-//            obj.put("success", "1");
-//            obj.put("msg", "done");
-//            
-//            JSONArray arr = new JSONArray();
-                   
-//            while(rs.next())
-//             {
-//                 String account_state = rs.getString(6);   
-//                 if(account_state.equals("pending")){
-//
-//                 int user_id = rs.getInt(1);
-//                 String fullname = rs.getString(3);
-//                 String gender = rs.getString(4);
-//                 String lastlogin_time = rs.getString(5);                
-//
-//                 JSONObject o = new JSONObject();
-//                 o.put("user_id", user_id);
-//                 o.put("fullname", fullname);
-//                 o.put("gender", gender);
-//                 o.put("lastlogin_time", lastlogin_time);
-//                 arr.add(o);
-//                 }
-//             }
-                 
-//            obj.put("members", arr);  
-//            conn.close();
 
             latch.await();
         } catch (Exception ex) {
@@ -1538,35 +1309,6 @@ public class WebsiteServiceJersey {
                 }
                 });
 
-            
-            
-//            JSONArray arr = new JSONArray();
-                   
-//            while(rs.next())
-//             {
-//                 int trip_id = rs.getInt(1);
-//                 String start = rs.getString(2);
-//                 String end = rs.getString(3);
-//                 Double price = rs.getDouble(4);
-//                 String comment = rs.getString(5);
-//                 Double ratting = rs.getDouble(6);
-//                 int passenger_id = rs.getInt(7);    
-//                 int driver_id = rs.getInt(8);
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("trip_id", trip_id);
-//                 o.put("start", start);
-//                 o.put("end", end);
-//                 o.put("price", price);
-//                 o.put("comment", comment);
-//                 o.put("ratting", ratting);
-//                 o.put("passenger_id", passenger_id);
-//                 o.put("driver_id", driver_id);
-//                 arr.add(o);
-//             }
-//                 
-//            obj.put("trips", arr);  
-//            conn.close();
 
             latch.await();
         } catch (Exception ex) {
@@ -1636,28 +1378,7 @@ public class WebsiteServiceJersey {
                 }
                 });
 
-            
-//            ResultSet rs = getDBResultSet(query);
-//            obj.put("success", "1");
-//            obj.put("msg", "done");
-//            
-//            JSONArray arr = new JSONArray();
-//                   
-//            while(rs.next())
-//             {
-//                 int trip_id = rs.getInt(1);
-//                 Double yattitude = rs.getDouble(2);
-//                 Double xlongitude = rs.getDouble(3);
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("trip_id", trip_id);
-//                 o.put("yattitude", yattitude);
-//                 o.put("xlongitude", xlongitude);
-//                 arr.add(o);
-//             }
-//                 
-//            obj.put("pathwaymap", arr);  
-//            conn.close();
+                   
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -2078,34 +1799,8 @@ public class WebsiteServiceJersey {
                 }
                 });
             
+
             
-//            ResultSet rs = getDBResultSet(query);
-//            obj.put("success", "1");
-//            obj.put("msg", "done");
-//            
-//            JSONArray arr = new JSONArray();
-                   
-//            while(rs.next())
-//             {
-//                 String account_state = rs.getString(6);   
-//                 if(account_state.equals("pending")){
-//
-//                 int user_id = rs.getInt(1);
-//                 String fullname = rs.getString(3);
-//                 String gender = rs.getString(4);
-//                 String lastlogin_time = rs.getString(5);                
-//
-//                 JSONObject o = new JSONObject();
-//                 o.put("user_id", user_id);
-//                 o.put("fullname", fullname);
-//                 o.put("gender", gender);
-//                 o.put("lastlogin_time", lastlogin_time);
-//                 arr.add(o);
-//                 }
-//             }
-                 
-//            obj.put("members", arr);  
-//            conn.close();
 
             latch.await();
         } catch (Exception ex) {
@@ -2773,35 +2468,6 @@ public class WebsiteServiceJersey {
                 });
 
             
-            
-//            JSONArray arr = new JSONArray();
-                   
-//            while(rs.next())
-//             {
-//                 int trip_id = rs.getInt(1);
-//                 String start = rs.getString(2);
-//                 String end = rs.getString(3);
-//                 Double price = rs.getDouble(4);
-//                 String comment = rs.getString(5);
-//                 Double ratting = rs.getDouble(6);
-//                 int passenger_id = rs.getInt(7);    
-//                 int driver_id = rs.getInt(8);
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("trip_id", trip_id);
-//                 o.put("start", start);
-//                 o.put("end", end);
-//                 o.put("price", price);
-//                 o.put("comment", comment);
-//                 o.put("ratting", ratting);
-//                 o.put("passenger_id", passenger_id);
-//                 o.put("driver_id", driver_id);
-//                 arr.add(o);
-//             }
-//                 
-//            obj.put("trips", arr);  
-//            conn.close();
-
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -2928,63 +2594,7 @@ public class WebsiteServiceJersey {
                 }
                 });
             
-//            ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE driver_id = "+id);
-//            JSONObject driverobj = new JSONObject();   
-//            while(rs.next())
-//             {        
-//                 vid = rs.getInt(10);
-//                 driverobj.put("id", rs.getInt(1));
-//                 driverobj.put("name", rs.getString(2));
-//                 driverobj.put("sharp_turns_freq", rs.getDouble(3));
-//                 driverobj.put("lane_changing_freq", rs.getDouble(4));
-//                 driverobj.put("harch_acc_freq", rs.getDouble(5));
-//                 driverobj.put("last_trip_behavoir_map", rs.getBlob(6));
-//                 driverobj.put("wrong_u_turns_severity", rs.getDouble(7));
-//                 driverobj.put("harsh_breaking_freq", rs.getDouble(8));
-//                 driverobj.put("awareness_level", rs.getDouble(9));
-//                 driverobj.put("vehicle_id", vid);
-//                 driverobj.put("vehicle_datetime", rs.getString(11));
-//                 driverobj.put("email", rs.getString(12));
-//                 driverobj.put("password", rs.getString(13));
-//                 //driverobj.put("image", rs.getString(14));
-//                 
-//                 Blob imageBlob = rs.getBlob(14);
-//                 byte[] byteArray = imageBlob.getBytes(1, (int) imageBlob.length());
-//                 String str = new sun.misc.BASE64Encoder().encode(byteArray);
-//                 driverobj.put("image", str);
-//                 
-//             }            
-//            conn.close();
-            
-            
-//            ResultSet rs2 = getDBResultSet("SELECT * FROM route_restrictions WHERE driver_id = "+id);
-//            JSONArray ristrictedroute = new JSONArray();
-//            while(rs2.next())
-//            {
-//                JSONObject routeobj = new JSONObject(); 
-//                routeobj.put("xlongitude", rs2.getDouble(3));
-//                routeobj.put("ylatitude", rs2.getDouble(4));
-//                ristrictedroute.add(routeobj);
-//            }
-            
-//            ResultSet rs3 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+vid);
-//            JSONObject vobj = new JSONObject(); 
-//            while(rs3.next())
-//            {
-//                vobj.put("vehicle_id", rs3.getInt(1));
-//                vobj.put("model", rs3.getString(2));
-//                vobj.put("color", rs3.getString(3));
-//                vobj.put("plate_number", rs3.getString(5));
-//            }
-            
-            
-            
-//            obj.put("ristrictedroute", ristrictedroute);
-//            obj.put("driver", driverobj);
-//            obj.put("vehicle", vobj);
-//            obj.put("success", "1");
-//            obj.put("msg", "Done Successfully");
-//            conn.close();
+             
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -3114,23 +2724,7 @@ public class WebsiteServiceJersey {
                 });
             
                    
-//            while(rs.next())
-//             {
-//                 int did = rs.getInt(1);
-//                 String dname = rs.getString(2);
-//                 String demail = rs.getString(12);
-//                 int vid = rs.getInt(10);                
-//                 
-//                 JSONObject o = new JSONObject();
-//                 o.put("did", did);
-//                 o.put("dname", dname);
-//                 o.put("demail", demail);
-//                 o.put("vid", vid);
-//                 arr.add(o);
-//             }
                  
-//            obj.put("drivers", arr);  
-//            conn.close();
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");

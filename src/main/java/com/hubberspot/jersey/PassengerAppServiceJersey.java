@@ -68,15 +68,14 @@ public class PassengerAppServiceJersey {
 
     public static Firebase myFirebaseRef;
     
+    JSONObject resobj;
     int f;
-//    int min_id = 0;
-//    double min_distance = 0;
 
     @GET //test only
     @Path("/go")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getgo(){
-        String output = "gooooooooooooooooooooo Hebat" ;
+        String output = "gooooooooooooooooooooo Hebatest" ;
         return Response.status(200).entity(output).build();
     }
     
@@ -85,7 +84,7 @@ public class PassengerAppServiceJersey {
        HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://fcm.googleapis.com/fcm/send").openConnection()));
         httpcon.setDoOutput(true);
         httpcon.setRequestProperty("Content-Type", "application/json");
-        httpcon.setRequestProperty("Authorization", "key=AAAAT9pcEV8:APA91bHABEPrQ6Id8QQnGjEP7YFwdTMW1Mt6vI2wdMuK0D3j3_HiodBfx-Bg_2ApoA6k7Y0Kj3l9CfJgP98cKI7mERxH3ao5fXbQwqA9_9iE9VZemt2lYbX7VSCMpnpbYHDnXaopq1L1");
+        httpcon.setRequestProperty("Authorization", "key=AAAAT9pcEV8:APA91bHABEPrQ6Id8QQnGjEP7YFwdTMW1Mt6vI2wdMuK0D3j3_HiodBfx-Bg_2ApoA6k7Y0Kj3l9CfJgP98cKI7mERxH3ao5fXbQwqA9_9iE9VZemt2lYbX7VSCMpnpbYHDnXaopq1L1");//firebase key
         httpcon.setRequestMethod("POST");
         httpcon.connect();
         System.out.println("Connected!");
@@ -126,85 +125,8 @@ public class PassengerAppServiceJersey {
             return "error";
         }
     }
-//    public static String getFiredata(String url, String param ) throws Exception{
-//        
-//
-//        String charset = "UTF-8"; 
-//        URLConnection connection = new URL(url).openConnection();
-//        connection.setDoOutput(true); // Triggers POST.
-//        connection.setRequestProperty("Accept-Charset", charset);
-//        connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
-//
-//        OutputStream output = connection.getOutputStream();
-//        output.write(param.getBytes(charset));
-//
-//
-//        InputStream response = connection.getInputStream();
-//
-//        BufferedReader streamReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
-//        StringBuilder responseStrBuilder = new StringBuilder();
-//
-//        String inputStr;
-//        while ((inputStr = streamReader.readLine()) != null)
-//            responseStrBuilder.append(inputStr);
-//
-//        String s = responseStrBuilder.toString();
-//
-//       return s;
-//  }
-//    ResultSet getDBResultSet(String query) throws Exception{
-//                    
-//        Class.forName("com.mysql.jdbc.Driver");            
-//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-//        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-//        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");     
-//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-//        
-//        Statement st = conn.createStatement();
-//        ResultSet rs = st.executeQuery(query);
-//        return rs;            
-//    }
-//    void excDB(String query) throws Exception{
-//                    
-//        Class.forName("com.mysql.jdbc.Driver");            
-//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-//        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-//       // conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-//        
-//        Statement st = conn.createStatement();
-//        st.executeUpdate(query);
-//    }
-//    int excDBgetID(String query, String tableName) throws Exception{
-//                    
-//        Class.forName("com.mysql.jdbc.Driver");            
-//        //conn = DriverManager.getConnection("jdbc:mysql://localhost/hebadb?" + "user=root&password=");
-//        //conn = DriverManager.getConnection("jdbc:mysql://sql11.freesqldatabase.com/sql11164022?" + "user=sql11164022&password=GLj4H4TT5N");
-//        //conn = DriverManager.getConnection("jdbc:mysql://sql8.freesqldatabase.com/sql8166151?" + "user=sql8166151&password=CnJ3KUzlDR");
-//        conn = DriverManager.getConnection("jdbc:mysql://db4free.net/nashwa346db?" + "user=nashwa346&password=123456");
-//        //conn = DriverManager.getConnection("jdbc:mysql://johnny.heliohost.org/hobahob1_sharks?" + "user=hobahob1&password=HOBAHOBY1995");
-//        
-//        Statement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-////        ResultSet rs = st.executeQuery(query);
-////        ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()");
-////        int insertedid = 0;
-////        if (rs.next()){
-////            insertedid =rs.getInt(1);
-////        }
-//
-//        int insertedidrow = st.executeUpdate(query);
-//        ResultSet rs = st.executeQuery("select last_insert_id() as last_id from "+tableName);
-//        rs.next();
-//        int insertedid = rs.getInt("last_id");        
-//
-//        return insertedid;
-//    }
-//    
     
     
-    JSONObject resobj;
     @POST
     @Path("/getneardrivers")
     @Produces(MediaType.APPLICATION_JSON)    
@@ -218,32 +140,11 @@ public class PassengerAppServiceJersey {
             resobj = new JSONObject();
 
             JSONObject objj = JSONObject.fromObject(data);   
-//            int age = objj.getInt("age");            
-//            String fullname = objj.getString("fullname");
-//            int phone = objj.getInt("phone");
-//            int relatedphone = objj.getInt("relatedphone");  
-//            String password = objj.getString("password");
-//            String language = objj.getString("language");
-//            String gender = objj.getString("gender");    
 
             final double ilat = objj.getDouble("ilat");                        
             final double ilng = objj.getDouble("ilng");            
 
-
-            
             myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("age").setValue(age);
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("gender").setValue(gender);
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("fullname").setValue(fullname);
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("phone").setValue(phone);
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("password").setValue(password);
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("relatedphone").setValue(relatedphone);
-//            myFirebaseRef.child("passenger").child(String.valueOf(2)).child("language").setValue(language);
-//           
-
-            
-
 
                 myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -520,11 +421,9 @@ public class PassengerAppServiceJersey {
             
 
 //            JSONObject obj = new JSONObject();
-            CountDownLatch latch = new CountDownLatch(1);
+            final CountDownLatch latch = new CountDownLatch(1);
            f=0;
-//                int insertedid = excDBgetID("INSERT INTO passenger (fullname, useremail, phone, password,relatedphone,gender, age, language)"+
-//                      " VALUES ( '"+name+"', '"+email+"', '"+phone+"', '"+password+"', '"+relatedphone+"', '"+gender+"', '"+age+"', '"+language+"')", "passenger");
-//                
+           
                 //get children count
                 
                 myFirebaseRef.child("passenger").addValueEventListener(new ValueEventListener() {
@@ -535,8 +434,6 @@ public class PassengerAppServiceJersey {
                         
                         long count = dataSnapshot.getChildrenCount();      
                         long insertedid = count+1;
-                        
-                        
                         
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("age").setValue(age);
                         myFirebaseRef.child("passenger").child(String.valueOf(insertedid)).child("useremail").setValue(email);
@@ -552,6 +449,7 @@ public class PassengerAppServiceJersey {
                             resobj.put("msg", "Added Successfully");
 
                             resobj.put("insertedid", insertedid);
+                            latch.countDown();
                         }
                     }
 
@@ -589,10 +487,6 @@ public class PassengerAppServiceJersey {
         resobj = new JSONObject();
         final CountDownLatch latch = new CountDownLatch(1);
         try {
-//            ResultSet rs = getDBResultSet(query);
-//            resobj.put("success", "1");
-//            resobj.put("msg", "done");
-            
             tripsarr = new JSONArray();
             
            
@@ -667,44 +561,6 @@ public class PassengerAppServiceJersey {
                     
                 }
                 });
-
-//             while(rs.next())
-//             {
-//                 int trip_id = rs.getInt(1);
-//                 String start = rs.getString(2);
-//                 String end = rs.getString(3);
-//                 String price = rs.getString(4);  
-//                 String comment = rs.getString(5);
-//                 String ratting = rs.getString(6);
-//                 String passenger_id= rs.getString(8);
-//                                     
-//                 JSONObject o = new JSONObject();
-//                 o.put("trip_id",trip_id  );
-//                 o.put("start", start);
-//                 o.put("end", end);
-//                 o.put("price ",price );
-//                 o.put("comment", comment);
-//                 o.put("ratting", ratting);
-//                 o.put("passenger_id",passenger_id);
-//                 
-//                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-//                 ResultSet rs2 = getDBResultSet(query2);
-//                 JSONArray paths = new JSONArray();
-//                 while(rs2.next())
-//                {
-//                    Double lat = rs2.getDouble("yattitude");                    
-//                    Double lng = rs2.getDouble("xlongitude");
-//                    JSONObject latlng = new JSONObject();
-//                    latlng.put("lat", lat);                    
-//                    latlng.put("lng", lng);
-//                    paths.add(latlng);
-//                }
-//                 o.put("pathway",paths);
-//                 arr.add(o);
-//             }
-               //conn.close();
-
-//            resobj.put("lasttrips", arr);  
     
             latch.await();
         } catch (Exception ex) {
@@ -789,50 +645,6 @@ public class PassengerAppServiceJersey {
                 });
         
         
-//            ResultSet rs = getDBResultSet("SELECT * FROM trip WHERE trip_id = "+id);
-//            JSONObject tripobj = new JSONObject();   
-//            while(rs.next())
-//             {           
-//                
-//                 String start = rs.getString(2);
-//                 String end = rs.getString(3);
-//                 String price = rs.getString(4);  
-//                 String comment = rs.getString(5);
-//                 String ratting = rs.getString(6);
-//                 String passenger_id = rs.getString(7);
-//                 String driver_id = rs.getString(8);
-//                 
-//                 
-//                 tripobj.put("start", start);
-//                 tripobj.put("end", end);
-//                 tripobj.put("price", price);
-//                 tripobj.put("comment",  comment);
-//                 tripobj.put("ratting", ratting);
-//                 tripobj.put("passenger_id", passenger_id);
-//                tripobj.put("driver_id ",  driver_id );
-//                
-//                    
-//                 String query2 = "SELECT * FROM pathwaymap WHERE trip_id = "+id;
-//                 ResultSet rs2 = getDBResultSet(query2);
-//                 JSONArray paths = new JSONArray();
-//                 while(rs2.next())
-//                {
-//                    Double lat = rs2.getDouble("yattitude");                    
-//                    Double lng = rs2.getDouble("xlongitude");
-//                    JSONObject latlng = new JSONObject();
-//                    latlng.put("lat", lat);                    
-//                    latlng.put("lng", lng);
-//                    paths.add(latlng);
-//                }
-//                 tripobj.put("pathway",paths);
-//                
-//                obj.put("trip", tripobj);
-//             }
-//            //obj.put("trip", tripobj);
-//            obj.put("success", "1");
-//            obj.put("msg", "Selected Successfully");
-//            
-//            conn.close();
             latch.await();
         } catch (Exception ex) {
             resobj.put("success", "0");
@@ -875,18 +687,6 @@ public class PassengerAppServiceJersey {
             resobj.put("success", "1");
             resobj.put("msg", "Edited Successfully");
             
-//            JSONObject obj = new JSONObject();
-//            try {
-//                excDB("update passenger set fullname='"+name+"',useremail='"+email+"',phone="+phone+",password='"+password+"',relatedphone="+relatedphone+" where passenger_id='"+id+"'");
-//                
-//                obj.put("success", "1");
-//                obj.put("msg","'"+data+"' update successful");
-//                conn.close();
-//            } catch (Exception ex) {
-//                obj.put("success", "0");
-//                obj.put("msg", ex.getMessage());
-//                Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-//            }
         
         return Response.status(200).entity(resobj).build();
     }
@@ -906,21 +706,7 @@ public class PassengerAppServiceJersey {
         
         resobj=new JSONObject();
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-//        JSONObject obj = new JSONObject();
-//        try {
-//         
-//            //excDB("INSERT INTO trip (comment, trip_id, ratting)"+" VALUES ( '"+comment+"',  "+tripid+", "+rate+")");
-//            excDB("UPDATE trip SET comment = '"+comment+"', ratting = '"+rate+"' WHERE trip_id = "+tripid+" ");
-//
-//            obj.put("success", "1");
-//            obj.put("msg", " Success");
-//            
-//            conn.close();
-//        } catch (Exception ex) {
-//            obj.put("success", "0");
-//            obj.put("msg", ex.getMessage());
-//            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+
             myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("comment").setValue(comment);
             myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ratting").setValue(rate);
 
@@ -990,26 +776,32 @@ public class PassengerAppServiceJersey {
                                       }
                                   }
                                   if(!intripflag){//not on trip socheck distance
-                                    double dist = mindis = distance(ilat, vlat, ilng, vlng);
-                                    if(mindis == 0){
-                                       mindis = dist;
-                                       minid = nvid;
-                                    }
-                                    else if (dist<mindis){
-                                       mindis = dist;
-                                       minid = nvid;
+                                    double dist = distance(ilat, vlat, ilng, vlng);
+                                    if(dist<= 100000){
+                                        if(mindis == 0){
+                                           mindis = dist;
+                                           minid = nvid;
+                                        }
+                                        else if (dist<mindis){
+                                           mindis = dist;
+                                           minid = nvid;
+                                        }
                                     }
                                 }
                              }
                              selectednearvid=minid;
                         }
-                        else
+                        else{
                             selectednearvid=nearestvehicleid;
+                        }
                         
                         
-                        
-                        
-                        
+                        //if vid == 0 so there is no near drivers
+                        if(selectednearvid==0){
+                            resobj.put("success", "0");
+                            resobj.put("msg","There is no empty nearby drivers!");
+                            latch.countDown();
+                        }else{
                         //////////////////
                         
                         String selecteddrivertoken = "";
@@ -1053,33 +845,6 @@ public class PassengerAppServiceJersey {
                                 tripid++;
                         }
 //                        ////////////////////////////////////////////////////////////////////////////////
-//                        int pickupSelectedDriverID = 0;
-//                        ResultSet rs = getDBResultSet("SELECT * FROM driver WHERE vehicle_id = "+nearestvehicleid);
-//                        while(rs.next())
-//                        {
-//                            JSONObject d = new JSONObject();
-//                             String fullname = rs.getString(2);
-//                             pickupSelectedDriverID = rs.getInt(1);
-//
-//                             d.put("driver_id", pickupSelectedDriverID);
-//                             d.put("fullname", fullname);
-//                             obj.put("driver", d);
-//                         }
-//                        ResultSet rs2 = getDBResultSet("SELECT * FROM vehicle WHERE vehicle_id = "+nearestvehicleid);
-//                        while(rs2.next())
-//                        {
-//                            JSONObject v = new JSONObject();
-//                             String model = rs2.getString(2);
-//                             String color = rs2.getString(3);
-//                             String plate_number = rs2.getString(5);
-//
-//                             v.put("vehicle_id", nearestvehicleid);
-//                             v.put("model", model);
-//                             v.put("color", color);
-//                             v.put("plate_number", plate_number);
-//                             obj.put("vehicle", v);
-//                         }
-//                        int tripid = excDBgetID("INSERT INTO trip(passenger_id, dr0iver_id,start,end,price,comment,ratting) VALUES ("+passengerid+","+pickupSelectedDriverID+",'2017-00-00 00:00:00','2017-00-00 00:00:00','0.0','.',0.0)", "trip");
                         //set trip status
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("status").setValue("requested");
                         myFirebaseRef.child("trips").child(String.valueOf(tripid)).child("ilat").setValue(ilat);
@@ -1105,10 +870,11 @@ public class PassengerAppServiceJersey {
                         resobj.put("tripid", tripid);
                         resobj.put("success", "1");
                         resobj.put("msg","Done successful");
-//                        conn.close();
-//                        conn=null;
+                        
                         response = Response.status(200).entity(resobj).build();
                         latch.countDown();
+                        }
+                        
                     }
                     }
                     @Override
@@ -1117,17 +883,7 @@ public class PassengerAppServiceJersey {
                     }
                         
                     });
-                    
-//                        } catch (Exception ex) {
-//                            obj.put("success", "0");
-//                            obj.put("msg", ex.getMessage());
-//                            Logger.getLogger(WebsiteServiceJersey.class.getName()).log(Level.SEVERE, null, ex);
-//                            response=Response.status(200).entity(obj).build();
-////                            latch.countDown();
-//                        }
-//                        
-
-              
+                                 
 
             latch.await();
         } catch (Exception ex) {
@@ -1189,7 +945,6 @@ public class PassengerAppServiceJersey {
             resobj.put("success", "1");
             resobj.put("msg", "Edited Successfully");
             
-//            conn.close();
         } catch (Exception ex) {
             resobj.put("success", "0");
             resobj.put("msg", ex.getMessage());
