@@ -2655,7 +2655,7 @@ public class WebsiteServiceJersey {
                // myFirebaseRef.child("vehicles").child(String.valueOf(nearvid)).child("status").setValue(1);
             }
 
-            myFirebaseRef.child("warning").child("femalesaftey").child(String.valueOf(fid)).child("status").setValue("closed");
+            myFirebaseRef.child("warning").child("femalesaftey").child(String.valueOf(fid)).child("status").setValue("ended");
 
             resobj.put("success", "1");
             resobj.put("msg", "Assigned Successfully");
