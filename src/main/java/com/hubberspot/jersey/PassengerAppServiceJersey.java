@@ -679,7 +679,9 @@ public class PassengerAppServiceJersey {
             //myFirebaseRef.child("passenger").child(String.valueOf(id)).child("gender").setValue(gender);
             myFirebaseRef.child("passenger").child(String.valueOf(id)).child("fullname").setValue(name);
             myFirebaseRef.child("passenger").child(String.valueOf(id)).child("phone").setValue(phone);
-            myFirebaseRef.child("passenger").child(String.valueOf(id)).child("password").setValue(password);
+            if(!password.equals("")){
+                myFirebaseRef.child("passenger").child(String.valueOf(id)).child("password").setValue(password);
+            }
             myFirebaseRef.child("passenger").child(String.valueOf(id)).child("relatedphone").setValue(relatedphone);
             myFirebaseRef.child("passenger").child(String.valueOf(id)).child("useremail").setValue(email);
             //myFirebaseRef.child("passenger").child(String.valueOf(id)).child("language").setValue(language);
