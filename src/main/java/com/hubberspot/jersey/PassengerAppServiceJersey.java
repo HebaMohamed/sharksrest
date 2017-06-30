@@ -404,7 +404,7 @@ public class PassengerAppServiceJersey {
     @Path("/signup")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response passengersignup(String data) throws Exception{//note : img is byte array string
+    public Response passengersignup(String data) throws Exception{
             //as post request
             JSONObject dataObj = JSONObject.fromObject(data);
             final String name = dataObj.getString("name");
