@@ -109,7 +109,9 @@ public class DriverAppServiceJersey {
                 myFirebaseRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        
+                      
+                        int ff=0;
+
                         if(f==0){
                             f=1;
                         JSONObject d = new JSONObject();
@@ -161,12 +163,12 @@ public class DriverAppServiceJersey {
                                 
                                 
                                 
-                                f=1;
+                                ff=1;
 //                                response = Response.status(200).entity(resobj).build();
                                 latch.countDown();
                             }
                             else{
-                                if(f==0){//
+                                if(ff==0){//
                                     resobj.put("success", "0");
                                     resobj.put("msg", "Wrong cred");
                                 }

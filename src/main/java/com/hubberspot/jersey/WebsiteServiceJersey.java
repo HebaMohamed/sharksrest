@@ -1196,7 +1196,7 @@ public class WebsiteServiceJersey {
         try {
         resobj = new JSONObject();
         myFirebaseRef = new Firebase("https://sharksmapandroid-158200.firebaseio.com/");
-        myFirebaseRef.child("monitoring_member").child(String.valueOf(id)).child("account_state").removeValue();
+        myFirebaseRef.child("monitoring_member").child(String.valueOf(id)).removeValue();
 
             resobj.put("success", "1");
             resobj.put("msg", "Removed Successfully");
@@ -2197,6 +2197,13 @@ public class WebsiteServiceJersey {
 
 //                                    String details = postSnapshot.child("details").getValue(String.class);
                                     int did = postSnapshot.child("did").getValue(int.class);
+                                         
+                                    if(status.equals("ignored")){
+                                        ignoredcount++;
+                                    }
+                                    else{
+                                        acceptedcount++;
+                                    }
                                     if(did == id && status.equals("ended")){
                                     
                                     String end = postSnapshot.child("end").getValue(String.class);
@@ -2205,12 +2212,7 @@ public class WebsiteServiceJersey {
                                     String start = postSnapshot.child("start").getValue(String.class);
                                     String comment = postSnapshot.child("comment").getValue(String.class);
 
-                                    if(status.equals("ignored")){
-                                        ignoredcount++;
-                                    }
-                                    else{
-                                        acceptedcount++;
-                                    }
+                               
 
                                     
                                     double fromlat = postSnapshot.child("ilat").getValue(double.class);
