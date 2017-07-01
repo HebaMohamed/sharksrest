@@ -431,6 +431,10 @@ public class DriverAppServiceJersey {
                             }
                         
                          
+                            
+                            myFirebaseRef.child("trips").child(String.valueOf(id)).child("end").setValue(System.currentTimeMillis());
+                            
+                            
                         JSONArray paths = new JSONArray();
 
                         for (DataSnapshot postSnapshot : dataSnapshot.child("trips").child(String.valueOf(id)).child("pathway").getChildren()) {
@@ -463,6 +467,8 @@ public class DriverAppServiceJersey {
                             //get pattrens during trip
                             long start = dataSnapshot.child("trips").child(String.valueOf(id)).child("start").getValue(long.class);
                             long end = dataSnapshot.child("trips").child(String.valueOf(id)).child("end").getValue(long.class);
+                            int did = dataSnapshot.child("trips").child(String.valueOf(id)).child("did").getValue(int.class);
+
                             for (DataSnapshot postSnapshot : dataSnapshot.child("vehicles").child(String.valueOf(vehicleid)).child("Patterns detected").getChildren()) {
                                 long patrentimestamp = Long.parseLong(postSnapshot.getName());
                                 if(patrentimestamp>=start && patrentimestamp <= end){//m3ana
@@ -540,17 +546,21 @@ public class DriverAppServiceJersey {
                                     
                             
                         
-                        
+
                             //add it
                             double distancecost = 10;//basic fare
                             distancecost+= (int) (KMCOST*(fulldistance/1000));
+                            myFirebaseRef.child("trips").child(String.valueOf(id)).child("price").setValue(distancecost);
+
+                            double lastwallet = dataSnapshot.child("driver").child(String.valueOf(did)).child("wallet").getValue(double.class);
+                                                        
                             resobj.put("distance", fulldistance);
                             resobj.put("distancecost", distancecost);
                             resobj.put("pattrenobj", pattrenobj);
                             resobj.put("pattrennames", pattrennames);
+                            resobj.put("lastwallet", lastwallet);
+
                             
-                            myFirebaseRef.child("trips").child(String.valueOf(id)).child("end").setValue(System.currentTimeMillis());
-                            myFirebaseRef.child("trips").child(String.valueOf(id)).child("price").setValue(distancecost);
                                                        
                             resobj.put("success", "1");
                             resobj.put("msg", "Trip Ended Successfully");
