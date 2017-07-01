@@ -2486,7 +2486,7 @@ public class WebsiteServiceJersey {
     @GET
     @Path("/getfemaleevent/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getFemaleEvent(@PathParam("timestamp") final int timestamp){
+    public Response getFemaleEvent(@PathParam("timestamp") final long timestamp){
 //        JSONObject obj = new JSONObject();
 
             resobj = new JSONObject();
