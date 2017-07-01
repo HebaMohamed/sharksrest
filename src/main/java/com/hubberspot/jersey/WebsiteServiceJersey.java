@@ -754,7 +754,7 @@ public class WebsiteServiceJersey {
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("lng").setValue("0");
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("model").setValue(vmodel);
                     myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("plate_number").setValue(vplatenumber);
-                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("status").setValue("0");
+                    myFirebaseRef.child("vehicles").child(String.valueOf(insertedid)).child("status").setValue(0);
 
                     resobj.put("success", "1");
                     resobj.put("msg", "Added Successfully");
